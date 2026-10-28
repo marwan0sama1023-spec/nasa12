@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050814">
+  <meta name="description" content="Planetary Exploration — منصة علمية تفاعلية لاستكشاف البيئات الأرضية الشبيهة بالقمر والمريخ بالاستناد إلى معلومات وصور NASA.">
+  <title>Planetary Exploration | استكشاف البيئات الكوكبية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Dynamic 3D Spaceship Cockpit Viewport Engine -->
+  <canvas id="space-viewport-canvas" class="space-viewport-canvas" aria-hidden="true"></canvas>
+
+  <!-- Spaceship Bridge HUD / Cockpit Canopy Frame -->
+  <div class="cockpit-hud-overlay" aria-hidden="true">
+    <div class="hud-corner hud-top-left">
+      <span class="hud-label">ORBITAL FLIGHT DECK</span>
+      <span class="hud-meta">STATUS: NOMINAL ✦ 0.42c</span>
+    </div>
+    <div class="hud-corner hud-top-right">
+      <span class="hud-label">TELEMETRY SYSTEM</span>
+      <span class="hud-meta" id="hud-telemetry-target">ORBIT: MOON & MARS</span>
+    </div>
+    <div class="hud-corner hud-bottom-left">
+      <span class="hud-reticle">◱ [VECTOR: 184° · TILT +0.2°]</span>
+    </div>
+    <div class="hud-corner hud-bottom-right">
+      <span class="hud-reticle">[THRUST: IONIC DRIVE] ◲</span>
+    </div>
+    <div class="cockpit-canopy-vignette"></div>
+  </div>
+
+  <!-- Ambient Space Lighting Effects -->
+  <div class="ambient-nebula" aria-hidden="true">
+    <div class="cosmic-particles"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#home" aria-label="الصفحة الرئيسية">
+        <div class="brand-orbit-logo" aria-hidden="true">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="22" cy="22" rx="18" ry="8" stroke="url(#logo-grad-1)" stroke-width="1.8" transform="rotate(-26 22 22)" stroke-dasharray="80 15"/>
+            <circle cx="22" cy="22" r="7.5" fill="url(#logo-grad-core)"/>
+            <circle cx="22" cy="22" r="11" stroke="rgba(0, 210, 255, 0.25)" stroke-width="1" stroke-dasharray="3 3"/>
+            <circle cx="9" cy="26" r="3" fill="#38bdf8"/>
+            <circle cx="34" cy="17" r="2.4" fill="#ff6b4a"/>
+            <path d="M22 10.5V13.5M22 30.5V33.5M10.5 22H13.5M30.5 22H33.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="logo-grad-1" x1="4" y1="22" x2="40" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00d2ff"/>
+                <stop offset="0.5" stop-color="#818cf8"/>
+                <stop offset="1" stop-color="#ff6b4a"/>
+              </linearGradient>
+              <linearGradient id="logo-grad-core" x1="14.5" y1="14.5" x2="29.5" y2="29.5" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38bdf8"/>
+                <stop offset="1" stop-color="#1e3a8a"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <strong>Planetary Exploration</strong>
+          <small>PLANETARY SCIENCE · ANALOG EXPLORATION</small>
+        </div>
+      </a>
+
+      <div class="project-tag">
+        <span class="status-dot"></span>
+        <span>منصة استكشاف علمية تفاعلية</span>
+      </div>
+
+      <nav class="main-nav" aria-label="التنقل الرئيسي">
+        <a href="#home" data-nav="home">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+          <span class="nav-label-text">الرئيسية</span>
+        </a>
+        <a href="#lunar" data-nav="lunar">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </span>
+          <span class="nav-label-text">بيئات شبيهة بالقمر</span>
+          <span class="nav-badge lunar-badge">Moon</span>
+        </a>
+        <a href="#mars-analogs" data-nav="mars-analogs">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M18 6l4-4m0 0h-4m4 0v4"/></svg>
+          </span>
+          <span class="nav-label-text">بيئات شبيهة بالمريخ</span>
+          <span class="nav-badge mars-badge">Mars</span>
+        </a>
+        <a href="#map" data-nav="map">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+          </span>
+          <span class="nav-label-text">الخريطة التفاعلية</span>
+        </a>
+        <a href="#gallery" data-nav="gallery">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          </span>
+          <span class="nav-label-text">معرض الصور</span>
+        </a>
+        <a href="#why" data-nav="why">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/></svg>
+          </span>
+          <span class="nav-label-text">لماذا تهمنا هذه البيئات؟</span>
+        </a>
+        <a href="#game" data-nav="game">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg>
+          </span>
+          <span class="nav-label-text">Space Explorer</span>
+        </a>
+        <a href="#team" data-nav="team">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span class="nav-label-text">عن الفريق</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-note">
+        <div class="note-kicker">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span>قاعدة الاستكشاف</span>
+        </div>
+        <p>اكتشف أوجه الشبه والاختلاف بين ستة مواقع أرضية وعوالم القمر والمريخ بمراجع NASA.</p>
+      </div>
+
+      <div class="sidebar-footer">
+        <span>NASA · PLANETARY ANALOGS</span>
+        <span class="tech-version">v2.4 · 2026</span>
+      </div>
+    </aside>
+
+    <button class="sidebar-backdrop" id="sidebar-backdrop" type="button" aria-label="إغلاق القائمة"></button>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="topbar-start">
+          <button class="icon-button mobile-menu" id="menu-toggle" aria-label="فتح القائمة" title="القائمة">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="breadcrumb">
+            <span class="brand-crumb">مركز الاستكشاف</span>
+            <span class="sep">/</span>
+            <strong id="breadcrumb-current">الرئيسية</strong>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch the site to English" title="Switch language to English">English</button>
+          <button class="warp-toggle-btn" id="warp-toggle-btn" type="button" aria-pressed="false" title="تفعيل محرك السرعة الفضائية (Warp Drive)">
+            <span class="warp-glow-dot"></span>
+            <span class="warp-icon-ship">🚀</span>
+            <span class="warp-text">السرعة: <b id="warp-status-text">طبيعية</b></span>
+          </button>
+          <div class="data-status">
+            <span class="live-indicator"></span>
+            <span>NASA GIBS · صور مؤرخة</span>
+          </div>
+          <button class="icon-button top-guide-btn" onclick="document.getElementById('guide-launcher').click()" title="مساعد الاستكشاف الذكي" aria-label="مساعد الاستكشاف">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main id="app" tabindex="-1"></main>
+
+      <footer class="page-footer">
+        <div class="footer-left">
+          <strong>Planetary Exploration</strong>
+          <span>· منصة استكشاف علمية تفاعلية مبنية على بيانات وصور وكالة ناسا (NASA).</span>
+        </div>
+        <div class="footer-right">
+          <span>البيئات الأرضية تساعد على الاختبار والمحاكاة، لكنها لا تطابق عوالم القمر أو المريخ.</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modern Floating AI Exploration Assistant Launcher -->
+  <button class="guide-launcher" id="guide-launcher" aria-label="افتح مساعد الاستكشاف" title="مساعد الاستكشاف">
+    <div class="guide-launcher-glow"></div>
+    <div class="guide-launcher-icon">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/>
+      </svg>
+    </div>
+    <span class="guide-ping"></span>
+  </button>
+
+  <!-- Modern Floating AI Exploration Assistant Panel -->
+  <section class="guide-panel" id="guide-panel" aria-label="مساعد الاستكشاف" hidden>
+    <div class="guide-head">
+      <div class="guide-head-info">
+        <div class="guide-orbit-avatar">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/></svg>
+        </div>
+        <div>
+          <strong>مساعد الاستكشاف</strong>
+          <small>إجابات من سجل المشروع · دون اتصال بنموذج خارجي</small>
+        </div>
+      </div>
+      <button class="icon-button guide-close-btn" id="guide-close" aria-label="إغلاق المساعد">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="guide-messages" id="guide-messages" aria-live="polite"></div>
+    <div class="guide-prompts-label">أسئلة مقترحة:</div>
+    <div class="guide-prompts" id="guide-prompts"></div>
+    <form class="guide-form" id="guide-form">
+      <input id="guide-input" autocomplete="off" placeholder="اسأل عن بيئة، موقع، أو منهجية المقارنة…" aria-label="اكتب سؤالًا">
+      <button type="submit" aria-label="إرسال السؤال" title="إرسال">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </button>
+    </form>
+  </section>
+
+  <noscript><div class="noscript">يلزم تفعيل JavaScript لاستخدام الخريطة التفاعلية والتنقل.</div></noscript>
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="i18n.js"></script>
+  <script src="game-samples.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

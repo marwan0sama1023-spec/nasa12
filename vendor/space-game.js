@@ -38235,7 +38235,10 @@ var SpacePreview = class {
     const moon = new Mesh(new SphereGeometry(0.78, 24, 18), new MeshStandardMaterial({ color: 9936293, roughness: 1 }));
     moon.position.set(-3.1, 0.25, -3.2);
     this.scene.add(moon);
-    if (!config.character || config.character === "alien") this.scene.add(makeCharacter("alien", config.character ? 0 : -1.1));
+    if (!config.character || config.character === "alien") {
+      this.scene.add(makeCharacter("alien", -0.8));
+      this.scene.add(makeCharacter("alien", 0.8));
+    }
     if (!config.character || config.character === "astronaut") {
       this.astronaut = makeCharacter("astronaut", config.character ? 0 : 1.55);
       this.astronaut.scale.setScalar(0.9);
@@ -38268,106 +38271,6 @@ var SpacePreview = class {
   dispose() {
     this.renderer.setAnimationLoop(null);
     this.resizeObserver?.disconnect();
-    disposeScene(this.scene);
-    this.renderer.dispose();
-    this.renderer.domElement.remove();
-  }
-};
-var PlanetStrip = class {
-  constructor(container, world) {
-    this.container = container;
-    this.scene = new Scene();
-    this.camera = new OrthographicCamera(-4, 4, 0.62, -0.62, 0.1, 30);
-    this.camera.position.set(0, 0, 12);
-    this.scene.add(new HemisphereLight(14478591, 1581101, 2.2));
-    const keyLight = new DirectionalLight(16777215, 3.4);
-    keyLight.position.set(-4, 5, 8);
-    this.scene.add(keyLight);
-    this.renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
-    this.renderer.setClearColor(0, 0);
-    this.renderer.outputColorSpace = SRGBColorSpace;
-    this.renderer.domElement.setAttribute("aria-hidden", "true");
-    container.append(this.renderer.domElement);
-    this.planets = [];
-    const specifications = [
-      { key: "mercury", name: "\u0639\u0637\u0627\u0631\u062F", radius: 0.22, color: 9670537, speed: 0.65 },
-      { key: "venus", name: "\u0627\u0644\u0632\u0647\u0631\u0629", radius: 0.27, color: 14136444, speed: -0.42 },
-      { key: "earth", name: "\u0627\u0644\u0623\u0631\u0636", radius: 0.28, color: 3378128, texture: "assets/earth-blue-marble.jpg", speed: 0.8 },
-      { key: "moon", name: "\u0627\u0644\u0642\u0645\u0631", radius: 0.12, color: 14870768, speed: 0.55 },
-      { key: "mars", name: "\u0627\u0644\u0645\u0631\u064A\u062E", radius: 0.25, color: 12997431, texture: "assets/mars-global-marci.jpg", speed: 0.72 },
-      { key: "jupiter", name: "\u0627\u0644\u0645\u0634\u062A\u0631\u064A", radius: 0.37, color: 13145454, jupiter: true, speed: 0.9 },
-      { key: "saturn", name: "\u0632\u062D\u0644", radius: 0.34, color: 14139790, saturn: true, speed: 0.78 },
-      { key: "uranus", name: "\u0623\u0648\u0631\u0627\u0646\u0648\u0633", radius: 0.3, color: 7454151, speed: -0.55 },
-      { key: "neptune", name: "\u0646\u0628\u062A\u0648\u0646", radius: 0.3, color: 3567569, speed: 0.58 }
-    ];
-    specifications.forEach((specification) => {
-      const group = new Group();
-      const material = new MeshStandardMaterial({
-        color: specification.color,
-        roughness: specification.key === "venus" ? 0.76 : 0.88,
-        metalness: 0
-      });
-      if (specification.texture) {
-        new TextureLoader().load(specification.texture, (texture) => {
-          texture.colorSpace = SRGBColorSpace;
-          material.map = texture;
-          material.needsUpdate = true;
-        });
-      } else if (specification.key === "moon") {
-        material.map = createMoonRegolithProceduralTexture();
-        material.map.colorSpace = SRGBColorSpace;
-      } else if (specification.jupiter) {
-        material.map = createJupiterAtmosphereTexture();
-        material.map.colorSpace = SRGBColorSpace;
-      }
-      const sphere = new Mesh(new SphereGeometry(specification.radius, 24, 18), material);
-      group.add(sphere);
-      if (specification.saturn) {
-        const rings = new Mesh(
-          new RingGeometry(specification.radius * 1.35, specification.radius * 1.9, 40),
-          new MeshStandardMaterial({ color: 14139790, roughness: 0.8, side: DoubleSide })
-        );
-        group.add(rings);
-      }
-      this.scene.add(group);
-      this.planets.push({ group, sphere, specification });
-    });
-    this.resizeObserver = new ResizeObserver(() => this.resize());
-    this.resizeObserver.observe(container);
-    this.resize();
-    this.lastFrame = performance.now();
-    this.renderer.setAnimationLoop(() => {
-      const now = performance.now();
-      const delta = Math.min((now - this.lastFrame) / 1e3, 0.05);
-      this.lastFrame = now;
-      this.planets.forEach((planet) => {
-        planet.sphere.rotation.y += delta * planet.specification.speed;
-        if (planet.specification.saturn) planet.group.children[1].rotation.z = 0.18;
-      });
-      this.renderer.render(this.scene, this.camera);
-    });
-  }
-  resize() {
-    const width = this.container.clientWidth;
-    const height = this.container.clientHeight;
-    if (!width || !height) return;
-    this.renderer.setSize(width, height, false);
-    const aspect2 = width / height;
-    const halfHeight = 0.62;
-    this.camera.left = -halfHeight * aspect2;
-    this.camera.right = halfHeight * aspect2;
-    this.camera.top = halfHeight;
-    this.camera.bottom = -halfHeight;
-    this.camera.updateProjectionMatrix();
-    const spacing = halfHeight * aspect2 * 2 / this.planets.length;
-    this.planets.forEach((planet, index) => {
-      planet.group.position.set((index - (this.planets.length - 1) / 2) * spacing, 0, 0);
-    });
-  }
-  dispose() {
-    this.renderer.setAnimationLoop(null);
-    this.resizeObserver.disconnect();
     disposeScene(this.scene);
     this.renderer.dispose();
     this.renderer.domElement.remove();
@@ -38456,8 +38359,6 @@ var SpaceWorld = class {
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.physics = this.createPhysics();
     this.renderer = makeRenderer(this.container, this.quality === "high" ? 1.3 : this.quality === "medium" ? 1 : 0.8);
-    const planetStripHost = this.hud.querySelector("#game-planet-strip-canvas");
-    this.planetStrip = planetStripHost ? new PlanetStrip(planetStripHost, config.world) : null;
     this.initAudioSynthesizer();
     this.createLighting();
     this.createWorld();
@@ -39809,7 +39710,7 @@ var SpaceWorld = class {
       this.playerBody.velocity.set(0, 0, 0);
       this.playerBody.aabbNeedsUpdate = true;
       this.cameraYaw = resume.cameraYaw;
-      this.cameraPitch = MathUtils.clamp(resume.cameraPitch, -0.72, 0.4);
+      this.cameraPitch = resume.cameraPitch;
     }
     const leadFace = this.config.character === "astronaut" ? "assets/crew/crew-lead.jpg" : null;
     this.playerModel = makeCharacter(this.config.character, 0, leadFace);
@@ -40041,7 +39942,7 @@ var SpaceWorld = class {
     this.onPointerMove = (event) => {
       if (!this.isPointerLocked) return;
       this.cameraYaw -= event.movementX * 24e-4 * this.mouseSensitivity;
-      this.cameraPitch = MathUtils.clamp(this.cameraPitch - event.movementY * 18e-4 * this.mouseSensitivity, -0.72, 1.25);
+      this.cameraPitch -= event.movementY * 18e-4 * this.mouseSensitivity;
     };
     this.onPointerLock = () => {
       this.isPointerLocked = document.pointerLockElement === this.renderer.domElement;
@@ -40174,7 +40075,7 @@ var SpaceWorld = class {
         lastX = touch.clientX;
         lastY = touch.clientY;
         this.cameraYaw -= dx * 55e-4 * this.mouseSensitivity;
-        this.cameraPitch = MathUtils.clamp(this.cameraPitch - dy * 35e-4 * this.mouseSensitivity, -0.72, 1.25);
+        this.cameraPitch -= dy * 35e-4 * this.mouseSensitivity;
       }, { passive: true });
     }
   }
@@ -41627,7 +41528,7 @@ function makeCharacter(kind, x, faceUrl = null) {
     roughness: 0.12,
     metalness: faceUrl ? 0.02 : 0.35,
     transparent: true,
-    opacity: faceUrl ? 0.1 : 0.82,
+    opacity: faceUrl ? 0.35 : 0.82,
     depthWrite: false
   });
   const torso = new Mesh(new CapsuleGeometry(kind === "alien" ? 0.29 : 0.33, 0.52, 4, 8), suit);

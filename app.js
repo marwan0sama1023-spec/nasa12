@@ -743,12 +743,8 @@ function getActiveGameWorld() {
   };
 }
 function gamePlanetStripMarkup(world) {
-  const planets = [
-    ["mercury", "عطارد"], ["venus", "الزهرة"], ["earth", "الأرض"], ["moon", "القمر"],
-    ["mars", "المريخ"], ["jupiter", "المشتري"], ["saturn", "زحل"], ["uranus", "أورانوس"], ["neptune", "نبتون"]
-  ];
-  const active = world === "moon" ? new Set(["moon"]) : new Set([world]);
-  return `<div class="game-planet-strip" style="--planet-count:${planets.length}" aria-label="مواقع الكواكب وموقع اللاعب"><div class="game-planet-strip-canvas" id="game-planet-strip-canvas"></div><div class="game-planet-strip-labels">${planets.map(([key, label]) => `<span data-active="${active.has(key)}">${label}</span>`).join("")}</div></div>`;
+  const active = world === "moon" ? "moon" : world;
+  return `<div class="game-solar-strip" aria-label="المجموعة الشمسية وموقع اللاعب"><div class="game-solar-body sun"><span class="game-solar-glow"></span><span class="game-solar-label">الشمس</span></div><div class="game-solar-body earth${active === "earth" ? " active" : ""}"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">الأرض</span></div><div class="game-solar-body moon${active === "moon" ? " active" : ""}"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">القمر</span></div><div class="game-solar-body mars${active === "mars" ? " active" : ""}"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">المريخ</span></div></div>`;
 }
 function alienSiteCompleteMarkup(gameWorld) {
   const { stageSite, stageIndex, stageCount, lastStage, missionComplete } = gameWorld;

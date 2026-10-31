@@ -337,7 +337,10 @@ class SpacePreview {
     const moon = new THREE.Mesh(new THREE.SphereGeometry(0.78, 24, 18), new THREE.MeshStandardMaterial({ color: 0x979da5, roughness: 1 }));
     moon.position.set(-3.1, 0.25, -3.2);
     this.scene.add(moon);
-    if (!config.character || config.character === "alien") this.scene.add(makeCharacter("alien", config.character ? 0 : -1.1));
+    if (!config.character || config.character === "alien") {
+      this.scene.add(makeCharacter("alien", -0.8));
+      this.scene.add(makeCharacter("alien", 0.8));
+    }
     if (!config.character || config.character === "astronaut") {
       this.astronaut = makeCharacter("astronaut", config.character ? 0 : 1.55);
       this.astronaut.scale.setScalar(0.9);
@@ -378,117 +381,6 @@ class SpacePreview {
     this.renderer.domElement.remove();
   }
 }
-
-class PlanetStrip {
-  constructor(container, world) {
-    this.container = container;
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.OrthographicCamera(-4, 4, 0.62, -0.62, 0.1, 30);
-    this.camera.position.set(0, 0, 12);
-    this.scene.add(new THREE.HemisphereLight(0xdcecff, 0x18202d, 2.2));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 3.4);
-    keyLight.position.set(-4, 5, 8);
-    this.scene.add(keyLight);
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
-    this.renderer.setClearColor(0x000000, 0);
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.domElement.setAttribute("aria-hidden", "true");
-    container.append(this.renderer.domElement);
-    this.planets = [];
-
-    const specifications = [
-      { key: "mercury", name: "عطارد", radius: 0.22, color: 0x938f89, speed: 0.65 },
-      { key: "venus", name: "الزهرة", radius: 0.27, color: 0xd7b47c, speed: -0.42 },
-      { key: "earth", name: "الأرض", radius: 0.28, color: 0x338bd0, texture: "assets/earth-blue-marble.jpg", speed: 0.8 },
-      { key: "moon", name: "القمر", radius: 0.12, color: 0xe2e8f0, speed: 0.55 },
-      { key: "mars", name: "المريخ", radius: 0.25, color: 0xc65337, texture: "assets/mars-global-marci.jpg", speed: 0.72 },
-      { key: "jupiter", name: "المشتري", radius: 0.37, color: 0xc8956e, jupiter: true, speed: 0.9 },
-      { key: "saturn", name: "زحل", radius: 0.34, color: 0xd7c18e, saturn: true, speed: 0.78 },
-      { key: "uranus", name: "أورانوس", radius: 0.3, color: 0x71bdc7, speed: -0.55 },
-      { key: "neptune", name: "نبتون", radius: 0.3, color: 0x366fd1, speed: 0.58 }
-    ];
-
-    specifications.forEach(specification => {
-      const group = new THREE.Group();
-      const material = new THREE.MeshStandardMaterial({
-        color: specification.color,
-        roughness: specification.key === "venus" ? 0.76 : 0.88,
-        metalness: 0
-      });
-      if (specification.texture) {
-        new THREE.TextureLoader().load(specification.texture, texture => {
-          texture.colorSpace = THREE.SRGBColorSpace;
-          material.map = texture;
-          material.needsUpdate = true;
-        });
-      } else if (specification.key === "moon") {
-        material.map = createMoonRegolithProceduralTexture();
-        material.map.colorSpace = THREE.SRGBColorSpace;
-      } else if (specification.jupiter) {
-        material.map = createJupiterAtmosphereTexture();
-        material.map.colorSpace = THREE.SRGBColorSpace;
-      }
-
-      const sphere = new THREE.Mesh(new THREE.SphereGeometry(specification.radius, 24, 18), material);
-      group.add(sphere);
-
-      // Saturn rings
-      if (specification.saturn) {
-        const rings = new THREE.Mesh(
-          new THREE.RingGeometry(specification.radius * 1.35, specification.radius * 1.9, 40),
-          new THREE.MeshStandardMaterial({ color: 0xd7c18e, roughness: 0.8, side: THREE.DoubleSide })
-        );
-        group.add(rings);
-      }
-
-      this.scene.add(group);
-      this.planets.push({ group, sphere, specification });
-    });
-
-    this.resizeObserver = new ResizeObserver(() => this.resize());
-    this.resizeObserver.observe(container);
-    this.resize();
-    this.lastFrame = performance.now();
-    this.renderer.setAnimationLoop(() => {
-      const now = performance.now();
-      const delta = Math.min((now - this.lastFrame) / 1000, 0.05);
-      this.lastFrame = now;
-      this.planets.forEach(planet => {
-        planet.sphere.rotation.y += delta * planet.specification.speed;
-        if (planet.specification.saturn) planet.group.children[1].rotation.z = 0.18;
-      });
-      this.renderer.render(this.scene, this.camera);
-    });
-  }
-
-  resize() {
-    const width = this.container.clientWidth;
-    const height = this.container.clientHeight;
-    if (!width || !height) return;
-    this.renderer.setSize(width, height, false);
-    const aspect = width / height;
-    const halfHeight = 0.62;
-    this.camera.left = -halfHeight * aspect;
-    this.camera.right = halfHeight * aspect;
-    this.camera.top = halfHeight;
-    this.camera.bottom = -halfHeight;
-    this.camera.updateProjectionMatrix();
-    const spacing = (halfHeight * aspect * 2) / this.planets.length;
-    this.planets.forEach((planet, index) => {
-      planet.group.position.set((index - (this.planets.length - 1) / 2) * spacing, 0, 0);
-    });
-  }
-
-  dispose() {
-    this.renderer.setAnimationLoop(null);
-    this.resizeObserver.disconnect();
-    disposeScene(this.scene);
-    this.renderer.dispose();
-    this.renderer.domElement.remove();
-  }
-}
-
 /* =========================================================================
    SpaceWorld Main Class: AAA 3D Planetary Simulation
    ========================================================================= */
@@ -586,9 +478,6 @@ class SpaceWorld {
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.physics = this.createPhysics();
     this.renderer = makeRenderer(this.container, this.quality === "high" ? 1.3 : this.quality === "medium" ? 1 : 0.8);
-    const planetStripHost = this.hud.querySelector("#game-planet-strip-canvas");
-    this.planetStrip = planetStripHost ? new PlanetStrip(planetStripHost, config.world) : null;
-    
     this.initAudioSynthesizer();
     this.createLighting();
     this.createWorld();
@@ -2115,7 +2004,7 @@ class SpaceWorld {
       this.playerBody.velocity.set(0, 0, 0);
       this.playerBody.aabbNeedsUpdate = true;
       this.cameraYaw = resume.cameraYaw;
-      this.cameraPitch = THREE.MathUtils.clamp(resume.cameraPitch, -0.72, 0.4);
+      this.cameraPitch = resume.cameraPitch;
     }
 
     const leadFace = this.config.character === "astronaut" ? "assets/crew/crew-lead.jpg" : null;
@@ -2374,7 +2263,7 @@ class SpaceWorld {
     this.onPointerMove = event => {
       if (!this.isPointerLocked) return;
       this.cameraYaw -= event.movementX * 0.0024 * this.mouseSensitivity;
-      this.cameraPitch = THREE.MathUtils.clamp(this.cameraPitch - event.movementY * 0.0018 * this.mouseSensitivity, -0.72, 1.25);
+      this.cameraPitch -= event.movementY * 0.0018 * this.mouseSensitivity;
     };
 
     this.onPointerLock = () => { this.isPointerLocked = document.pointerLockElement === this.renderer.domElement; };
@@ -2514,7 +2403,7 @@ class SpaceWorld {
         lastX = touch.clientX;
         lastY = touch.clientY;
         this.cameraYaw -= dx * 0.0055 * this.mouseSensitivity;
-        this.cameraPitch = THREE.MathUtils.clamp(this.cameraPitch - dy * 0.0035 * this.mouseSensitivity, -0.72, 1.25);
+        this.cameraPitch -= dy * 0.0035 * this.mouseSensitivity;
       }, { passive: true });
     }
   }
@@ -4237,7 +4126,7 @@ function makeCharacter(kind, x, faceUrl = null) {
     roughness: 0.12,
     metalness: faceUrl ? 0.02 : 0.35,
     transparent: true,
-    opacity: faceUrl ? 0.1 : 0.82,
+    opacity: faceUrl ? 0.35 : 0.82,
     depthWrite: false
   });
 

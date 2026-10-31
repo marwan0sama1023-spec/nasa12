@@ -375,7 +375,7 @@ function homePage() {
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
       </div>
       <div class="stat-info">
-        <div class="stat-num">07</div>
+        <div class="stat-num">06</div>
         <div class="stat-label">مواقع أرضية نظيرة</div>
       </div>
     </div>
@@ -393,7 +393,7 @@ function homePage() {
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
       </div>
       <div class="stat-info">
-        <div class="stat-num">07</div>
+        <div class="stat-num">06</div>
         <div class="stat-label">مواقع قيد الاستكشاف</div>
       </div>
     </div>
@@ -445,9 +445,9 @@ function homePage() {
   <section class="home-section">
     <div class="section-head">
       <div>
-        <span class="eyebrow">المواقع التناظرية السبعة</span>
+        <span class="eyebrow">المواقع التناظرية الستة</span>
         <h2>المواقع البحثية المعتمدة</h2>
-        <p>سبعة مواقع أرضية موثقة بمراجع وصور NASA، ولكل منها حدود مقارنة مختلفة.</p>
+        <p>ستة مواقع أرضية موثقة بمراجع وصور NASA، ولكل منها حدود مقارنة مختلفة.</p>
       </div>
       <a class="button outline-btn" href="#gallery">معرض الصور ↗</a>
     </div>
@@ -744,7 +744,7 @@ function getActiveGameWorld() {
 }
 function gamePlanetStripMarkup(world) {
   const active = world === "moon" ? "moon" : world;
-  return `<div class="game-solar-strip" aria-label="المجموعة الشمسية وموقع اللاعب"><div class="game-solar-body sun"><span class="game-solar-glow"></span><span class="game-solar-label">الشمس</span></div><div class="game-solar-body earth${active === "earth" ? " active" : ""}"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">الأرض</span></div><div class="game-solar-body moon${active === "moon" ? " active" : ""}"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">القمر</span></div><div class="game-solar-body mars${active === "mars" ? " active" : ""}"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">المريخ</span></div></div>`;
+  return `<div class="game-solar-strip" aria-label="المجموعة الشمسية وموقع اللاعب"><div class="game-solar-body sun"><span class="game-solar-glow"></span><span class="game-solar-label">الشمس</span></div><div class="game-solar-body earth${active === "earth" ? " active" : ""}"><img src="assets/earth-blue-marble.jpg" class="game-solar-img" alt="الأرض"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">الأرض</span></div><div class="game-solar-body moon${active === "moon" ? " active" : ""}"><img src="assets/moon-apollo-11.jpg" class="game-solar-img" alt="القمر"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">القمر</span></div><div class="game-solar-body mars${active === "mars" ? " active" : ""}"><img src="assets/mars-hubble-globe.jpg" class="game-solar-img" alt="المريخ"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">المريخ</span></div></div>`;
 }
 function alienSiteCompleteMarkup(gameWorld) {
   const { stageSite, stageIndex, stageCount, lastStage, missionComplete } = gameWorld;

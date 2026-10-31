@@ -4610,6 +4610,15 @@ body.team-view-active .team-project-panel {
   .game-solar-strip { top: 50px; gap: 10px; padding: 4px 10px; }
 }
 
+@media (max-width: 1024px) and (min-width: 521px) {
+  .game-solar-strip { top: 60px; gap: 8px; padding: 4px 10px; }
+  .game-solar-body.sun { width: 26px; height: 26px; }
+  .game-solar-body.earth { width: 18px; height: 18px; }
+  .game-solar-body.moon { width: 13px; height: 13px; }
+  .game-solar-body.mars { width: 18px; height: 18px; }
+  .game-solar-label { font-size: 8px; }
+}
+
 @media (max-width: 520px) {
   .game-solar-strip { top: 54px; gap: 8px; padding: 3px 8px; }
   .game-solar-body.sun { width: 24px; height: 24px; }

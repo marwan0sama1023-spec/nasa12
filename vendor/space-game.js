@@ -39821,7 +39821,7 @@ var SpaceWorld = class {
         "assets/crew/crew-1.jpg",
         "assets/crew/crew-2.jpg",
         "assets/crew/crew-3.jpg",
-        "assets/crew/Screenshot_\u0662\u0660\u0662\u0666\u0661\u0661\u0660\u0661_\u0660\u0660\u0663\u0666\u0660\u0667_WhatsApp.jpg"
+        "assets/crew/crew-face-5.jpg"
       ] : [null, null, null, null];
       const crewOffsets = [
         { x: 0, z: 2.5 },

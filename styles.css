@@ -4562,9 +4562,9 @@ body.team-view-active .team-project-panel {
 .game-live-dot { width: 8px; height: 8px; flex: 0 0 auto; background: #7ce0b5; border-radius: 50%; box-shadow: 0 0 10px rgba(124,224,181,0.75); }
 .game-hud-actions { padding: 5px; gap: 5px; pointer-events: auto; }
 .game-hud-actions [data-engine-action="solar-system"] { display: none; }
-.game-solar-strip { position: absolute; z-index: 5; top: 70px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 6px 14px; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); }
+.game-solar-strip { position: absolute; z-index: 5; top: 70px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 5px 12px; max-width: 95%; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; }
 
-.game-solar-body { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: auto; }
+.game-solar-body { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: auto; flex-shrink: 0; }
 
 .game-solar-body.sun { gap: 2px; }
 

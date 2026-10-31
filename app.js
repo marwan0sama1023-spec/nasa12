@@ -574,7 +574,7 @@ function mapPage() {
       </div>
     </div>
     <div class="map-wrap">
-      <div class="map-canvas map-large" id="world-map" role="application" aria-label="خريطة تفاعلية لصور NASA GIBS ومواقع الاستكشاف السبعة"></div>
+      <div class="map-canvas map-large" id="world-map" role="application" aria-label="خريطة تفاعلية لصور NASA GIBS ومواقع الاستكشاف الستة"></div>
       <div class="map-note">
         <span class="live-dot"></span>
         <span>NASA Blue Marble · طبقة مرجعية عالمية من GIBS</span>

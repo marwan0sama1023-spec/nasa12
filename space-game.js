@@ -2129,12 +2129,14 @@ class SpaceWorld {
       const crewFaces = this.config.character === "astronaut" ? [
         "assets/crew/crew-1.jpg",
         "assets/crew/crew-2.jpg",
-        "assets/crew/crew-3.jpg"
-      ] : [null, null, null];
+        "assets/crew/crew-3.jpg",
+        "assets/crew/Screenshot_٢٠٢٦١١٠١_٠٠٣٦٠٧_WhatsApp.jpg"
+      ] : [null, null, null, null];
       const crewOffsets = [
         { x: 0, z: 2.5 },
         { x: -1.6, z: 4.5 },
-        { x: 1.6, z: 4.5 }
+        { x: 1.6, z: 4.5 },
+        { x: 0, z: 6.5 }
       ];
 
       crewFaces.forEach((faceUrl, idx) => {

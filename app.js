@@ -158,7 +158,6 @@ let shortlist = readStore(storageKeys.shortlist, []);
 let pinnedSelection = readStore(storageKeys.pinned, null);
 const spaceGameStorageKey = "planetary-space-explorer";
 let spaceGame = loadSpaceGame();
-let gearCountdownInterval = null;
 let guideStarted = false;
 let guideBusy = false;
 let pendingGuideResponse = null;
@@ -802,11 +801,6 @@ function spaceGearSummaryScreen() {
       </div>
     </div>
 
-    <div class="game-gear-countdown" id="game-gear-countdown">
-      <div class="game-gear-countdown-label">يبدأ الاستكشاف تلقائياً بعد</div>
-      <strong id="game-gear-timer">5</strong>
-      <div class="game-gear-countdown-note">راجع العتاد أعلاه قبل بدء المهمة</div>
-    </div>
     <button class="button primary glow-btn" type="button" data-game-action="start-mission">ابدأ الاستكشاف الآن</button>
   </div>`;
 }
@@ -1691,28 +1685,6 @@ function render() {
   else if (kind === "game") pageRoot.innerHTML = gamePresentation.active ? spaceGameSessionPage() : spaceGamePage();
   else if (kind === "team") pageRoot.innerHTML = teamPage();
   else pageRoot.innerHTML = homePage();
-
-  // Gear summary auto-countdown (astronaut only)
-  if (kind === "game" && !gamePresentation.active && spaceGame.character === "astronaut" && spaceGame.destination
-    && (!spaceGame.suit || !spaceGame.spacecraft || spaceGame.equipment.length === 0)) {
-    if (gearCountdownInterval) clearInterval(gearCountdownInterval);
-    let seconds = 5;
-    const timerEl = document.getElementById("game-gear-timer");
-    if (timerEl) timerEl.textContent = String(seconds);
-    gearCountdownInterval = setInterval(() => {
-      seconds -= 1;
-      if (timerEl) timerEl.textContent = String(Math.max(0, seconds));
-      if (seconds <= 0) {
-        clearInterval(gearCountdownInterval);
-        gearCountdownInterval = null;
-        handleSpaceGameAction({ dataset: { gameAction: "start-mission" } });
-        render();
-      }
-    }, 1000);
-  } else {
-    if (gearCountdownInterval) clearInterval(gearCountdownInterval);
-    gearCountdownInterval = null;
-  }
   if (kind === "map") mountMap("world-map", sites, { zoom: 2, fitAll: true });
   if (kind === "home") mountMap("home-map", sites, { zoom: 2, fitAll: true });
   if (site) mountMap("detail-map", [site], { zoom: 7, center: [site.lat, site.lon] });

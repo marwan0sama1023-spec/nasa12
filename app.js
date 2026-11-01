@@ -859,7 +859,7 @@ function gamePlanetStripMarkup(world) {
     mars: { name: "المريخ", img: "assets/mars-hubble-globe.jpg", gravity: "0.38g", note: "ضغط 6.1 hPa · 95% CO₂" },
     earth: { name: "الأرض", img: "assets/earth-blue-marble.jpg", gravity: "1.0g", note: "غلاف جوي طبيعي" }
   }[currentWorld] || { name: "الأرض", img: "assets/earth-blue-marble.jpg", gravity: "1.0g", note: "غلاف جوي طبيعي" };
-  return `<div class="game-solar-strip" aria-label="الموقع الحالي">${isAstronaut ? `<div class="game-solar-body current"><img src="${info.img}" class="game-solar-planet-img current-img" alt="${info.name}"><div class="game-solar-info"><span class="game-solar-label current-label">${info.name}</span><span class="game-solar-gravity">${info.gravity}</span><span class="game-solar-note">${info.note}</span></div></div>` : `<div class="game-solar-body current"><img src="${info.img}" class="game-solar-planet-img current-img" alt="${info.name}"><div class="game-solar-info"><span class="game-solar-label current-label">${info.name}</span><span class="game-solar-gravity">${info.gravity}</span><span class="game-solar-note">${info.note}</span></div></div>`}</div>`;
+  return `<div class="game-solar-strip" aria-label="الموقع الحالي">${isAstronaut ? `<div class="game-solar-body current"><img src="${info.img}" class="game-solar-planet-img current-img" alt="${info.name}"><span class="game-solar-label current-label">${info.name}</span></div>` : `<div class="game-solar-body current"><img src="${info.img}" class="game-solar-planet-img current-img" alt="${info.name}"><span class="game-solar-label current-label">${info.name}</span></div>`}</div>`;
 }
 function alienSiteCompleteMarkup(gameWorld) {
   const { stageSite, stageIndex, stageCount, lastStage, missionComplete } = gameWorld;

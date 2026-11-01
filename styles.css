@@ -5987,6 +5987,9 @@ body.game-session-active #guide-panel { display: none !important; }
 .game-solar-body { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: auto; flex-shrink: 0; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), filter 0.35s ease; }
 
 .game-solar-body.active { transform: scale(1.1); filter: brightness(1.2); }
+.game-solar-body.current { transform: scale(1.15); filter: brightness(1.25); border: 1px solid rgba(0, 210, 255, 0.35); box-shadow: 0 0 16px rgba(0, 210, 255, 0.35); background: rgba(0, 40, 60, 0.35); border-radius: 50%; }
+.game-solar-body.current .game-solar-planet-img.current-img { width: 32px; height: 32px; }
+.game-solar-body.current .game-solar-label.current-label { font-size: 10px; color: #fff; font-weight: 700; text-shadow: 0 0 8px rgba(0, 210, 255, 0.8); }
 
 .game-solar-glow { position: absolute; inset: 0; border-radius: 50%; opacity: 0; transition: opacity 0.35s ease; }
 

@@ -1016,6 +1016,15 @@ async function startSpaceGameScene() {
 function updateSolarSystemBar() {
   const bar = document.querySelector(".solar-system-bar");
   if (!bar) return;
+
+  // إظهار الشريط فقط في واجهة الموقع، إخفاؤه داخل صفحة اللعبة ثلاثية الأبعاد
+  const page = route();
+  if (page === "game") {
+    bar.style.display = "none";
+    return;
+  }
+  bar.style.display = "block";
+
   const isAstronaut = spaceGame.character === "astronaut";
   const destination = spaceGame.destination;
 
@@ -1033,7 +1042,7 @@ function updateSolarSystemBar() {
   const target = bar.querySelector(`.solar-body.solar-${activeBody}`);
   if (target) target.classList.add("active");
 
-  // earth-group: إظهار الأرض सकریة دائمًا عندما لا يكون على قمر/مريخ
+  // earth-group: إظهار الأرض सकریة عندما لا يكون على قمر/مريخ
   const earthGroup = bar.querySelector(".solar-earth-group");
   if (earthGroup) {
     if (activeBody === "earth") {

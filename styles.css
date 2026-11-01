@@ -5865,7 +5865,6 @@ body.game-session-active #guide-panel { display: none !important; }
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
   background: #1a1a2e;
-  animation: planet-spin 12s linear infinite;
 }
 
 .solar-body.solar-mercury .solar-planet-img { width: 14px; height: 14px; background: #a59f99; }

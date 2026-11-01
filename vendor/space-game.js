@@ -38327,6 +38327,7 @@ var SpaceWorld = class {
     this.collectPoseUntil = 0;
     this.beaconAngle = 0;
     this.isRunning = false;
+    this.touchRun = false;
     this.isJetpacking = false;
     this.jetpackFuel = 100;
     this.movementBlend = 0;
@@ -40186,7 +40187,10 @@ var SpaceWorld = class {
       if (engineAction === "inventory") this.toggleInventory(true);
       if (engineAction === "inventory-close") this.toggleInventory(false);
       if (engineButton === "jump") this.jump();
-      if (engineButton === "run") this.isRunning = !this.isRunning;
+      if (engineButton === "run") {
+        this.touchRun = !this.touchRun;
+        button.classList.toggle("is-active", this.touchRun);
+      }
       if (engineButton === "interact") this.interact();
       if (engineButton === "camera") this.toggleCameraMode();
       if (engineButton === "inventory") this.toggleInventory(true);
@@ -40736,7 +40740,7 @@ var SpaceWorld = class {
     const direction = forward.multiplyScalar(forwardInput * normalizer).add(side.multiplyScalar(sideInput * normalizer));
     const sprint = this.keys.has("ShiftLeft") || this.keys.has("ShiftRight");
     this.isRunning = inputLength > 0.08;
-    const isSprint = sprint && this.isRunning;
+    const isSprint = (sprint || this.touchRun) && this.isRunning;
     const speed = (isSprint ? this.look.run : this.look.walk) * (this.roverMode ? 1.85 : 1);
     const grounded = this.isGrounded();
     const acceleration = this.isRunning ? this.look.acceleration : this.look.braking;

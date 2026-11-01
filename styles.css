@@ -4565,125 +4565,7 @@ body.team-view-active .team-project-panel {
 .game-live-dot { width: 8px; height: 8px; flex: 0 0 auto; background: #7ce0b5; border-radius: 50%; box-shadow: 0 0 10px rgba(124,224,181,0.75); }
 .game-hud-actions { padding: 5px; gap: 5px; pointer-events: auto; }
 .game-hud-actions [data-engine-action="solar-system"] { display: none; }
-.game-solar-strip { position: absolute; z-index: 5; top: 70px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 10px; max-width: 96%; margin: 0 auto; overflow-x: auto; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; overflow-y: hidden; scrollbar-width: thin; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; scroll-behavior: smooth; }
-.game-solar-strip::-webkit-scrollbar { height: 4px; }
-.game-solar-strip::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 2px; }
-.game-solar-strip::-webkit-scrollbar-thumb { background: rgba(0,210,255,0.35); border-radius: 2px; }
-
-.game-solar-body { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: auto; flex-shrink: 0; }
-
-.game-solar-body.sun { gap: 2px; }
-
-.game-solar-glow { position: absolute; inset: 0; border-radius: 50%; opacity: 0; transition: opacity 300ms ease; }
-
-.game-solar-body.active .game-solar-glow { opacity: 1; }
-
-.game-solar-body.sun .game-solar-glow { box-shadow: 0 0 20px rgba(255, 168, 74, 0.6); }
-
-.game-solar-body.mars.active .game-solar-glow { box-shadow: 0 0 20px rgba(255, 107, 74, 0.6); }
-
-.game-solar-ring { position: absolute; inset: -6px; border: 2px solid rgba(255, 255, 255, 0.35); border-radius: 50%; opacity: 0; transition: opacity 300ms ease, box-shadow 300ms ease; }
-
-.game-solar-body.active .game-solar-ring { opacity: 1; }
-
-.game-solar-body.mars.active .game-solar-ring { border-color: rgba(255, 107, 74, 0.55); box-shadow: 0 0 16px rgba(255, 107, 74, 0.4); }
-
-.game-solar-label { font-size: 9px; color: #a7b5c3; white-space: nowrap; transition: color 300ms ease, text-shadow 300ms ease; }
-
-.game-solar-body.active .game-solar-label { color: #fff; font-weight: 700; text-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
-
-.game-solar-body.sun { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffd166, #ff9f1c); box-shadow: 0 0 24px rgba(255, 159, 28, 0.5); overflow: hidden; }
-
-.game-solar-body.mars { width: 20px; height: 20px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 12px rgba(255, 107, 74, 0.25); }
-
-.game-solar-planet { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
-
-.game-solar-body.sun .game-solar-planet { display: none; }
-
-/* Compact planet items */
-.game-solar-planet { position: relative; width: 22px; height: 22px; border-radius: 50%; overflow: hidden; pointer-events: auto; flex-shrink: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; }
-
-.game-solar-planet-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 8px rgba(0,0,0,0.4); }
-
-.game-solar-planet .game-solar-label { position: static; bottom: auto; left: auto; right: auto; top: auto; transform: none; margin-top: 2px; white-space: nowrap; font-size: 8px; color: #a7b5c3; }
-
-.game-solar-planet .game-solar-ring { inset: -4px; opacity: 0.4; }
-
-.game-solar-planet.active .game-solar-label { color: #fff; font-weight: 700; text-shadow: 0 0 10px rgba(255,255,255,0.7); }
-
-.game-solar-planet.active .game-solar-glow { opacity: 1; }
-
-/* Individual planet sizes & tints */
-.game-solar-planet.mercury { width: 14px; height: 14px; box-shadow: 0 0 8px rgba(165,159,153,0.3); }
-.game-solar-planet.venus { width: 18px; height: 18px; box-shadow: 0 0 10px rgba(245,223,171,0.35); }
-.game-solar-planet.mars { width: 18px; height: 18px; box-shadow: 0 0 12px rgba(255,107,74,0.25); }
-.game-solar-planet.jupiter { width: 28px; height: 28px; box-shadow: 0 0 14px rgba(195,145,110,0.35); }
-.game-solar-planet.saturn { width: 22px; height: 22px; box-shadow: 0 0 12px rgba(210,180,140,0.35); }
-.game-solar-planet.uranus { width: 16px; height: 16px; box-shadow: 0 0 10px rgba(173,216,230,0.35); }
-.game-solar-planet.neptune { width: 16px; height: 16px; box-shadow: 0 0 10px rgba(100,149,237,0.35); }
-
-.game-solar-planet.mercury.active { box-shadow: 0 0 16px rgba(165,159,153,0.6); }
-.game-solar-planet.venus.active { box-shadow: 0 0 16px rgba(245,223,171,0.6); }
-.game-solar-planet.jupiter.active { box-shadow: 0 0 18px rgba(195,145,110,0.6); }
-.game-solar-planet.saturn.active { box-shadow: 0 0 16px rgba(210,180,140,0.6); }
-.game-solar-planet.uranus.active { box-shadow: 0 0 14px rgba(173,216,230,0.6); }
-.game-solar-planet.neptune.active { box-shadow: 0 0 14px rgba(100,149,237,0.6); }
-
-/* Saturn rings */
-.saturn-rings { position: absolute; inset: -30%; border: none; border-radius: 50%; border-top: 3px solid rgba(210,180,140,0.55); border-bottom: 3px solid rgba(210,180,140,0.55); transform: rotateX(75deg); opacity: 0.7; pointer-events: none; }
-
-/* Earth + Moon orbit group */
-.game-solar-earth-moon { position: relative; display: flex; align-items: center; justify-content: center; gap: 4px; pointer-events: auto; flex-shrink: 0; width: 44px; height: 44px; }
-
-.game-solar-moon-orbit { position: absolute; inset: 50%; width: 46px; height: 46px; border: 1px solid rgba(231, 241, 255, 0.25); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; animation: moon-orbit-rev 14s linear infinite; }
-
-.game-solar-planet.earth-img { width: 24px; height: 24px; position: relative; z-index: 2; box-shadow: 0 0 12px rgba(0, 210, 255, 0.25); }
-
-.game-solar-planet.moon-img { width: 14px; height: 14px; position: absolute; top: 2px; right: 2px; border-radius: 50%; box-shadow: 0 0 8px rgba(231, 241, 255, 0.4); }
-
-.game-solar-label.earth-label, .game-solar-label.moon-label { position: absolute; bottom: -16px; font-size: 8px; color: #a7b5c3; white-space: nowrap; pointer-events: none; transition: color 300ms ease, text-shadow 300ms ease; }
-
-.game-solar-label.earth-label { left: 50%; transform: translateX(-50%); }
-
-.game-solar-label.moon-label { right: -6px; top: 50%; transform: translate(0, -50%); }
-
-.game-solar-earth-moon.earth-active .earth-glow { opacity: 1; box-shadow: 0 0 20px rgba(0, 210, 255, 0.6); }
-
-.game-solar-earth-moon.earth-active .earth-label { color: #fff; font-weight: 700; text-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
-
-.game-solar-earth-moon.moon-active .moon-glow { opacity: 1; box-shadow: 0 0 20px rgba(231, 241, 255, 0.6); }
-
-.game-solar-earth-moon.moon-active .moon-img { box-shadow: 0 0 14px rgba(231, 241, 255, 0.6); }
-
-.game-solar-earth-moon.moon-active .moon-label { color: #fff; font-weight: 700; text-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
-
-@keyframes moon-orbit-rev { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
-
-@media (pointer: coarse) and (orientation: landscape), (orientation: landscape) and (max-height: 520px) {
-  .game-solar-strip { top: 50px; gap: 10px; padding: 4px 10px; }
-}
-
-@media (max-width: 1024px) and (min-width: 521px) {
-  .game-solar-strip { top: 60px; gap: 8px; padding: 4px 10px; }
-  .game-solar-body.sun { width: 26px; height: 26px; }
-  .game-solar-body.mars { width: 18px; height: 18px; }
-  .game-solar-earth-moon { width: 36px; height: 36px; }
-  .game-solar-planet.earth-img { width: 20px; height: 20px; }
-  .game-solar-planet.moon-img { width: 11px; height: 11px; }
-  .game-solar-label { font-size: 8px; }
-  .game-solar-label.earth-label, .game-solar-label.moon-label { font-size: 7px; }
-}
-
-@media (max-width: 520px) {
-  .game-solar-strip { top: 54px; gap: 8px; padding: 3px 8px; }
-  .game-solar-body.sun { width: 24px; height: 24px; }
-  .game-solar-body.mars { width: 16px; height: 16px; }
-  .game-solar-earth-moon { width: 32px; height: 32px; }
-  .game-solar-planet.earth-img { width: 18px; height: 18px; }
-  .game-solar-planet.moon-img { width: 10px; height: 10px; }
-  .game-solar-label { font-size: 7px; }
-  .game-solar-label.earth-label, .game-solar-label.moon-label { font-size: 6px; }
-}
+/* شريط المجموعة الشمسية القديم تم إزالته واستبداله بالشريط التفاعلي في أعلى واجهة الموقع */
 .game-icon-control { width: 34px; height: 34px; display: grid; place-items: center; color: #edf7f7; background: rgba(255,255,255,0.04); border: 1px solid rgba(192, 218, 220, 0.15); border-radius: 5px; font: inherit; font-size: 16px; cursor: pointer; }
 .game-icon-control:hover { background: rgba(119, 192, 196, 0.2); }
 .game-hud-bottom { right: 15px; bottom: 14px; left: 15px; justify-content: space-between; }
@@ -5889,4 +5771,208 @@ body.game-session-active #guide-panel { display: none !important; }
   color: var(--text-main);
   margin: 0;
   line-height: 1.6;
+}
+
+/* ==========================================================================
+   شريط المجموعة الشمسية التفاعلي - أعلى واجهة الموقع
+   ========================================================================== */
+.solar-system-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: rgba(5, 8, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.solar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 clamp(16px, 4vw, 40px);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+}
+
+.solar-container::-webkit-scrollbar { height: 6px; }
+.solar-container::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 3px; }
+.solar-container::-webkit-scrollbar-thumb { background: rgba(56, 210, 255, 0.35); border-radius: 3px; }
+
+.solar-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), filter 0.35s ease;
+}
+
+.solar-body.active {
+  transform: scale(1.15);
+  filter: brightness(1.2);
+}
+
+.solar-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.solar-body.active .solar-glow { opacity: 1; }
+
+.solar-body.solar-sun {
+  gap: 3px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffd166, #ff9f1c);
+  box-shadow: 0 0 28px rgba(255, 159, 28, 0.6);
+}
+
+.solar-body.solar-sun .solar-glow { box-shadow: 0 0 30px rgba(255, 168, 74, 0.7); }
+.solar-body.solar-sun .solar-label { font-size: 9px; color: #ffcf56; }
+
+.solar-label {
+  font-size: 10px;
+  color: #a7b5c3;
+  white-space: nowrap;
+  transition: color 0.35s ease, text-shadow 0.35s ease;
+}
+
+.solar-body.active .solar-label {
+  color: #ffcf56;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(255, 207, 86, 0.9);
+}
+
+.solar-planet-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  background: #1a1a2e;
+  animation: planet-spin 12s linear infinite;
+}
+
+.solar-body.solar-mercury .solar-planet-img { width: 14px; height: 14px; background: #a59f99; }
+.solar-body.solar-venus .solar-planet-img { width: 18px; height: 18px; background: #f5dfab; }
+.solar-body.solar-earth .solar-planet-img { width: 22px; height: 22px; background: #092546; }
+.solar-body.solar-moon .solar-planet-img { width: 12px; height: 12px; background: #aab1b8; }
+.solar-body.solar-mars .solar-planet-img { width: 20px; height: 20px; background: #8c3c25; }
+.solar-body.solar-jupiter .solar-planet-img { width: 30px; height: 30px; background: #d2a679; }
+.solar-body.solar-saturn .solar-planet-img { width: 24px; height: 24px; background: #e8cfa3; }
+.solar-body.solar-uranus .solar-planet-img { width: 18px; height: 18px; background: #add8e6; }
+.solar-body.solar-neptune .solar-planet-img { width: 18px; height: 18px; background: #6495ed; }
+
+.solar-earth-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+}
+
+.solar-moon-orbit {
+  position: absolute;
+  inset: 50%;
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(231, 241, 255, 0.25);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: moon-orbit-rev 14s linear infinite;
+}
+
+@keyframes moon-orbit-rev {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.solar-body.solar-earth .solar-planet-img {
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.3);
+}
+
+.solar-body.solar-moon .solar-planet-img {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(231, 241, 255, 0.4);
+}
+
+.solar-body.solar-saturn .solar-ring.saturn-rings {
+  position: absolute;
+  inset: -30%;
+  border: none;
+  border-radius: 50%;
+  border-top: 3px solid rgba(210, 180, 140, 0.55);
+  border-bottom: 3px solid rgba(210, 180, 140, 0.55);
+  transform: rotateX(75deg);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.solar-body.active .solar-planet-img {
+  box-shadow: 0 0 16px rgba(255, 207, 86, 0.7);
+  border-color: rgba(255, 207, 86, 0.6);
+}
+
+.solar-body.active .solar-glow { box-shadow: 0 0 20px rgba(255, 207, 86, 0.8); }
+.solar-body.active .solar-label {
+  color: #ffcf56;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(255, 207, 86, 0.9);
+}
+
+@keyframes solar-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.solar-body.active .solar-glow { animation: solar-pulse 2s ease-in-out infinite; }
+
+@keyframes planet-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@media (max-width: 1024px) {
+  .solar-container { gap: 10px; padding: 0 20px; }
+  .solar-body { gap: 5px; }
+  .solar-planet-img { width: 20px; height: 20px; }
+  .solar-body.solar-jupiter .solar-planet-img { width: 26px; height: 26px; }
+  .solar-label { font-size: 9px; }
+  .solar-earth-group { width: 44px; height: 44px; }
+  .solar-moon-orbit { width: 46px; height: 46px; }
+}
+
+@media (max-width: 520px) {
+  .solar-container { gap: 8px; padding: 0 12px; }
+  .solar-body { gap: 4px; }
+  .solar-planet-img { width: 16px; height: 16px; }
+  .solar-body.solar-jupiter .solar-planet-img { width: 22px; height: 22px; }
+  .solar-body.solar-sun { width: 28px; height: 28px; }
+  .solar-label { font-size: 8px; }
+  .solar-earth-group { width: 38px; height: 38px; }
+  .solar-moon-orbit { width: 40px; height: 40px; }
 }

@@ -6044,9 +6044,9 @@ body.game-session-active #guide-panel { display: none !important; }
 
 .game-solar-body.active .game-solar-glow { animation: solar-pulse 2s ease-in-out infinite; }
 
-.game-location { display: flex; align-items: center; gap: 8px; margin-left: 12px; }
-.game-location-img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 10px rgba(0,0,0,0.5); background:#1a1a2e; }
-.game-location #game-world-label { font-size: 13px; color:#fff; font-weight:700; text-shadow:0 0 8px rgba(0,210,255,0.6); white-space:nowrap; }
+.game-location-bar { display: flex; align-items: center; gap: 10px; margin-top: 14px; margin-bottom: 10px; }
+.game-location-bar .game-location-icon { font-size: 16px; }
+.game-location-bar .game-location-text { font-size: 13px; color:#cfe8ff; font-weight:600; text-shadow:0 0 10px rgba(0,210,255,0.45); white-space:nowrap; opacity:0.95; }
 
 /* متجاوبية للشريط داخل اللعبة */
 @media (max-width: 1024px) {

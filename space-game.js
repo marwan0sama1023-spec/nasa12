@@ -2803,6 +2803,16 @@ class SpaceWorld {
     const complete = this.isSampleMissionComplete();
     const craterDone = this.progress.completedMissions.includes(this.craterMissionId);
 
+    const oxygenMeter = this.hud.querySelector(".game-oxygen-meter");
+    if (oxygenMeter) {
+      oxygenMeter.hidden = this.config.character !== "astronaut";
+      if (this.config.character === "astronaut") {
+        setText(this.hud, "#game-oxygen-time", `${String(Math.floor(this.oxygenLimit / 60)).padStart(2, "0")}:${String(Math.ceil(this.oxygenLimit) % 60).padStart(2, "0")}`);
+        const fill = this.hud.querySelector("#game-oxygen-fill");
+        if (fill) fill.style.width = `${Math.max(0, (this.oxygenLimit / 120) * 100)}%`;
+      }
+    }
+
     if (this.stageSite) {
       setText(this.hud, "#game-mission-title", complete ? "اكتملت العينات ✦ أحسنت!" : `اجمع ${this.sampleGoal} عينات علمية`);
       setText(this.hud, "#game-mission-count", `${this.worldCollectedCount()}/${this.sampleGoal} عينات`);
@@ -3343,7 +3353,7 @@ class SpaceWorld {
   }
 
   updateOxygen(delta) {
-    if (this.character !== "astronaut" || this.oxygenDepleted || this.paused) return;
+    if (this.config.character !== "astronaut" || this.oxygenDepleted || this.paused) return;
     this.oxygenLimit -= delta;
     const seconds = Math.max(0, Math.ceil(this.oxygenLimit));
     const fill = this.hud.querySelector("#game-oxygen-fill");

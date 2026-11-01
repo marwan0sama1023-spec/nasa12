@@ -4498,6 +4498,9 @@ body.team-view-active .team-project-panel {
 .game-xp-panel strong,.game-xp-inline strong { color: #f6d18a; font: 700 15px "Plus Jakarta Sans", sans-serif; direction: ltr; }
 .game-xp-panel small,.game-xp-inline small { color: #8fa8b8; font-size: 10px; }
 .game-screen { position: relative; z-index: 1; min-height: 470px; padding: 28px 0 8px; animation: game-warp-in 420ms cubic-bezier(.2,.75,.25,1) both; }
+.game-screen[hidden] { display: none !important; }
+.game-screen-exit { animation: game-warp-out 300ms cubic-bezier(.4,0,.2,1) both; }
+@keyframes game-warp-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(12px) scale(0.98); } }
 .game-screen-heading { max-width: 720px; margin: 0 auto 22px; text-align: center; }
 .game-step { color: #7fcada; font: 600 10px "Plus Jakarta Sans", sans-serif; }
 .game-screen-heading h2 { margin: 7px 0; color: #f5fbff; font-size: 23px; }
@@ -4562,7 +4565,7 @@ body.team-view-active .team-project-panel {
 .game-live-dot { width: 8px; height: 8px; flex: 0 0 auto; background: #7ce0b5; border-radius: 50%; box-shadow: 0 0 10px rgba(124,224,181,0.75); }
 .game-hud-actions { padding: 5px; gap: 5px; pointer-events: auto; }
 .game-hud-actions [data-engine-action="solar-system"] { display: none; }
-.game-solar-strip { position: absolute; z-index: 5; top: 70px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 5px 10px; max-width: 92%; overflow-x: auto; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; overflow-y: hidden; scrollbar-width: thin; }
+.game-solar-strip { position: absolute; z-index: 5; top: 70px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 10px; max-width: 96%; margin: 0 auto; overflow-x: auto; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; overflow-y: hidden; scrollbar-width: thin; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; scroll-behavior: smooth; }
 .game-solar-strip::-webkit-scrollbar { height: 4px; }
 .game-solar-strip::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 2px; }
 .game-solar-strip::-webkit-scrollbar-thumb { background: rgba(0,210,255,0.35); border-radius: 2px; }
@@ -4750,14 +4753,15 @@ body.team-view-active .team-project-panel {
 .game-sample-meter strong,.game-beacon-meter strong { color: #f2f7f6; font: 600 11px "Plus Jakarta Sans", sans-serif; }
 .game-beacon-meter { min-width: 138px; }
 .game-xp-meter strong { color: #f3d58d; font: 700 11px "Plus Jakarta Sans", sans-serif; }
-.game-oxygen-meter { padding: 9px 11px; display: flex; align-items: center; gap: 8px; color: #eff7f7; background: rgba(6, 13, 19, 0.79); border: 1px solid rgba(196, 218, 217, 0.19); border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.16); backdrop-filter: blur(9px); flex: 1; min-width: 120px; }
-.game-oxygen-icon { color: #38bdf8; font-size: 16px; }
-.game-oxygen-meter small { color: #afc1c3; font-size: 9px; }
-.game-oxygen-meter strong { color: #38bdf8; font: 700 11px "Plus Jakarta Sans", sans-serif; }
-.game-oxygen-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-left: 8px; }
-#game-oxygen-fill { height: 100%; background: #38bdf8; border-radius: 3px; transition: width 0.3s ease, background 0.3s ease; }
-.game-oxygen-meter.is-urgent #game-oxygen-fill { background: #f43f5e; box-shadow: 0 0 8px #f43f5e; }
-.game-oxygen-meter.is-urgent strong { color: #f43f5e; text-shadow: 0 0 8px rgba(244,63,94,0.6); }
+.game-oxygen-meter { padding: 12px 14px; display: flex; align-items: center; gap: 10px; color: #eff7f7; background: rgba(6, 13, 19, 0.85); border: 1px solid rgba(56, 210, 255, 0.3); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 0 15px rgba(56, 210, 255, 0.15); backdrop-filter: blur(12px); flex: 1; min-width: 150px; max-width: 220px; }
+.game-oxygen-icon { color: #38bdf8; font-size: 20px; filter: drop-shadow(0 0 6px rgba(56, 210, 255, 0.6)); }
+.game-oxygen-meter small { color: #afc1c3; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.game-oxygen-meter strong { color: #fff; font: 700 14px "Plus Jakarta Sans", sans-serif; text-shadow: 0 0 10px rgba(56, 210, 255, 0.4); }
+.game-oxygen-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.12); border-radius: 4px; overflow: hidden; margin-left: 10px; border: 1px solid rgba(255,255,255,0.1); }
+#game-oxygen-fill { height: 100%; background: linear-gradient(90deg, #38bdf8, #0ea5e9); border-radius: 4px; transition: width 0.3s ease, background 0.3s ease; box-shadow: 0 0 10px rgba(56, 210, 255, 0.5); }
+.game-oxygen-meter.is-urgent #game-oxygen-fill { background: #f43f5e; box-shadow: 0 0 12px #f43f5e; }
+.game-oxygen-meter.is-urgent strong { color: #f43f5e; text-shadow: 0 0 10px rgba(244,63,94,0.7); animation: oxygen-pulse 1s infinite; }
+@keyframes oxygen-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 .game-crosshair { position: absolute; z-index: 2; top: 50%; left: 50%; width: 14px; height: 14px; display: grid; place-items: center; opacity: 0.6; transform: translate(-50%, -50%); pointer-events: none; }
 .game-crosshair::before,.game-crosshair::after { content: ""; position: absolute; background: rgba(238,248,244,0.72); box-shadow: 0 0 4px rgba(0,0,0,0.6); }
 .game-crosshair::before { width: 1px; height: 14px; }
@@ -5624,16 +5628,31 @@ body.game-session-active #guide-panel { display: none !important; }
 .suit-mars { filter: sepia(0.35) hue-rotate(-15deg) saturate(1.3); }
 
 /* ==========================================================================
-   GEAR SUMMARY SCREEN (mandatory gear, auto-assigned per destination)
+   GEAR SUMMARY SCREEN (mandatory gear, auto-assigned per destination) — full screen
    ========================================================================== */
 .game-gear-screen {
-  padding: 24px;
-  max-width: 720px;
-  margin: 0 auto;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  padding: 0;
+  max-width: none;
+  margin: 0;
   text-align: right;
-  max-height: 85vh;
+  background: radial-gradient(circle at 50% 30%, rgba(15, 25, 45, 0.98), rgba(5, 8, 20, 0.98));
   overflow-y: auto;
   overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+}
+.game-gear-screen > .game-screen-heading {
+  padding: 24px 24px 8px;
+  margin: 0;
+}
+.game-gear-screen .game-gear-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin: 0 24px 24px;
+  padding-bottom: 80px;
 }
 .game-gear-grid {
   display: grid;
@@ -5650,7 +5669,14 @@ body.game-session-active #guide-panel { display: none !important; }
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
   text-align: right;
+  animation: gear-card-fade 500ms cubic-bezier(.2,.75,.25,1) both;
 }
+.game-gear-card:nth-child(1) { animation-delay: 60ms; }
+.game-gear-card:nth-child(2) { animation-delay: 140ms; }
+.game-gear-card:nth-child(3) { animation-delay: 220ms; }
+@keyframes gear-card-fade { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.game-gear-visual-wrap { display: flex; justify-content: center; margin-bottom: 12px; animation: gear-visual-bounce 700ms cubic-bezier(.2,.75,.25,1) both; }
+@keyframes gear-visual-bounce { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
 .game-gear-card.game-gear-suit {
   border-left: 4px solid var(--cyan-bright);
 }

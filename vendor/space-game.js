@@ -38340,6 +38340,8 @@ var SpaceWorld = class {
     const resumeState = config.progress.resumeState;
     this.timeLimit = Number.isFinite(resumeState?.timeLimit) ? MathUtils.clamp(resumeState.timeLimit, 0, 180) : 180;
     this.timedOut = this.timeLimit <= 0;
+    this.oxygenLimit = 120;
+    this.oxygenDepleted = false;
     this.progress = {
       xp: Number(config.progress.xp) || 0,
       collectedSamples: Array.isArray(config.progress.collectedSamples) ? [...config.progress.collectedSamples] : [],
@@ -39771,6 +39773,73 @@ var SpaceWorld = class {
         }
       }
     });
+    this.applyEquipmentVisuals(model);
+  }
+  applyEquipmentVisuals(model) {
+    if (!model || this.config.character !== "astronaut") return;
+    const equipment = this.equipment || [];
+    const group = new Group();
+    const darkGray = new MeshStandardMaterial({ color: 3355443, roughness: 0.4, metalness: 0.5 });
+    const white = new MeshStandardMaterial({ color: 15658734, roughness: 0.3, metalness: 0.1 });
+    const cyan = new MeshStandardMaterial({ color: 54015, roughness: 0.2, metalness: 0.3, emissive: 17510, emissiveIntensity: 0.3 });
+    const orange = new MeshStandardMaterial({ color: 16739146, roughness: 0.3, metalness: 0.2 });
+    const green = new MeshStandardMaterial({ color: 1096065, roughness: 0.3, metalness: 0.2 });
+    if (equipment.includes("oxygen-tank")) {
+      const tank = new Mesh(new CylinderGeometry(0.14, 0.14, 0.5, 12), darkGray);
+      tank.position.set(0, 1.05, 0.42);
+      tank.rotation.z = Math.PI / 2;
+      tank.castShadow = true;
+      group.add(tank);
+      const valve = new Mesh(new CylinderGeometry(0.07, 0.07, 0.12, 10), cyan);
+      valve.position.set(0, 1.3, 0.42);
+      valve.rotation.z = Math.PI / 2;
+      group.add(valve);
+      const hose = new Mesh(new TorusGeometry(0.02, 0.2, 6, 16), darkGray);
+      hose.position.set(0.05, 1.28, 0.15);
+      hose.rotation.x = Math.PI / 2;
+      group.add(hose);
+    }
+    if (equipment.includes("thermal-layer")) {
+      const layer = new Mesh(new BoxGeometry(0.62, 0.5, 0.06), new MeshStandardMaterial({ color: 16748142, roughness: 0.5, metalness: 0.1, emissive: 16739146, emissiveIntensity: 0.2 }));
+      layer.position.set(0, 0.85, 0.2);
+      layer.castShadow = true;
+      group.add(layer);
+    }
+    if (equipment.includes("dust-filter")) {
+      const filter = new Mesh(new CylinderGeometry(0.09, 0.09, 0.22, 10), orange);
+      filter.position.set(0.12, 1.72, -0.05);
+      group.add(filter);
+      const grille = new Mesh(new RingGeometry(0.075, 0.095, 12), white);
+      grille.position.set(0.12, 1.83, -0.05);
+      grille.rotation.x = Math.PI / 2;
+      group.add(grille);
+    }
+    if (equipment.includes("comms-unit")) {
+      const comms = new Mesh(new BoxGeometry(0.16, 0.14, 0.1), cyan);
+      comms.position.set(0.32, 1.45, 0.05);
+      comms.castShadow = true;
+      group.add(comms);
+      const antenna = new Mesh(new CylinderGeometry(0.015, 0.015, 0.3, 8), white);
+      antenna.position.set(0.32, 1.68, 0.05);
+      group.add(antenna);
+      const dish = new Mesh(new CylinderGeometry(0.06, 0.02, 0.02, 10), cyan);
+      dish.position.set(0.32, 1.75, 0.05);
+      group.add(dish);
+    }
+    if (equipment.includes("med-kit")) {
+      const kit = new Mesh(new BoxGeometry(0.18, 0.22, 0.1), green);
+      kit.position.set(-0.28, 0.7, 0.18);
+      kit.castShadow = true;
+      group.add(kit);
+      const cross = new Mesh(new BoxGeometry(0.05, 0.08, 0.01), new MeshStandardMaterial({ color: 16777215 }));
+      cross.position.set(-0.28, 0.7, 0.185);
+      group.add(cross);
+      const cross2 = new Mesh(new BoxGeometry(0.08, 0.05, 0.01), new MeshStandardMaterial({ color: 16777215 }));
+      cross2.position.set(-0.28, 0.7, 0.185);
+      group.add(cross2);
+    }
+    model.add(group);
+    model.userData.equipmentGroup = group;
   }
   createJetpackThrusterFx() {
     const count = 32;
@@ -40354,6 +40423,15 @@ var SpaceWorld = class {
     }
     const complete = this.isSampleMissionComplete();
     const craterDone = this.progress.completedMissions.includes(this.craterMissionId);
+    const oxygenMeter = this.hud.querySelector(".game-oxygen-meter");
+    if (oxygenMeter) {
+      oxygenMeter.hidden = this.config.character !== "astronaut";
+      if (this.config.character === "astronaut") {
+        setText(this.hud, "#game-oxygen-time", `${String(Math.floor(this.oxygenLimit / 60)).padStart(2, "0")}:${String(Math.ceil(this.oxygenLimit) % 60).padStart(2, "0")}`);
+        const fill = this.hud.querySelector("#game-oxygen-fill");
+        if (fill) fill.style.width = `${Math.max(0, this.oxygenLimit / 120 * 100)}%`;
+      }
+    }
     if (this.stageSite) {
       setText(this.hud, "#game-mission-title", complete ? "\u0627\u0643\u062A\u0645\u0644\u062A \u0627\u0644\u0639\u064A\u0646\u0627\u062A \u2726 \u0623\u062D\u0633\u0646\u062A!" : `\u0627\u062C\u0645\u0639 ${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A \u0639\u0644\u0645\u064A\u0629`);
       setText(this.hud, "#game-mission-count", `${this.worldCollectedCount()}/${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A`);
@@ -40472,6 +40550,7 @@ var SpaceWorld = class {
       this.updateSiteEnvironment(delta);
       this.updateFootprints();
       this.updateMissionClock(delta);
+      this.updateOxygen(delta);
       this.updateBeacon(delta);
       this.updateMeteors(delta);
     }
@@ -40807,6 +40886,30 @@ var SpaceWorld = class {
     if (seconds === 0) {
       this.timedOut = true;
       this.toast("\u0627\u0646\u062A\u0647\u0649 \u0648\u0642\u062A \u0627\u0644\u062A\u062D\u062F\u064A \u0627\u0644\u0632\u0645\u0646\u064A\u061B \u0648\u0627\u0635\u0644 \u0627\u0633\u062A\u0643\u0634\u0627\u0641\u0643 \u0648\u062C\u0645\u0639 \u0627\u0644\u0639\u064A\u0646\u0627\u062A.");
+    }
+  }
+  updateOxygen(delta) {
+    if (this.config.character !== "astronaut" || this.oxygenDepleted || this.paused) return;
+    this.oxygenLimit -= delta;
+    const seconds = Math.max(0, Math.ceil(this.oxygenLimit));
+    const fill = this.hud.querySelector("#game-oxygen-fill");
+    const timeText = this.hud.querySelector("#game-oxygen-time");
+    const meter = this.hud.querySelector(".game-oxygen-meter");
+    if (fill) fill.style.width = `${Math.max(0, seconds / 120 * 100)}%`;
+    if (timeText) timeText.textContent = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+    if (meter) meter.classList.toggle("is-urgent", seconds < 30);
+    if (seconds === 0) {
+      this.oxygenDepleted = true;
+      this.paused = true;
+      const overlay = this.hud.querySelector("#game-pause-overlay");
+      if (overlay) {
+        overlay.hidden = false;
+        const title = overlay.querySelector("h2");
+        const step = overlay.querySelector(".game-step");
+        if (step) step.textContent = "\u0627\u0646\u062A\u0647\u0649 \u0627\u0644\u0623\u0643\u0633\u062C\u064A\u0646";
+        if (title) title.innerHTML = "\u062D\u0638 \u0623\u0648\u0641\u0631 \u0641\u064A \u0627\u0644\u0645\u0631\u0629 \u0627\u0644\u0642\u0627\u062F\u0645\u0629 \u2014 \u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0647\u0645\u0629";
+      }
+      this.toast("\u0646\u0641\u062F \u0627\u0644\u0623\u0643\u0633\u062C\u064A\u0646. \u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0647\u0645\u0629.");
     }
   }
   updateBeacon(delta = 1 / 60) {

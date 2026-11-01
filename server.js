@@ -45,6 +45,6 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(port, "127.0.0.1", () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`Planetary Exploration is available at http://localhost:${port}`);
 });

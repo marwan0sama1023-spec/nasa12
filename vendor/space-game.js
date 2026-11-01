@@ -38289,6 +38289,9 @@ var SpaceWorld = class {
     this.isNight = false;
     this.isAlien = config.character === "alien";
     this.stageSite = config.stageSite || null;
+    this.suit = config.suit || null;
+    this.spacecraft = config.spacecraft || null;
+    this.equipment = Array.isArray(config.equipment) ? [...config.equipment] : [];
     this.sampleDefinitions = Array.isArray(config.samples) ? config.samples : [];
     this.sampleGoal = this.sampleDefinitions.length;
     this.sampleMissionId = this.stageSite ? `site-stage-${this.stageSite.id}` : `sample-trio-${config.missionKey || config.world}`;
@@ -39714,6 +39717,7 @@ var SpaceWorld = class {
     }
     const leadFace = this.config.character === "astronaut" ? "assets/crew/crew-lead.jpg" : null;
     this.playerModel = makeCharacter(this.config.character, 0, leadFace);
+    this.applySuitVisuals(this.playerModel);
     this.scene.add(this.playerModel);
     this.playerPivots = this.playerModel.userData.pivots;
     this.crewMembers = [];
@@ -39732,6 +39736,7 @@ var SpaceWorld = class {
       ];
       crewFaces.forEach((faceUrl, idx) => {
         const crewModel = makeCharacter(this.config.character, 0, faceUrl);
+        this.applySuitVisuals(crewModel);
         const initX = this.playerBody.position.x + crewOffsets[idx].x;
         const initZ = this.playerBody.position.z + crewOffsets[idx].z;
         const initY = this.terrainHeight(initX, initZ);
@@ -39748,6 +39753,24 @@ var SpaceWorld = class {
     }
     this.createJetpackThrusterFx();
     this.camera.position.set(0, startY + 2.4, 6);
+  }
+  applySuitVisuals(model) {
+    if (!model || this.config.character !== "astronaut") return;
+    const suitColor = this.suit === "mars-suit" ? 16748142 : this.suit === "moon-suit" ? 15265008 : 14542312;
+    const trimColor = this.suit === "mars-suit" ? 5913134 : this.suit === "moon-suit" ? 8030888 : 15639640;
+    model.traverse((object) => {
+      if (object.isMesh && object.material) {
+        const mat = object.material;
+        if (mat.color && (mat.color.getHex() === 14542312 || mat.color.getHex() === 5926261 || mat.color.getHex() === 15639640)) {
+          if (mat.color.getHex() === 14542312 || mat.color.getHex() === 5926261) {
+            mat.color.set(suitColor);
+          }
+          if (mat.color.getHex() === 15639640) {
+            mat.color.set(trimColor);
+          }
+        }
+      }
+    });
   }
   createJetpackThrusterFx() {
     const count = 32;

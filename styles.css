@@ -5279,3 +5279,284 @@ body.game-session-active #guide-panel { display: none !important; }
   border-radius: 4px;
   color: #7dd3fc;
 }
+
+/* ==========================================================================
+   SPACESUIT / SPACECRAFT / EQUIPMENT SELECTION SCREENS
+   ========================================================================== */
+.game-suit-screen, .game-spacecraft-screen, .game-equipment-screen {
+  padding: 24px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: right;
+}
+.game-suit-grid, .game-spacecraft-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 20px 0;
+}
+.game-suit-choice, .game-spacecraft-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: right;
+  transition: all 0.2s;
+}
+.game-suit-choice.is-active, .game-spacecraft-choice.is-active {
+  border-color: var(--border-hover);
+  background: rgba(56, 189, 248, 0.12);
+  box-shadow: var(--shadow-card);
+}
+.game-suit-choice:disabled, .game-spacecraft-choice:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+.game-suit-icon, .game-spacecraft-icon {
+  font-size: 34px;
+  margin-bottom: 6px;
+}
+.game-suit-copy strong, .game-spacecraft-copy strong {
+  display: block;
+  color: var(--text-pure);
+  font-size: 15px;
+}
+.game-suit-copy small, .game-spacecraft-copy small {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  display: block;
+  margin: 2px 0 4px;
+}
+.game-suit-copy span:last-child, .game-spacecraft-copy span:last-child {
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.game-suit-note, .game-spacecraft-note, .game-equipment-note {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-surface-solid);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  border: 1px solid var(--line);
+}
+
+/* Equipment */
+.game-equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.game-equipment-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.game-equipment-choice.is-active {
+  border-color: var(--border-hover);
+  background: rgba(56, 189, 248, 0.12);
+}
+.game-equipment-choice input {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+  accent-color: var(--cyan-bright);
+}
+.game-equipment-choice input:checked {
+  border-color: var(--cyan-bright);
+  background: var(--cyan-bright);
+}
+.game-equipment-art {
+  font-size: 26px;
+}
+.game-equipment-copy strong {
+  display: block;
+  color: var(--text-pure);
+  font-size: 13px;
+}
+.game-equipment-copy small {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.game-equipment-required {
+  font-size: 9px;
+  background: var(--mars-glow);
+  color: var(--text-pure);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-top: 2px;
+  display: inline-block;
+}
+
+/* ==========================================================================
+   ASTRONAUT PROBLEMS & SOLUTIONS (TEAM PAGE)
+   ========================================================================== */
+.team-problems-panel {
+  margin-top: 34px;
+}
+.problems-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.problem-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  text-align: right;
+}
+.problem-icon {
+  font-size: 30px;
+  align-self: flex-start;
+}
+.problem-content h3 {
+  color: var(--text-pure);
+  font-size: 15px;
+  margin: 0;
+}
+.problem-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.problem-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: var(--bg-surface-solid);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--border-glass-bright);
+}
+.problem-box-problem {
+  border-left-color: var(--danger);
+}
+.problem-box-solution {
+  border-left-color: var(--emerald);
+}
+.problem-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+.problem-box-problem .problem-label {
+  color: var(--danger);
+}
+.problem-box-solution .problem-label {
+  color: var(--emerald);
+}
+.problem-box p {
+  font-size: 12.5px;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   GAME WORLD KIT / HEALTH PANELS
+   ========================================================================== */
+.game-mission-kit {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--bg-surface-solid);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  text-align: right;
+  font-size: 12px;
+}
+.game-kit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-glass);
+}
+.game-kit-label {
+  color: var(--text-muted);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.game-kit-item strong {
+  color: var(--text-pure);
+  font-size: 12.5px;
+}
+.game-astronaut-health {
+  margin-top: 14px;
+  background: var(--bg-surface-solid);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-align: right;
+}
+.game-health-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 107, 74, 0.1);
+  border-bottom: 1px solid var(--border-glass);
+}
+.game-health-icon {
+  font-size: 16px;
+}
+.game-health-header strong {
+  color: var(--text-pure);
+  font-size: 13.5px;
+}
+.game-health-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.game-health-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+.game-health-item strong {
+  color: #ffcf56;
+  font-size: 12.5px;
+}
+.game-health-item span {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/* Suit tint class for engine-applied visuals */
+.suit-moon { filter: brightness(1.05) contrast(1.02); }
+.suit-mars { filter: sepia(0.35) hue-rotate(-15deg) saturate(1.3); }

@@ -4562,7 +4562,7 @@ body.team-view-active .team-project-panel {
 .game-live-dot { width: 8px; height: 8px; flex: 0 0 auto; background: #7ce0b5; border-radius: 50%; box-shadow: 0 0 10px rgba(124,224,181,0.75); }
 .game-hud-actions { padding: 5px; gap: 5px; pointer-events: auto; }
 .game-hud-actions [data-engine-action="solar-system"] { display: none; }
-.game-solar-strip { position: absolute; z-index: 5; top: 70px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 6px 14px; max-width: 95%; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; }
+.game-solar-strip { position: absolute; z-index: 5; top: 70px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 6px 14px; max-width: 95%; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; overflow: visible; }
 
 .game-solar-body { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: auto; flex-shrink: 0; }
 
@@ -4593,6 +4593,38 @@ body.team-view-active .team-project-panel {
 .game-solar-planet { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
 
 .game-solar-body.sun .game-solar-planet { display: none; }
+
+/* Compact planet items */
+.game-solar-planet { position: relative; width: 22px; height: 22px; border-radius: 50%; overflow: hidden; pointer-events: auto; flex-shrink: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; }
+
+.game-solar-planet-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 8px rgba(0,0,0,0.4); }
+
+.game-solar-planet .game-solar-label { position: static; bottom: auto; left: auto; right: auto; top: auto; transform: none; margin-top: 2px; white-space: nowrap; font-size: 8px; color: #a7b5c3; }
+
+.game-solar-planet .game-solar-ring { inset: -4px; opacity: 0.4; }
+
+.game-solar-planet.active .game-solar-label { color: #fff; font-weight: 700; text-shadow: 0 0 10px rgba(255,255,255,0.7); }
+
+.game-solar-planet.active .game-solar-glow { opacity: 1; }
+
+/* Individual planet sizes & tints */
+.game-solar-planet.mercury { width: 14px; height: 14px; box-shadow: 0 0 8px rgba(165,159,153,0.3); }
+.game-solar-planet.venus { width: 18px; height: 18px; box-shadow: 0 0 10px rgba(245,223,171,0.35); }
+.game-solar-planet.mars { width: 18px; height: 18px; box-shadow: 0 0 12px rgba(255,107,74,0.25); }
+.game-solar-planet.jupiter { width: 28px; height: 28px; box-shadow: 0 0 14px rgba(195,145,110,0.35); }
+.game-solar-planet.saturn { width: 22px; height: 22px; box-shadow: 0 0 12px rgba(210,180,140,0.35); }
+.game-solar-planet.uranus { width: 16px; height: 16px; box-shadow: 0 0 10px rgba(173,216,230,0.35); }
+.game-solar-planet.neptune { width: 16px; height: 16px; box-shadow: 0 0 10px rgba(100,149,237,0.35); }
+
+.game-solar-planet.mercury.active { box-shadow: 0 0 16px rgba(165,159,153,0.6); }
+.game-solar-planet.venus.active { box-shadow: 0 0 16px rgba(245,223,171,0.6); }
+.game-solar-planet.jupiter.active { box-shadow: 0 0 18px rgba(195,145,110,0.6); }
+.game-solar-planet.saturn.active { box-shadow: 0 0 16px rgba(210,180,140,0.6); }
+.game-solar-planet.uranus.active { box-shadow: 0 0 14px rgba(173,216,230,0.6); }
+.game-solar-planet.neptune.active { box-shadow: 0 0 14px rgba(100,149,237,0.6); }
+
+/* Saturn rings */
+.saturn-rings { position: absolute; inset: -30%; border: none; border-radius: 50%; border-top: 3px solid rgba(210,180,140,0.55); border-bottom: 3px solid rgba(210,180,140,0.55); transform: rotateX(75deg); opacity: 0.7; pointer-events: none; }
 
 /* Earth + Moon orbit group */
 .game-solar-earth-moon { position: relative; display: flex; align-items: center; justify-content: center; gap: 4px; pointer-events: auto; flex-shrink: 0; width: 44px; height: 44px; }

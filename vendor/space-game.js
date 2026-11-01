@@ -40440,6 +40440,17 @@ var SpaceWorld = class {
       setText(this.hud, "#game-mission-count", craterDone ? "\u0627\u0644\u0645\u0647\u0645\u0629 \u0645\u0643\u062A\u0645\u0644\u0629" : complete ? "\u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \u0645\u062A\u0627\u062D\u0629 \u2726 +80 XP \u0639\u0646\u062F \u0627\u0644\u0641\u0648\u0647\u0629" : `${this.worldCollectedCount()}/${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A`);
     }
   }
+  showGameOver(title, reason) {
+    const overlay = this.hud.querySelector("#game-over-overlay");
+    if (!overlay) return;
+    overlay.hidden = false;
+    const t = overlay.querySelector("#game-over-title");
+    const r = overlay.querySelector("#game-over-reason");
+    if (t) t.textContent = title;
+    if (r) r.textContent = reason;
+    this.paused = true;
+    if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
+  }
   togglePause(force) {
     this.paused = typeof force === "boolean" ? force : !this.paused;
     const overlay = this.hud.querySelector("#game-pause-overlay");
@@ -40885,7 +40896,12 @@ var SpaceWorld = class {
     if (timer) timer.classList.toggle("is-urgent", seconds < 30);
     if (seconds === 0) {
       this.timedOut = true;
-      this.toast("\u0627\u0646\u062A\u0647\u0649 \u0648\u0642\u062A \u0627\u0644\u062A\u062D\u062F\u064A \u0627\u0644\u0632\u0645\u0646\u064A\u061B \u0648\u0627\u0635\u0644 \u0627\u0633\u062A\u0643\u0634\u0627\u0641\u0643 \u0648\u062C\u0645\u0639 \u0627\u0644\u0639\u064A\u0646\u0627\u062A.");
+      if (!this.isSampleMissionComplete()) {
+        this.paused = true;
+        this.showGameOver("\u0627\u0646\u062A\u0647\u0649 \u0627\u0644\u0648\u0642\u062A", "\u0644\u0645 \u062A\u062A\u0645\u0643\u0646 \u0645\u0646 \u062C\u0645\u0639 \u0627\u0644\u0639\u064A\u0646\u0627\u062A \u0642\u0628\u0644 \u0627\u0646\u062A\u0647\u0627\u0621 \u0627\u0644\u0648\u0642\u062A \u0627\u0644\u0645\u062D\u062F\u062F.");
+      } else {
+        this.toast("\u0627\u0646\u062A\u0647\u0649 \u0648\u0642\u062A \u0627\u0644\u062A\u062D\u062F\u064A \u0627\u0644\u0632\u0645\u0646\u064A\u061B \u0648\u0627\u0635\u0644 \u0627\u0633\u062A\u0643\u0634\u0627\u0641\u0643 \u0648\u062C\u0645\u0639 \u0627\u0644\u0639\u064A\u0646\u0627\u062A.");
+      }
     }
   }
   updateOxygen(delta) {
@@ -40901,15 +40917,9 @@ var SpaceWorld = class {
     if (seconds === 0) {
       this.oxygenDepleted = true;
       this.paused = true;
-      const overlay = this.hud.querySelector("#game-pause-overlay");
-      if (overlay) {
-        overlay.hidden = false;
-        const title = overlay.querySelector("h2");
-        const step = overlay.querySelector(".game-step");
-        if (step) step.textContent = "\u0627\u0646\u062A\u0647\u0649 \u0627\u0644\u0623\u0643\u0633\u062C\u064A\u0646";
-        if (title) title.innerHTML = "\u062D\u0638 \u0623\u0648\u0641\u0631 \u0641\u064A \u0627\u0644\u0645\u0631\u0629 \u0627\u0644\u0642\u0627\u062F\u0645\u0629 \u2014 \u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0647\u0645\u0629";
+      if (!this.isSampleMissionComplete()) {
+        this.showGameOver("\u0646\u0641\u062F \u0627\u0644\u0623\u0643\u0633\u062C\u064A\u0646", "\u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0647\u0645\u0629 \u0642\u0628\u0644 \u062C\u0645\u0639 \u0627\u0644\u0639\u064A\u0646\u0627\u062A \u0627\u0644\u0643\u0627\u0641\u064A\u0629.");
       }
-      this.toast("\u0646\u0641\u062F \u0627\u0644\u0623\u0643\u0633\u062C\u064A\u0646. \u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0647\u0645\u0629.");
     }
   }
   updateBeacon(delta = 1 / 60) {

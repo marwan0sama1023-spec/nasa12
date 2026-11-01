@@ -2822,6 +2822,18 @@ class SpaceWorld {
     }
   }
 
+  showGameOver(title, reason) {
+    const overlay = this.hud.querySelector("#game-over-overlay");
+    if (!overlay) return;
+    overlay.hidden = false;
+    const t = overlay.querySelector("#game-over-title");
+    const r = overlay.querySelector("#game-over-reason");
+    if (t) t.textContent = title;
+    if (r) r.textContent = reason;
+    this.paused = true;
+    if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
+  }
+
   togglePause(force) {
     this.paused = typeof force === "boolean" ? force : !this.paused;
     const overlay = this.hud.querySelector("#game-pause-overlay");
@@ -3348,7 +3360,12 @@ class SpaceWorld {
     if (timer) timer.classList.toggle("is-urgent", seconds < 30);
     if (seconds === 0) {
       this.timedOut = true;
-      this.toast("انتهى وقت التحدي الزمني؛ واصل استكشافك وجمع العينات.");
+      if (!this.isSampleMissionComplete()) {
+        this.paused = true;
+        this.showGameOver("انتهى الوقت", "لم تتمكن من جمع العينات قبل انتهاء الوقت المحدد.");
+      } else {
+        this.toast("انتهى وقت التحدي الزمني؛ واصل استكشافك وجمع العينات.");
+      }
     }
   }
 
@@ -3365,15 +3382,9 @@ class SpaceWorld {
     if (seconds === 0) {
       this.oxygenDepleted = true;
       this.paused = true;
-      const overlay = this.hud.querySelector("#game-pause-overlay");
-      if (overlay) {
-        overlay.hidden = false;
-        const title = overlay.querySelector("h2");
-        const step = overlay.querySelector(".game-step");
-        if (step) step.textContent = "انتهى الأكسجين";
-        if (title) title.innerHTML = "حظ أوفر في المرة القادمة — انتهت المهمة";
+      if (!this.isSampleMissionComplete()) {
+        this.showGameOver("نفد الأكسجين", "انتهت المهمة قبل جمع العينات الكافية.");
       }
-      this.toast("نفد الأكسجين. انتهت المهمة.");
     }
   }
 

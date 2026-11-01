@@ -807,6 +807,7 @@ function spaceGearSummaryScreen() {
       <strong id="game-gear-timer">5</strong>
       <div class="game-gear-countdown-note">راجع العتاد أعلاه قبل بدء المهمة</div>
     </div>
+    <button class="button primary glow-btn" type="button" data-game-action="start-mission">ابدأ الاستكشاف الآن</button>
   </div>`;
 }
 function getActiveGameWorld() {

@@ -3175,7 +3175,7 @@ class SpaceWorld {
     const direction = forward.multiplyScalar(forwardInput * normalizer).add(side.multiplyScalar(sideInput * normalizer));
 
     const sprint = this.keys.has("ShiftLeft") || this.keys.has("ShiftRight");
-    this.isRunning = inputLength > 0.08;
+    this.isRunning = inputLength > 0.08 || this.touchRun;
     const isSprint = (sprint || this.touchRun) && this.isRunning;
     const speed = (isSprint ? this.look.run : this.look.walk) * (this.roverMode ? 1.85 : 1);
     const grounded = this.isGrounded();

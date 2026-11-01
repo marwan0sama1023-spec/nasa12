@@ -2073,6 +2073,80 @@ class SpaceWorld {
         }
       }
     });
+    this.applyEquipmentVisuals(model);
+  }
+
+  applyEquipmentVisuals(model) {
+    if (!model || this.config.character !== "astronaut") return;
+    const equipment = this.equipment || [];
+    const group = new THREE.Group();
+    const darkGray = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4, metalness: 0.5 });
+    const white = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.3, metalness: 0.1 });
+    const cyan = new THREE.MeshStandardMaterial({ color: 0x00d2ff, roughness: 0.2, metalness: 0.3, emissive: 0x004466, emissiveIntensity: 0.3 });
+    const orange = new THREE.MeshStandardMaterial({ color: 0xff6b4a, roughness: 0.3, metalness: 0.2 });
+    const green = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.3, metalness: 0.2 });
+
+    if (equipment.includes("oxygen-tank")) {
+      const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.5, 12), darkGray);
+      tank.position.set(0, 1.05, 0.42);
+      tank.rotation.z = Math.PI / 2;
+      tank.castShadow = true;
+      group.add(tank);
+      const valve = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.12, 10), cyan);
+      valve.position.set(0, 1.3, 0.42);
+      valve.rotation.z = Math.PI / 2;
+      group.add(valve);
+      const hose = new THREE.Mesh(new THREE.TorusGeometry(0.02, 0.2, 6, 16), darkGray);
+      hose.position.set(0.05, 1.28, 0.15);
+      hose.rotation.x = Math.PI / 2;
+      group.add(hose);
+    }
+
+    if (equipment.includes("thermal-layer")) {
+      const layer = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.5, 0.06), new THREE.MeshStandardMaterial({ color: 0xff8e6e, roughness: 0.5, metalness: 0.1, emissive: 0xff6b4a, emissiveIntensity: 0.2 }));
+      layer.position.set(0, 0.85, 0.2);
+      layer.castShadow = true;
+      group.add(layer);
+    }
+
+    if (equipment.includes("dust-filter")) {
+      const filter = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.22, 10), orange);
+      filter.position.set(0.12, 1.72, -0.05);
+      group.add(filter);
+      const grille = new THREE.Mesh(new THREE.RingGeometry(0.075, 0.095, 12), white);
+      grille.position.set(0.12, 1.83, -0.05);
+      grille.rotation.x = Math.PI / 2;
+      group.add(grille);
+    }
+
+    if (equipment.includes("comms-unit")) {
+      const comms = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.1), cyan);
+      comms.position.set(0.32, 1.45, 0.05);
+      comms.castShadow = true;
+      group.add(comms);
+      const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.3, 8), white);
+      antenna.position.set(0.32, 1.68, 0.05);
+      group.add(antenna);
+      const dish = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.02, 0.02, 10), cyan);
+      dish.position.set(0.32, 1.75, 0.05);
+      group.add(dish);
+    }
+
+    if (equipment.includes("med-kit")) {
+      const kit = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.22, 0.1), green);
+      kit.position.set(-0.28, 0.7, 0.18);
+      kit.castShadow = true;
+      group.add(kit);
+      const cross = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.08, 0.01), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+      cross.position.set(-0.28, 0.7, 0.185);
+      group.add(cross);
+      const cross2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.05, 0.01), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+      cross2.position.set(-0.28, 0.7, 0.185);
+      group.add(cross2);
+    }
+
+    model.add(group);
+    model.userData.equipmentGroup = group;
   }
 
   createJetpackThrusterFx() {

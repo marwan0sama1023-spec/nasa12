@@ -5620,6 +5620,9 @@ body.game-session-active #guide-panel { display: none !important; }
   max-width: 720px;
   margin: 0 auto;
   text-align: right;
+  max-height: 85vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .game-gear-grid {
   display: grid;

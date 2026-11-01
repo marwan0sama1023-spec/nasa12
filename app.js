@@ -768,22 +768,40 @@ function spaceGearSummaryScreen() {
   const suitColor = gear.suit.color;
   const suitTrim = gear.suit.trim;
 
+  const suitVisual = `
+    <div class="game-gear-visual-wrap">
+      <div class="game-gear-visual suit-visual" style="--suit-color:${suitColor};--suit-trim:${suitTrim};">
+        <div class="suit-helmet"></div>
+        <div class="suit-visor"></div>
+        <div class="suit-body"></div>
+        <div class="suit-glow"></div>
+      </div>
+    </div>`;
+
+  const craftVisual = isMoon
+    ? `<div class="game-gear-visual-wrap"><div class="game-gear-visual craft-visual lunar-land-visual"><div class="craft-capsule"></div><div class="craft-leg l1"></div><div class="craft-leg l2"></div><div class="craft-leg l3"></div><div class="craft-glow"></div></div></div>`
+    : `<div class="game-gear-visual-wrap"><div class="game-gear-visual craft-visual mars-land-visual"><div class="craft-capsule"></div><div class="craft-shield"></div><div class="craft-parachute"></div><div class="craft-glow"></div></div></div>`;
+
+  const equipmentVisuals = gear.equipment.map(e => {
+    const visualClass = e.id === "oxygen-tank" ? "eq-oxygen" : e.id === "thermal-layer" ? "eq-thermal" : e.id === "dust-filter" ? "eq-dust" : e.id === "comms-unit" ? "eq-comms" : "eq-med";
+    return `<div class="game-gear-equip-item"><div class="game-gear-equip-visual ${visualClass}"></div><div class="game-gear-equip-label">${escapeHtml(e.name)}</div></div>`;
+  }).join("");
+
   return `<div class="game-screen game-gear-screen">
     <div class="game-screen-heading"><span class="game-step">03 · العتاد الإلزامي للرحلة</span><h2>عتاد رحلتك إلى ${target}</h2><p>جميع القطع أدناه إلزامية للرحلة. يتم تجهيزها تلقائياً وفقاً للوجهة المختارة.</p></div>
 
     <div class="game-gear-grid">
       <div class="game-gear-card game-gear-suit">
-        <div class="game-gear-icon" style="color:${suitColor}">${gear.suit.icon}</div>
+        ${suitVisual}
         <div class="game-gear-copy">
           <strong style="color:${suitColor}">${escapeHtml(gear.suit.name)}</strong>
           <div class="game-gear-type">بدلة فضائية إلزامية</div>
           <ul class="game-gear-props">${gear.suit.props.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
-          <div class="game-gear-color-swatch" style="background:${suitColor};border-color:${suitTrim}"></div>
         </div>
       </div>
 
       <div class="game-gear-card game-gear-craft">
-        <div class="game-gear-icon">${gear.craft.icon}</div>
+        ${craftVisual}
         <div class="game-gear-copy">
           <strong>${escapeHtml(gear.craft.name)}</strong>
           <div class="game-gear-type">مركبة هبوط إلزامية</div>
@@ -792,11 +810,11 @@ function spaceGearSummaryScreen() {
       </div>
 
       <div class="game-gear-card game-gear-equipment">
-        <div class="game-gear-icon">🎒</div>
+        <div class="game-gear-equipment-visuals">${equipmentVisuals}</div>
         <div class="game-gear-copy">
           <strong>العتاد الإلزامي</strong>
           <div class="game-gear-type">معدات داخلية وخارجية</div>
-          <ul class="game-gear-props">${gear.equipment.map(e => `<li><span style="font-size:1.2rem">${e.icon}</span> <strong>${escapeHtml(e.name)}</strong> - ${escapeHtml(e.desc)}</li>`).join("")}</ul>
+          <ul class="game-gear-props">${gear.equipment.map(e => `<li><span class="game-gear-equip-icon">${e.icon}</span> <strong>${escapeHtml(e.name)}</strong> - ${escapeHtml(e.desc)}</li>`).join("")}</ul>
         </div>
       </div>
     </div>
@@ -833,8 +851,12 @@ function getActiveGameWorld() {
   };
 }
 function gamePlanetStripMarkup(world) {
-  const active = world === "moon" ? "moon" : world;
-  return `<div class="game-solar-strip" aria-label="المجموعة الشمسية وموقع اللاعب"><div class="game-solar-body sun"><span class="game-solar-glow"></span><span class="game-solar-label">الشمس</span></div><div class="game-solar-body earth${active === "earth" ? " active" : ""}"><img src="assets/earth-blue-marble.jpg" class="game-solar-img" alt="الأرض"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">الأرض</span></div><div class="game-solar-body moon${active === "moon" ? " active" : ""}"><img src="assets/moon-apollo-11.jpg" class="game-solar-img" alt="القمر"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">القمر</span></div><div class="game-solar-body mars${active === "mars" ? " active" : ""}"><img src="assets/mars-hubble-globe.jpg" class="game-solar-img" alt="المريخ"><div class="game-solar-ring"></div><span class="game-solar-glow"></span><span class="game-solar-label">المريخ</span></div></div>`;
+  const isAstronaut = spaceGame.character === "astronaut";
+  const destination = spaceGame.destination;
+  const earthActive = isAstronaut || world === "earth";
+  const moonActive = isAstronaut && destination === "moon";
+  const marsActive = isAstronaut && destination === "mars";
+  return `<div class="game-solar-strip" aria-label="المجموعة الشمسية وموقع اللاعب"><div class="game-solar-body sun"><span class="game-solar-glow"></span><span class="game-solar-label">الشمس</span></div><div class="game-solar-earth-moon ${earthActive ? "earth-active" : ""} ${moonActive ? "moon-active" : ""}"><div class="game-solar-moon-orbit" aria-hidden="true"></div><img src="assets/earth-blue-marble.jpg" class="game-solar-planet earth-img" alt="الأرض"><span class="game-solar-glow earth-glow"></span><span class="game-solar-label earth-label">الأرض</span><img src="assets/moon-apollo-11.jpg" class="game-solar-planet moon-img" alt="القمر"><span class="game-solar-glow moon-glow"></span><span class="game-solar-label moon-label">القمر</span></div><div class="game-solar-body mars ${marsActive ? "active" : ""}"><img src="assets/mars-hubble-globe.jpg" class="game-solar-planet mars-img" alt="المريخ"><span class="game-solar-glow"></span><span class="game-solar-label">المريخ</span></div></div>`;
 }
 function alienSiteCompleteMarkup(gameWorld) {
   const { stageSite, stageIndex, stageCount, lastStage, missionComplete } = gameWorld;

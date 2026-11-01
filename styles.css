@@ -5560,3 +5560,199 @@ body.game-session-active #guide-panel { display: none !important; }
 /* Suit tint class for engine-applied visuals */
 .suit-moon { filter: brightness(1.05) contrast(1.02); }
 .suit-mars { filter: sepia(0.35) hue-rotate(-15deg) saturate(1.3); }
+
+/* ==========================================================================
+   GEAR SUMMARY SCREEN (mandatory gear, auto-assigned per destination)
+   ========================================================================== */
+.game-gear-screen {
+  padding: 24px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: right;
+}
+.game-gear-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 22px 0;
+}
+.game-gear-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  text-align: right;
+}
+.game-gear-card.game-gear-suit {
+  border-left: 4px solid var(--cyan-bright);
+}
+.game-gear-card.game-gear-craft {
+  border-left: 4px solid var(--mars-bright);
+}
+.game-gear-card.game-gear-equipment {
+  border-left: 4px solid var(--emerald);
+}
+.game-gear-icon {
+  font-size: 34px;
+  align-self: flex-start;
+}
+.game-gear-copy strong {
+  display: block;
+  color: var(--text-pure);
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.game-gear-type {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.game-gear-props {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: var(--text-main);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.game-gear-props li {
+  margin-bottom: 6px;
+  position: relative;
+  padding-right: 16px;
+}
+.game-gear-props li::before {
+  content: "✦";
+  position: absolute;
+  right: 0;
+  color: #facc15;
+  font-size: 11px;
+}
+.game-gear-color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin-top: 10px;
+  border: 2px solid;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+.game-gear-note {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-surface-solid);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+/* Countdown */
+.game-gear-countdown {
+  margin-top: 24px;
+  padding: 18px;
+  background: rgba(255, 107, 74, 0.1);
+  border: 1px solid var(--mars-glow);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+.game-gear-countdown-label {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.game-gear-countdown #game-gear-timer {
+  font-size: 32px;
+  color: var(--mars-bright);
+  font-weight: 800;
+  display: block;
+}
+.game-gear-countdown-note {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  margin-top: 6px;
+}
+
+/* ==========================================================================
+   PROBLEMS PAGE (separate page, above team page)
+   ========================================================================== */
+.problems-page-panel {
+  margin-top: 6px;
+}
+.problems-intro {
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+.problems-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+}
+.problem-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  text-align: right;
+}
+.problem-icon {
+  font-size: 30px;
+  align-self: flex-start;
+}
+.problem-content h3 {
+  color: var(--text-pure);
+  font-size: 15px;
+  margin: 0 0 2px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.problem-target {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  background: var(--bg-surface-solid);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+.problem-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.problem-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: var(--bg-surface-solid);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--border-glass-bright);
+}
+.problem-box-problem { border-left-color: var(--danger); }
+.problem-box-solution { border-left-color: var(--emerald); }
+.problem-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+.problem-box-problem .problem-label { color: var(--danger); }
+.problem-box-solution .problem-label { color: var(--emerald); }
+.problem-box p {
+  font-size: 12.5px;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.6;
+}

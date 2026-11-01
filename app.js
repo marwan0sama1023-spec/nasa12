@@ -158,6 +158,7 @@ let shortlist = readStore(storageKeys.shortlist, []);
 let pinnedSelection = readStore(storageKeys.pinned, null);
 const spaceGameStorageKey = "planetary-space-explorer";
 let spaceGame = loadSpaceGame();
+let gearCountdownInterval = null;
 let guideStarted = false;
 let guideBusy = false;
 let pendingGuideResponse = null;
@@ -717,84 +718,95 @@ function spaceDestinationScreen() {
     <button class="game-text-button" type="button" data-game-action="change-character">تغيير الشخصية</button>
   </div>`;
 }
-function spaceSuitScreen() {
+function spaceGearSummaryScreen() {
   const destination = spaceGame.destination;
+  const isAstronaut = spaceGame.character === "astronaut";
   const isMoon = destination === "moon";
   const target = isMoon ? "القمر" : "المريخ";
-  const suitLabel = isMoon ? "بدلة القمر ( Artemis )" : "بدلة المريخ";
-  const suitDesc = isMoon ? "بدلة ضغط خفيفة للجاذبية المنخفضة والفراغ، مع حماية حرارية لل.toggle بين -130°C و +120°C." : "بدلة مضغوطة للجاذبية 0.38g والغلاف الجوي الرقيق، مع نظام دعم حياة لحماية من ثاني أكسيد الكربون والغبار.";
-  const suitImage = isMoon ? "assets/moon-apollo-11.jpg" : "assets/mars-hubble-globe.jpg";
-  return `<div class="game-screen game-suit-screen">
-    <div class="game-screen-heading"><span class="game-step">03 · ملبس الرحلة</span><h2>اختر البدلة الفضائية</h2><p>لكل عالم بدلة تناسبه. البدلة المناسبة تحمي رائد الفضاء داخل المركبة وعلى سطح ${target}.</p></div>
-    <div class="game-suit-grid">
-      <button class="game-suit-choice ${spaceGame.suit === "moon-suit" ? "is-active" : ""} type="button" data-game-action="choose-suit" data-suit="moon-suit" ${isMoon ? "" : "disabled"}>
-        <span class="game-suit-art" aria-hidden="true"><span class="game-suit-icon">👨‍🚀</span></span>
-        <span class="game-suit-copy"><strong>بدلة القمر</strong><small lang="en">LUNAR SUIT</small><span>لجاذبية القمر المنخفضة والفراغ · حماية حرارية للسطح</span></span>
-        <span class="game-choice-arrow" aria-hidden="true">←</span>
-      </button>
-      <button class="game-suit-choice ${spaceGame.suit === "mars-suit" ? "is-active" : ""} type="button" data-game-action="choose-suit" data-suit="mars-suit" ${!isMoon ? "" : "disabled"}>
-        <span class="game-suit-art" aria-hidden="true"><span class="game-suit-icon">🧑‍🚀</span></span>
-        <span class="game-suit-copy"><strong>بدلة المريخ</strong><small lang="en">MARS SUIT</small><span>للغلاف الجوي الرقيق وجاذبية 0.38g · حماية من ثاني أكسيد الكربون</span></span>
-        <span class="game-choice-arrow" aria-hidden="true">←</span>
-      </button>
+  const targetEn = isMoon ? "Moon" : "Mars";
+
+  const gear = isAstronaut
+    ? (isMoon
+      ? {
+          suit: { id: "moon-suit", name: "بدلة القمر", color: "#e8ecf0", trim: "#7a8aa8", icon: "🌕",
+            props: ["حماية من الفراغ الكوني التام", "نظام تحكم حراري نشط (-130°C إلى +120°C)", "مصممة للجاذبية المنخفضة (1/6 من جاذبية الأرض)", "خوذة مع visor عاكس"] },
+          craft: { id: "lunar-lander", name: "مركبة هبوط القمر", icon: "🚀",
+            props: ["أرجل هبوط ثابتة للفراغ الكوني", "لا تحتاج مظلات (لا غلاف جوي)", "نظام دعم حياة مدمج", "مصممة للهبوط على سطح القمر"] },
+          equipment: [
+            { id: "oxygen-tank", name: "خزان أكسجين", icon: "🫁", desc: "تنفس خارج الغلاف الجوي الأرضي" },
+            { id: "thermal-layer", name: "طبقة حرارية إضافية", icon: "🧥", desc: "حماية من التقلبات الحرارية الشديدة" },
+            { id: "comms-unit", name: "وحدة اتصال", icon: "📡", desc: "تواصل مع مركز التحكم الأرضي" },
+            { id: "med-kit", name: "حقيبة إسعاف أولي", icon: "🩹", desc: "علاج الإصابات الطارئة" }
+          ]
+        }
+      : {
+          suit: { id: "mars-suit", name: "بدلة المريخ", color: "#ff8e6e", trim: "#5a3a2e", icon: "🔴",
+            props: ["نظام ترشيح ثاني أكسيد الكربون", "حماية من الغبار المريخي الناعم", "مصممة لجاذبية 0.38g", "ختم محكم للغلاف الجوي الرقيق"] },
+          craft: { id: "mars-lander", name: "مركبة هبوط المريخ", icon: "🛬",
+            props: ["مظلات هبوط للغلاف الجوي الرقيق", "درع حراري ضد الاحتكاك", "نظام تبريد نشط", "مصممة للهبوط على سطح المريخ"] },
+          equipment: [
+            { id: "oxygen-tank", name: "خزان أكسجين", icon: "🫁", desc: "تنفس في الغلاف الجوي الرقيق (95% CO2)" },
+            { id: "dust-filter", name: "مرشح غبار", icon: "😷", desc: "منع تسرب الغبار المريخي إلى البدلة" },
+            { id: "comms-unit", name: "وحدة اتصال", icon: "📡", desc: "تواصل مع مركز التحكم الأرضي" },
+            { id: "med-kit", name: "حقيبة إسعاف أولي", icon: "🩹", desc: "علاج الإصابات الطارئة" }
+          ]
+        })
+    : null;
+
+  // Auto-assign mandatory gear based on destination
+  spaceGame.suit = gear ? gear.suit.id : null;
+  spaceGame.spacecraft = gear ? gear.craft.id : null;
+  spaceGame.equipment = gear ? gear.equipment.map(e => e.id) : [];
+
+  if (!isAstronaut) {
+    return `<div class="game-screen game-gear-screen">
+      <div class="game-screen-heading"><span class="game-step">استعداد الرحلة</span><h2>مستكشف فضائي - الأرض</h2><p>ستستكشف مواقع أرضية تناظرية دون حاجة لبدلة فضائية أو مركبة هبوط كوكبية.</p></div>
+      <div class="game-gear-note">الشخصية المختارة: الفضائي · لا تتطلب هذه الرحلة عتاداً فضائياً.</div>
+      <button class="button primary glow-btn" type="button" data-game-action="start-mission">ابدأ الاستكشاف ✦</button>
+    </div>`;
+  }
+
+  const suitColor = gear.suit.color;
+  const suitTrim = gear.suit.trim;
+
+  return `<div class="game-screen game-gear-screen">
+    <div class="game-screen-heading"><span class="game-step">03 · العتاد الإلزامي للرحلة</span><h2>عتاد رحلتك إلى ${target}</h2><p>جميع القطع أدناه إلزامية للرحلة. يتم تجهيزها تلقائياً وفقاً للوجهة المختارة.</p></div>
+
+    <div class="game-gear-grid">
+      <div class="game-gear-card game-gear-suit">
+        <div class="game-gear-icon" style="color:${suitColor}">${gear.suit.icon}</div>
+        <div class="game-gear-copy">
+          <strong style="color:${suitColor}">${escapeHtml(gear.suit.name)}</strong>
+          <div class="game-gear-type">بدلة فضائية إلزامية</div>
+          <ul class="game-gear-props">${gear.suit.props.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
+          <div class="game-gear-color-swatch" style="background:${suitColor};border-color:${suitTrim}"></div>
+        </div>
+      </div>
+
+      <div class="game-gear-card game-gear-craft">
+        <div class="game-gear-icon">${gear.craft.icon}</div>
+        <div class="game-gear-copy">
+          <strong>${escapeHtml(gear.craft.name)}</strong>
+          <div class="game-gear-type">مركبة هبوط إلزامية</div>
+          <ul class="game-gear-props">${gear.craft.props.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
+        </div>
+      </div>
+
+      <div class="game-gear-card game-gear-equipment">
+        <div class="game-gear-icon">🎒</div>
+        <div class="game-gear-copy">
+          <strong>العتاد الإلزامي</strong>
+          <div class="game-gear-type">معدات داخلية وخارجية</div>
+          <ul class="game-gear-props">${gear.equipment.map(e => `<li><span style="font-size:1.2rem">${e.icon}</span> <strong>${escapeHtml(e.name)}</strong> - ${escapeHtml(e.desc)}</li>`).join("")}</ul>
+        </div>
+      </div>
     </div>
-    <div class="game-suit-note"><strong>البدلة المختارة:</strong> ${escapeHtml(suitLabel)} · ${escapeHtml(suitDesc)}</div>
-    <button class="game-text-button" type="button" data-game-action="back-to-destination">← العودة لاختيار الوجهة</button>
-  </div>`;
-}
-function spaceSpacecraftScreen() {
-  const destination = spaceGame.destination;
-  const isMoon = destination === "moon";
-  const target = isMoon ? "القمر" : "المريخ";
-  const shipLabel = isMoon ? "هالو lander · مركبة هبوط القمر" : "أريزونا lander · مركبة هبوط المريخ";
-  const shipDesc = isMoon ? "مركبة هبوط مصممة لسطح القمر، مع أرجل هبوط وثبات في الفراغ الكوني." : "مركبة هبوط مصممة لسطح المريخ، مع مظلات هبوط ونظام برد للغلاف الجوي الرقيق.";
-  const shipImage = isMoon ? "assets/moon-apollo-11.jpg" : "assets/mars-hubble-globe.jpg";
-  return `<div class="game-screen game-spacecraft-screen">
-    <div class="game-screen-heading"><span class="game-step">04 · مركبة الهبوط</span><h2>اختر مركبة الهبوط</h2><p>ستستخدم نفس المركبة للهبوط على سطح ${target}. كل مركبة مصممة لعالمها الخاص.</p></div>
-    <div class="game-spacecraft-grid">
-      <button class="game-spacecraft-choice ${spaceGame.spacecraft === "lunar-lander" ? "is-active" : ""} type="button" data-game-action="choose-spacecraft" data-spacecraft="lunar-lander" ${isMoon ? "" : "disabled"}>
-        <span class="game-spacecraft-art" aria-hidden="true"><span class="game-spacecraft-icon">🌕</span></span>
-        <span class="game-spacecraft-copy"><strong>مركبة هبوط القمر</strong><small lang="en">LUNAR LANDER</small><span>مصممة للهبوط على سطح القمر · أرجل هبوط ثابتة</span></span>
-        <span class="game-choice-arrow" aria-hidden="true">←</span>
-      </button>
-      <button class="game-spacecraft-choice ${spaceGame.spacecraft === "mars-lander" ? "is-active" : ""} type="button" data-game-action="choose-spacecraft" data-spacecraft="mars-lander" ${!isMoon ? "" : "disabled"}>
-        <span class="game-spacecraft-art" aria-hidden="true"><span class="game-spacecraft-icon">🔴</span></span>
-        <span class="game-spacecraft-copy"><strong>مركبة هبوط المريخ</strong><small lang="en">MARS LANDER</small><span>مصممة للهبوط على سطح المريخ · مظلات ونظام برد</span></span>
-        <span class="game-choice-arrow" aria-hidden="true">←</span>
-      </button>
+
+    <div class="game-gear-countdown" id="game-gear-countdown">
+      <div class="game-gear-countdown-label">يبدأ الاستكشاف تلقائياً بعد</div>
+      <strong id="game-gear-timer">5</strong>
+      <div class="game-gear-countdown-note">راجع العتاد أعلاه قبل بدء المهمة</div>
     </div>
-    <div class="game-spacecraft-note"><strong>المركبة المختارة:</strong> ${escapeHtml(shipLabel)} · ${escapeHtml(shipDesc)}</div>
-    <button class="game-text-button" type="button" data-game-action="back-to-suit">← العودة لاختيار البدلة</button>
-  </div>`;
-}
-function spaceEquipmentScreen() {
-  const destination = spaceGame.destination;
-  const isMoon = destination === "moon";
-  const target = isMoon ? "القمر" : "المريخ";
-  const allEquipment = [
-    { id: "oxygen-tank", label: "خزان أكسجين", desc: "تنفس خارج الغلاف الجوي الأرضي", icon: "🫁", required: true },
-    { id: "tool-kit", label: "حقيبة أدوات", desc: "إصلاح المعدات داخل المركبة", icon: "🔧", required: false },
-    { id: "med-kit", label: "حقيبة إسعاف أولي", desc: "علاج الإصابات الطارئة", icon: "🩹", required: true },
-    { id: "sample-bag", label: "حقيبة عينات", desc: "جمع الصخور والتربة", icon: "🧰", required: false },
-    { id: "comms-unit", label: "وحدة اتصال", desc: "تواصل مع مركز التحكم", icon: "📡", required: true },
-    { id: "thermal-suit", label: "طبقة حرارية إضافية", desc: "حماية من التقلبات الحرارية", icon: "🧥", required: false }
-  ];
-  const currentEquipment = spaceGame.equipment || [];
-  return `<div class="game-screen game-equipment-screen">
-    <div class="game-screen-heading"><span class="game-step">05 · عتاد الرحلة</span><h2>اختر العتاد اللازم</h2><p>حدد الأدوات التي ستحملها داخل المركبة وعلى سطح ${target}. الأدوات الأساسية محددة تلقائياً.</p></div>
-    <div class="game-equipment-grid">
-      ${allEquipment.map(item => {
-        const selected = currentEquipment.includes(item.id);
-        return `<label class="game-equipment-choice ${selected ? "is-active" : ""}">
-          <input type="checkbox" data-game-action="toggle-equipment" data-equipment="${item.id}" ${selected ? "checked" : ""} ${item.required ? "disabled" : ""}>
-          <span class="game-equipment-art" aria-hidden="true">${item.icon}</span>
-          <span class="game-equipment-copy"><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.desc)}</small>${item.required ? ' <span class="game-equipment-required">أساسي</span>' : ''}</span>
-        </label>`;
-      }).join("")}
-    </div>
-    <div class="game-equipment-note"><strong>العتاد المختار:</strong> ${currentEquipment.length ? currentEquipment.map(id => escapeHtml(allEquipment.find(e => e.id === id)?.label || id)).join("، ") : "لم يتم اختيار عتاد بعد"}</div>
-    <button class="game-text-button" type="button" data-game-action="back-to-spacecraft">← العودة لاختيار المركبة</button>
-    <button class="button primary glow-btn" type="button" data-game-action="start-mission">ابدأ الاستكشاف ✦</button>
   </div>`;
 }
 function getActiveGameWorld() {
@@ -921,13 +933,11 @@ function spaceGameSessionPage() {
   const content = spaceGame.character === "astronaut" && isAstronautCampaignComplete()
     ? astronautCampaignCompleteScreen()
     : gamePresentation.resumeChoice ? spaceGameResumeScreen()
-    : !spaceGame.character ? spaceCharacterScreen()
+      : !spaceGame.character ? spaceCharacterScreen()
       : !spaceGame.destination ? spaceDestinationScreen()
-        : spaceGame.character === "astronaut" && !spaceGame.suit ? spaceSuitScreen()
-          : spaceGame.character === "astronaut" && !spaceGame.spacecraft ? spaceSpacecraftScreen()
-            : spaceGame.character === "astronaut" && spaceGame.equipment.length === 0 ? spaceEquipmentScreen()
-              : spaceGame.character === "alien" && isCampaignComplete(spaceGame.destination) ? spaceGameCampaignCompleteScreen()
-                : spaceGameMapScreen();
+        : spaceGame.character === "astronaut" && (!spaceGame.suit || !spaceGame.spacecraft || spaceGame.equipment.length === 0) ? spaceGearSummaryScreen()
+          : spaceGame.character === "alien" && isCampaignComplete(spaceGame.destination) ? spaceGameCampaignCompleteScreen()
+            : spaceGameMapScreen();
   return `<section class="space-game-page" aria-label="Space Explorer"><div class="game-starfield" aria-hidden="true"></div>${spaceGameHeader()}${content}<div class="game-engine-error" id="game-engine-error" role="alert" hidden><span>تعذر تهيئة العرض ثلاثي الأبعاد. تحقق من دعم WebGL واتصال الملفات المحلية.</span><button type="button" class="game-error-retry" data-game-retry>إعادة المحاولة</button></div></section>`;
 }
 async function startSpaceGameScene() {
@@ -1048,33 +1058,8 @@ function handleSpaceGameAction(button) {
       spaceGame.spacecraft = null;
       spaceGame.equipment = [];
     }
-  } else if (action === "choose-suit") {
-    spaceGame.suit = spaceGame.character === "astronaut" ? suit : null;
-    spaceGame.spacecraft = null;
-    spaceGame.equipment = [];
-  } else if (action === "choose-spacecraft") {
-    spaceGame.spacecraft = spaceGame.character === "astronaut" ? spacecraft : null;
-    spaceGame.equipment = [];
-  } else if (action === "toggle-equipment") {
-    const id = button.dataset.equipment;
-    if (spaceGame.equipment.includes(id)) {
-      spaceGame.equipment = spaceGame.equipment.filter(item => item !== id);
-    } else {
-      spaceGame.equipment = [...spaceGame.equipment, id];
-    }
   } else if (action === "start-mission") {
-    // proceed to game map
-  } else if (action === "back-to-destination") {
-    spaceGame.destination = null;
-    spaceGame.selectedSite = null;
-    spaceGame.suit = null;
-    spaceGame.spacecraft = null;
-    spaceGame.equipment = [];
-  } else if (action === "back-to-suit") {
-    spaceGame.spacecraft = null;
-    spaceGame.equipment = [];
-  } else if (action === "back-to-spacecraft") {
-    spaceGame.equipment = [];
+    // Gear is auto-assigned in spaceGearSummaryScreen; proceed to game map
   } else if (action === "change-character") {
     spaceGame.character = null;
     spaceGame.destination = null;
@@ -1357,49 +1342,63 @@ function teamPage() {
         </div>
       </div>
     </section>
-
-    <!-- Astronaut Problems & Solutions Section -->
-    <section class="team-problems-panel panel">
-      <div class="project-panel-header">
-        <div class="panel-icon">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0-10 10 10 10 0 0 0 10-10Z"/><path d="M9 12h6M9 18H6l3-3-3-3"/></svg>
-        </div>
-        <div>
-          <span class="eyebrow">تحديات رواد الفضاء والحلول</span>
-          <h2>مشاكل قد يواجهها رواد الفضاء وكيفية حلها</h2>
-          <p>لكل موقع بيئته الخاصة، ولكل مشكلة حلcula. نستعرض هنا أهم المشكلات التي قد تواجه رواد الفضاء داخل المركبة وعلى سطح القمر والمريخ والمواقع النظيرة، مع الحل المقترح لكل موقع.</p>
-        </div>
-      </div>
-      <div class="problems-grid">
-        ${[
-          { key: "moon", title: "سطح القمر", icon: "🌕", problem: "فراغ كوني تام وجاذبية تبلغ سدس جاذبية الأرض، مع تفاوت حراري شديد بين النهار (+120°C) والليل (-130°C) قد يسبب تحمُّلاً حراريًا وفقدانًا سريعًا للحرارة.", solution: "ارتداء بدلة القمر المضغوطة مع نظام تحكم حراري نشط، واستخدام مركبة هبوط القمر المزودة بأرجل ثابتة لحماية الرواد أثناء الهبوط والتنقل." },
-          { key: "mars", title: "سطح المريخ", icon: "🔴", problem: "غلاف جوي رقيق يتكون 대부분 من ثاني أكسيد الكربون وضغط منخفض جداً، مع غبار ناعم قد يتسرب إلى المعدات ويسبب مشاكل تنفسية.", solution: "ارتداء بدلة المريخ مع نظام دعم حياة يغلق الغبار تمامًا، ومركبة هبوط المريخ المزودة بنظام ترشيح هواء ومظلات هبوط للغلاف الجوي الرقيق." },
-          { key: "meteor-crater", title: "فوهة ميتيور (أريزونا)", icon: "🕳️", problem: "تضاريس فوهة اصطدام حادة ومنحدرة قد تؤدي إلى انزلاق المعدات وتعقيد حركة الرواد داخل المركبة وحولها.", solution: "استخدام عربة استكشاف مزودة بعجلات مقاومة للانزلاق، وحقيبة أدوات لإصلاح أي أعطال ميكانيكية داخل المركبة فور حدوثها." },
-          { key: "hawaii", title: "جزر هاواي (ماونا لوا)", icon: "🌋", problem: "صخور بركانية حادة وحرارة مرتفعة بالقرب من النشاط البركاني قد تلحق أضرارًا ببدلة الرواد وتسبب حروقًا أو تمزقات.", solution: "طبقة حرارية إضافية في العتاد، وبدلة مزودة بأعذار تقوية ضد القطع، مع خطة إخلاء سريعة إلى المركبة عند رصد نشاط بركاني." },
-          { key: "devon", title: "جزيرة ديفون (كندا)", icon: "❄️", problem: "برودة قطبية شديدة ورياح قوية قد تسبب انخفاض حرارة الجسم (Hypothermia) وتجمد الأطراف داخل المركبة إذا تعطل التدفئة.", solution: "حقيبة إسعاف أولي مع بطانيات حرارية، وخزان أكسجين يضمن تزويد مستمر بالهواء الدافئ داخل المركبة، وصيانة دورية لنظام التدفئة." },
-          { key: "atacama", title: "صحراء أتاكاما (تشيلي)", icon: "🏜️", problem: "جفاف شديد وقلة رطوبة الهواء قد تسبب جفافًا سريعًا وجفاف الجلد والجفاف التنفسي للرواد خلال المهام الميدانية.", solution: "خزان أكسجين مزود بمرطب للهواء، وحقيبة عينات مغلقة لحفظ العينات دون تلوث، مع جدول تعاقب للشرب والترطيب داخل المركبة." },
-          { key: "death-valley", title: "وادي الموت (كاليفورنيا)", icon: "☀️", problem: "حرارة سطحية مرتفعة جدًا قد تؤدي إلى ارتفاع درجة حرارة بدلة الرواد وتعطل أجهزة الاتصال داخل المركبة.", solution: "نظام تبريد نشط في بدلة المريخ/القمر، ووحدة اتصال مزودة بدرع حراري لحمايتها من أشعة الشمس المباشرة." },
-          { key: "mcmurdo", title: "الوديان الجافة (أنتاركتيكا)", icon: "🧊", problem: "عزلة قطبية ممتدة وعدم إمدادات خارجية قد تزيد من التوتر النفسي ونقص المعدات الطبية داخل المركبة.", solution: "حقيبة إسعاف أولي متكاملة مع أدوية الإسعاف، ونظام اتصال أقمار صناعية للتواصل المستمر مع مركز التحكم الأرضي." }
-        ].map(item => `
-          <article class="problem-card ${item.key}">
-            <div class="problem-icon" aria-hidden="true">${item.icon}</div>
-            <div class="problem-content">
-              <h3>${escapeHtml(item.title)}</h3>
-              <div class="problem-pair">
-                <div class="problem-box problem-box-problem">
-                  <span class="problem-label">المشكلة</span>
-                  <p>${escapeHtml(item.problem)}</p>
-                </div>
-                <div class="problem-box problem-box-solution">
-                  <span class="problem-label">الحل</span>
-                  <p>${escapeHtml(item.solution)}</p>
-                </div>
+  </div>`;
+}
+function problemsPage() {
+  const problems = [
+    { key: "moon", title: "سطح القمر", icon: "🌕", target: "القمر",
+      problem: "فراغ كوني تام وجاذبية تبلغ سدس جاذبية الأرض، مع تفاوت حراري شديد بين النهار (+120°C) والليل (-130°C) قد يسبب تحمُّلاً حراريًا وفقدانًا سريعًا للحرارة.",
+      solution: "ارتداء بدلة القمر المضغوطة مع نظام تحكم حراري نشط، واستخدام مركبة هبوط القمر المزودة بأرجل ثابتة لحماية الرواد أثناء الهبوط والتنقل." },
+    { key: "mars", title: "سطح المريخ", icon: "🔴", target: "المريخ",
+      problem: "غلاف جوي رقيق يتكون 대부분 من ثاني أكسيد الكربون وضغط منخفض جداً، مع غبار ناعم قد يتسرب إلى المعدات ويسبب مشاكل تنفسية.",
+      solution: "ارتداء بدلة المريخ مع نظام دعم حياة يغلق الغبار تمامًا، ومركبة هبوط المريخ المزودة بنظام ترشيح هواء ومظلات هبوط للغلاف الجوي الرقيق." },
+    { key: "meteor-crater", title: "فوهة ميتيور (أريزونا)", icon: "🕳️", target: "القمر",
+      problem: "تضاريس فوهة اصطدام حادة ومنحدرة قد تؤدي إلى انزلاق المعدات وتعقيد حركة الرواد داخل المركبة وحولها.",
+      solution: "استخدام عربة استكشاف مزودة بعجلات مقاومة للانزلاق، وحقيبة أدوات لإصلاح أي أعطال ميكانيكية داخل المركبة فور حدوثها." },
+    { key: "hawaii", title: "جزر هاواي (ماونا لوا)", icon: "🌋", target: "القمر",
+      problem: "صخور بركانية حادة وحرارة مرتفعة بالقرب من النشاط البركاني قد تلحق أضرارًا ببدلة الرواد وتسبب حروقًا أو تمزقات.",
+      solution: "طبقة حرارية إضافية في العتاد، وبدلة مزودة بأعذار تقوية ضد القطع، مع خطة إخلاء سريعة إلى المركبة عند رصد نشاط بركاني." },
+    { key: "devon", title: "جزيرة ديفون (كندا)", icon: "❄️", target: "القمر",
+      problem: "برودة قطبية شديدة ورياح قوية قد تسبب انخفاض حرارة الجسم (Hypothermia) وتجمد الأطراف داخل المركبة إذا تعطل التدفئة.",
+      solution: "حقيبة إسعاف أولي مع بطانيات حرارية، وخزان أكسجين يضمن تزويد مستمر بالهواء الدافئ داخل المركبة، وصيانة دورية لنظام التدفئة." },
+    { key: "atacama", title: "صحراء أتاكاما (تشيلي)", icon: "🏜️", target: "المريخ",
+      problem: "جفاف شديد وقلة رطوبة الهواء قد يسبب جفافًا سريعًا وجفاف الجلد والجفاف التنفسي للرواد خلال المهام الميدانية.",
+      solution: "خزان أكسجين مزود بمرطب للهواء، وحقيبة عينات مغلقة لحفظ العينات دون تلوث، مع جدول تعاقب للشرب والترطيب داخل المركبة." },
+    { key: "death-valley", title: "وادي الموت (كاليفورنيا)", icon: "☀️", target: "المريخ",
+      problem: "حرارة سطحية مرتفعة جدًا قد تؤدي إلى ارتفاع درجة حرارة بدلة الرواد وتعطل أجهزة الاتصال داخل المركبة.",
+      solution: "نظام تبريد نشط في بدلة المريخ/القمر، ووحدة اتصال مزودة بدرع حراري لحمايتها من أشعة الشمس المباشرة." },
+    { key: "mcmurdo", title: "الوديان الجافة (أنتاركتيكا)", icon: "🧊", target: "المريخ",
+      problem: "عزلة قطبية ممتدة وعدم إمدادات خارجية قد تزيد من التوتر النفسي ونقص المعدات الطبية داخل المركبة.",
+      solution: "حقيبة إسعاف أولي متكاملة مع أدوية الإسعاف، ونظام اتصال أقمار صناعية للتواصل المستمر مع مركز التحكم الأرضي." }
+  ];
+  return `${heading("مشاكل وحلول رواد الفضاء", "تحديات الرواد والحلول المقترحة", "لكل موقع بيئته الخاصة، ولكل مشكلة حل. نستعرض هنا أهم المشكلات التي قد تواجه رواد الفضاء داخل المركبة وعلى سطح القمر والمريخ والمواقع النظيرة، مع الحل المقترح لكل موقع.")}
+  <section class="panel problems-page-panel">
+    <div class="problems-intro">
+      <p>تستعرض البطاقات أدناه أبرز المشاكل البيئية والتشغيلية التي قد تواجه رواد الفضاء خلال مهام الاستكشاف، مع الحل التقني والتجهيزي المقترح لكل موقع.</p>
+    </div>
+    <div class="problems-grid">
+      ${problems.map(item => `
+        <article class="problem-card ${item.key}">
+          <div class="problem-icon" aria-hidden="true">${item.icon}</div>
+          <div class="problem-content">
+            <h3>${escapeHtml(item.title)} <span class="problem-target">${escapeHtml(item.target)}</span></h3>
+            <div class="problem-pair">
+              <div class="problem-box problem-box-problem">
+                <span class="problem-label">المشكلة</span>
+                <p>${escapeHtml(item.problem)}</p>
+              </div>
+              <div class="problem-box problem-box-solution">
+                <span class="problem-label">الحل</span>
+                <p>${escapeHtml(item.solution)}</p>
               </div>
             </div>
-          </article>
-        `).join("")}
-      </div>
-    </section>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  </section>
+  <div class="page-actions" style="margin-top:24px;text-align:center;">
+    <a class="button secondary" href="#team">العودة إلى صفحة الفريق ←</a>
   </div>`;
 }
 function explorerCard(site) {
@@ -1675,7 +1674,7 @@ function render() {
   const pageRoot = gamePresentation.active ? gamePresentation.content : app;
   const page = route();
   document.body.classList.toggle("team-view-active", page === "team");
-  const pageNames = { home: "الرئيسية", lunar: "البيئات المشابهة للقمر", "mars-analogs": "البيئات المشابهة للمريخ", map: "الخريطة التفاعلية", gallery: "معرض الصور", why: "لماذا تهمنا هذه البيئات؟", game: "Space Explorer", team: "عن الفريق" };
+  const pageNames = { home: "الرئيسية", lunar: "البيئات المشابهة للقمر", "mars-analogs": "البيئات المشابهة للمريخ", map: "الخريطة التفاعلية", gallery: "معرض الصور", why: "لماذا تهمنا هذه البيئات؟", game: "Space Explorer", team: "عن الفريق", problems: "مشاكل وحلول رواد الفضاء" };
   const [kind, id] = page.split("/");
   document.body.dataset.page = kind || "home";
   const site = kind === "site" ? sites.find(item => item.id === id) : null;
@@ -1686,10 +1685,33 @@ function render() {
   else if (kind === "lunar") pageRoot.innerHTML = sitesPage("lunar");
   else if (kind === "mars-analogs") pageRoot.innerHTML = sitesPage("mars-analogs");
   else if (kind === "gallery") pageRoot.innerHTML = galleryPage();
+  else if (kind === "problems") pageRoot.innerHTML = problemsPage();
   else if (kind === "why") pageRoot.innerHTML = whyPage();
   else if (kind === "game") pageRoot.innerHTML = gamePresentation.active ? spaceGameSessionPage() : spaceGamePage();
   else if (kind === "team") pageRoot.innerHTML = teamPage();
   else pageRoot.innerHTML = homePage();
+
+  // Gear summary auto-countdown (astronaut only)
+  if (kind === "game" && !gamePresentation.active && spaceGame.character === "astronaut" && spaceGame.destination
+    && (!spaceGame.suit || !spaceGame.spacecraft || spaceGame.equipment.length === 0)) {
+    if (gearCountdownInterval) clearInterval(gearCountdownInterval);
+    let seconds = 5;
+    const timerEl = document.getElementById("game-gear-timer");
+    if (timerEl) timerEl.textContent = String(seconds);
+    gearCountdownInterval = setInterval(() => {
+      seconds -= 1;
+      if (timerEl) timerEl.textContent = String(Math.max(0, seconds));
+      if (seconds <= 0) {
+        clearInterval(gearCountdownInterval);
+        gearCountdownInterval = null;
+        handleSpaceGameAction({ dataset: { gameAction: "start-mission" } });
+        render();
+      }
+    }, 1000);
+  } else {
+    if (gearCountdownInterval) clearInterval(gearCountdownInterval);
+    gearCountdownInterval = null;
+  }
   if (kind === "map") mountMap("world-map", sites, { zoom: 2, fitAll: true });
   if (kind === "home") mountMap("home-map", sites, { zoom: 2, fitAll: true });
   if (site) mountMap("detail-map", [site], { zoom: 7, center: [site.lat, site.lon] });
@@ -2105,10 +2127,10 @@ function answerQuestion(question) {
 
   // General planetary and science queries
   if (hasAny("القمر", "قمر", "lunar", "moon")) {
-    return "🌕 **استكشاف القمر والبيئات التناظرية:**\nتساعدنا مواقع أرضية مثل فوهة بارينجر وتدفقات بازلت هاواي وجزيرة ديفون على اختبار أجهزة الحفر وعجلات العربات القمرية ودراسة تكوين الريغوليث (Regolith) وتأثير الاصطدامات النيزكية القديمة في بحار القمر ومرتفعاته.";
+    return "🌕 **استكشاف القمر والبيئات التناظرية:**\nتساعدنا مواقع أرضية مثل فوهة بارينجر وتدفقات بازلت هاواي وجزيرة ديفون على اختبار أجهزة الحفر وعجلات العربات القمرية ودراسة تكوين الريغوليث (Regolith) وتأثير الاصطدامات النيزكية القديمة في بحار القمر ومرتفعاته.\n✦ **المواقع الستة النظيرة للقمر والمريخ:** فوهة ميتيور (أريزونا)، جزر هاواي، جزيرة ديفون (نظائر للقمر) · صحراء أتاكاما، وادي الموت، الوديان الجافة في أنتاركتيكا (نظائر للمريخ).\n✦ **بدلة القمر:** حماية من الفراغ الكوني التام، نظام تحكم حراري (-130°C إلى +120°C)، مصممة للجاذبية المنخفضة.\n✦ **مركبة هبوط القمر:** أرجل هبوط ثابتة للفراغ، لا تحتاج مظلات، نظام دعم حياة مدمج.";
   }
   if (hasAny("المريخ", "mars", "مريخي", "كوكب احمر")) {
-    return "🔴 **استكشاف المريخ والبيئات التناظرية:**\nصحراء أتاكاما ووادي الموت والوديان الجافة في القارة القطبية الجنوبية تمثل أفضل نظائر لدراسة الجفاف الشديد والترسبات الطينية القديمة، مما يساعد مركبات مثل Perseverance وCuriosity على البحث عن آثار المياه والمواد العضوية.";
+    return "🔴 **استكشاف المريخ والبيئات التناظرية:**\nصحراء أتاكاما ووادي الموت والوديان الجافة في القارة القطبية الجنوبية تمثل أفضل نظائر لدراسة الجفاف الشديد والترسبات الطينية القديمة، مما يساعد مركبات مثل Perseverance وCuriosity على البحث عن آثار المياه والمواد العضوية.\n✦ **المواقع الستة النظيرة للقمر والمريخ:** فوهة ميتيور (أريزونا)، جزر هاواي، جزيرة ديفون (نظائر للقمر) · صحراء أتاكاما، وادي الموت، الوديان الجافة في أنتاركتيكا (نظائر للمريخ).\n✦ **بدلة المريخ:** نظام ترشيح ثاني أكسيد الكربون، حماية من الغبار المريخي، مصممة لجاذبية 0.38g، ختم محكم للغلاف الجوي الرقيق.\n✦ **مركبة هبوط المريخ:** مظلات هبوط، درع حراري، نظام تبريد نشط، مصممة للغلاف الجوي الرقيق.";
   }
   if (hasAny("لعبة", "اللعبه", "game", "ازاي العب", "طريقه اللعب", "تحكم", "space explorer")) {
     return "🎮 **دليل مستكشف الفضاء (Space Explorer):**\n✦ **الحركة:** مفاتيح W, A, S, D أو الأسهم للتنقل، و Shift للجري.\n✦ **جمع العينات:** اضغط E عند الاقتراب من أي عينة لجمعها والاطلاع على تفاصيلها في الشنطة فورًا.\n✦ **المركبة:** رائد الفضاء يملك مركبة هبوط واقعية موحدة، بينما الفضائيون يملكون طبقًا طائرًا كرتونيًا كلاسيكيًا وآليًا ذكيًا يرافقهم!\n✦ **النهار والليل:** على كوكب الأرض يمكنك التبديل بين النهار المشمس والليل المرصع بالنجوم والقمر.";

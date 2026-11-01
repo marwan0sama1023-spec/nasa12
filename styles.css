@@ -5975,3 +5975,91 @@ body.game-session-active #guide-panel { display: none !important; }
   .solar-earth-group { width: 38px; height: 38px; }
   .solar-moon-orbit { width: 40px; height: 40px; }
 }
+
+/* ==========================================================================
+   شريط المجموعة الشمسية داخل واجهة اللعبة (الगेम بلاي)
+   ========================================================================== */
+.game-solar-strip { position: absolute; z-index: 5; top: 70px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 10px; max-width: 96%; margin: 0 auto; overflow-x: auto; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; overflow-y: hidden; scrollbar-width: thin; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; scroll-behavior: smooth; }
+.game-solar-strip::-webkit-scrollbar { height: 4px; }
+.game-solar-strip::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 2px; }
+.game-solar-strip::-webkit-scrollbar-thumb { background: rgba(0,210,255,0.35); border-radius: 2px; }
+
+.game-solar-body { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: auto; flex-shrink: 0; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), filter 0.35s ease; }
+
+.game-solar-body.active { transform: scale(1.15); filter: brightness(1.2); }
+
+.game-solar-glow { position: absolute; inset: 0; border-radius: 50%; opacity: 0; transition: opacity 0.35s ease; }
+
+.game-solar-body.active .game-solar-glow { opacity: 1; }
+
+.game-solar-body.solar-sun { gap: 3px; width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffd166, #ff9f1c); box-shadow: 0 0 28px rgba(255, 159, 28, 0.6); }
+
+.game-solar-body.solar-sun .game-solar-glow { box-shadow: 0 0 30px rgba(255, 168, 74, 0.7); }
+
+.game-solar-body.solar-sun .game-solar-label { font-size: 9px; color: #ffcf56; }
+
+.game-solar-label { font-size: 10px; color: #a7b5c3; white-space: nowrap; transition: color 0.35s ease, text-shadow 0.35s ease; }
+
+.game-solar-body.active .game-solar-label { color: #ffcf56; font-weight: 700; text-shadow: 0 0 12px rgba(255, 207, 86, 0.9); }
+
+.game-solar-planet-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; display: block; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 0 8px rgba(0, 0, 0, 0.4); background: #1a1a2e; }
+
+/* ألوان كواكب CSS للكواكب التي لا تملك صوراً محلية */
+.game-solar-body.solar-mercury .game-solar-planet-img { width: 14px; height: 14px; background: #a59f99; }
+.game-solar-body.solar-venus .game-solar-planet-img { width: 18px; height: 18px; background: #f5dfab; }
+.game-solar-body.solar-earth .game-solar-planet-img { width: 22px; height: 22px; background: #092546; }
+.game-solar-body.solar-moon .game-solar-planet-img { width: 12px; height: 12px; background: #aab1b8; }
+.game-solar-body.solar-mars .game-solar-planet-img { width: 20px; height: 20px; background: #8c3c25; }
+.game-solar-body.solar-jupiter .game-solar-planet-img { width: 30px; height: 30px; background: #d2a679; }
+.game-solar-body.solar-saturn .game-solar-planet-img { width: 24px; height: 24px; background: #e8cfa3; }
+.game-solar-body.solar-uranus .game-solar-planet-img { width: 18px; height: 18px; background: #add8e6; }
+.game-solar-body.solar-neptune .game-solar-planet-img { width: 18px; height: 18px; background: #6495ed; }
+
+/* مجموعة الأرض والقمر */
+.game-solar-earth-moon { position: relative; display: flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; width: 52px; height: 52px; }
+
+.game-solar-moon-orbit { position: absolute; inset: 50%; width: 54px; height: 54px; border: 1px solid rgba(231, 241, 255, 0.25); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; animation: moon-orbit-rev 14s linear infinite; }
+
+@keyframes moon-orbit-rev {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.game-solar-body.solar-earth .game-solar-planet-img { position: relative; z-index: 2; box-shadow: 0 0 12px rgba(0, 210, 255, 0.3); }
+
+.game-solar-body.solar-moon .game-solar-planet-img { position: absolute; top: 2px; right: 2px; border-radius: 50%; box-shadow: 0 0 6px rgba(231, 241, 255, 0.4); }
+
+.game-solar-body.solar-saturn .game-solar-ring.saturn-rings { position: absolute; inset: -30%; border: none; border-radius: 50%; border-top: 3px solid rgba(210, 180, 140, 0.55); border-bottom: 3px solid rgba(210, 180, 140, 0.55); transform: rotateX(75deg); opacity: 0.7; pointer-events: none; }
+
+/* توهج تفاعلي أصفر ذهبي للكوكب النشط */
+.game-solar-body.active .game-solar-planet-img { box-shadow: 0 0 16px rgba(255, 207, 86, 0.7); border-color: rgba(255, 207, 86, 0.6); }
+
+.game-solar-body.active .game-solar-glow { box-shadow: 0 0 20px rgba(255, 207, 86, 0.8); }
+
+.game-solar-body.active .game-solar-label { color: #ffcf56; font-weight: 700; text-shadow: 0 0 12px rgba(255, 207, 86, 0.9); }
+
+@keyframes solar-pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+.game-solar-body.active .game-solar-glow { animation: solar-pulse 2s ease-in-out infinite; }
+
+/* متجاوبية للشريط داخل اللعبة */
+@media (max-width: 1024px) {
+  .game-solar-strip { gap: 10px; padding: 0 20px; }
+  .game-solar-body { gap: 5px; }
+  .game-solar-planet-img { width: 20px; height: 20px; }
+  .game-solar-body.solar-jupiter .game-solar-planet-img { width: 26px; height: 26px; }
+  .game-solar-label { font-size: 9px; }
+  .game-solar-earth-moon { width: 44px; height: 44px; }
+  .game-solar-moon-orbit { width: 46px; height: 46px; }
+}
+
+@media (max-width: 520px) {
+  .game-solar-strip { gap: 8px; padding: 0 12px; }
+  .game-solar-body { gap: 4px; }
+  .game-solar-planet-img { width: 16px; height: 16px; }
+  .game-solar-body.solar-jupiter .game-solar-planet-img { width: 22px; height: 22px; }
+  .game-solar-body.solar-sun { width: 28px; height: 28px; }
+  .game-solar-label { font-size: 8px; }
+  .game-solar-earth-moon { width: 38px; height: 38px; }
+  .game-solar-moon-orbit { width: 40px; height: 40px; }
+}

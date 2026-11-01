@@ -851,8 +851,12 @@ function getActiveGameWorld() {
   };
 }
 function gamePlanetStripMarkup(world) {
-  // الشريط القديم تم استبداله بالشريط التفاعلي في أعلى واجهة الموقع (index.html)
-  return "";
+  const isAstronaut = spaceGame.character === "astronaut";
+  const destination = spaceGame.destination;
+  const earthActive = isAstronaut || world === "earth";
+  const moonActive = isAstronaut && destination === "moon";
+  const marsActive = isAstronaut && destination === "mars";
+  return `<div class="game-solar-strip" aria-label="المجموعة الشمسية وموقع اللاعب"><div class="game-solar-body sun"><span class="game-solar-glow"></span><span class="game-solar-label">الشمس</span></div><div class="game-solar-body mercury"><span class="game-solar-ring"></span><span class="game-solar-glow"></span><span class="game-solar-planet-img mercury-img" aria-hidden="true"></span><span class="game-solar-label">عطارد</span></div><div class="game-solar-body venus"><span class="game-solar-ring"></span><span class="game-solar-glow"></span><span class="game-solar-planet-img venus-img" aria-hidden="true"></span><span class="game-solar-label">الزهرة</span></div><div class="game-solar-earth-moon ${earthActive ? "earth-active" : ""} ${moonActive ? "moon-active" : ""}"><div class="game-solar-moon-orbit" aria-hidden="true"></div><img src="assets/earth-blue-marble.jpg" class="game-solar-planet-img earth-img" alt="الأرض"><span class="game-solar-glow earth-glow"></span><span class="game-solar-label earth-label">الأرض</span><img src="assets/moon-apollo-11.jpg" class="game-solar-planet-img moon-img" alt="القمر"><span class="game-solar-glow moon-glow"></span><span class="game-solar-label moon-label">القمر</span></div><div class="game-solar-body mars ${marsActive ? "active" : ""}"><span class="game-solar-ring"></span><span class="game-solar-glow"></span><img src="assets/mars-hubble-globe.jpg" class="game-solar-planet-img mars-img" alt="المريخ"><span class="game-solar-label">المريخ</span></div><div class="game-solar-body jupiter"><span class="game-solar-ring"></span><span class="game-solar-glow"></span><span class="game-solar-planet-img jupiter-img" aria-hidden="true"></span><span class="game-solar-label">المشتري</span></div><div class="game-solar-body saturn"><span class="game-solar-ring saturn-rings"></span><span class="game-solar-glow"></span><span class="game-solar-planet-img saturn-img" aria-hidden="true"></span><span class="game-solar-label">زحل</span></div><div class="game-solar-body uranus"><span class="game-solar-ring"></span><span class="game-solar-glow"></span><span class="game-solar-planet-img uranus-img" aria-hidden="true"></span><span class="game-solar-label">أورانوس</span></div><div class="game-solar-body neptune"><span class="game-solar-ring"></span><span class="game-solar-glow"></span><span class="game-solar-planet-img neptune-img" aria-hidden="true"></span><span class="game-solar-label">نبتون</span></div></div>`;
 }
 function alienSiteCompleteMarkup(gameWorld) {
   const { stageSite, stageIndex, stageCount, lastStage, missionComplete } = gameWorld;
@@ -1014,16 +1018,16 @@ async function startSpaceGameScene() {
 }
 
 function updateSolarSystemBar() {
-  const bar = document.querySelector(".solar-system-bar");
+  const bar = document.querySelector(".game-solar-strip");
   if (!bar) return;
 
-  // إظهار الشريط فقط في واجهة الموقع، إخفاؤه داخل صفحة اللعبة ثلاثية الأبعاد
+  // إظهار الشريط فقط داخل صفحة اللعبة، إخفاؤه في واجهة الموقع
   const page = route();
-  if (page === "game") {
+  if (page !== "game") {
     bar.style.display = "none";
     return;
   }
-  bar.style.display = "block";
+  bar.style.display = "flex";
 
   const isAstronaut = spaceGame.character === "astronaut";
   const destination = spaceGame.destination;
@@ -1034,16 +1038,16 @@ function updateSolarSystemBar() {
   if (isAstronaut && destination === "mars") activeBody = "mars";
 
   // إزالة جميع الفئات النشطة
-  bar.querySelectorAll(".solar-body, .solar-earth-group, .solar-body.solar-earth, .solar-body.solar-moon").forEach(el => {
+  bar.querySelectorAll(".game-solar-body, .game-solar-earth-moon, .game-solar-body.solar-earth, .game-solar-body.solar-moon").forEach(el => {
     el.classList.remove("active", "earth-active", "moon-active");
   });
 
   // إضافة الفئة النشطة للكوكب المحدد
-  const target = bar.querySelector(`.solar-body.solar-${activeBody}`);
+  const target = bar.querySelector(`.game-solar-body.solar-${activeBody}`);
   if (target) target.classList.add("active");
 
   // earth-group: إظهار الأرض सकریة عندما لا يكون على قمر/مريخ
-  const earthGroup = bar.querySelector(".solar-earth-group");
+  const earthGroup = bar.querySelector(".game-solar-earth-moon");
   if (earthGroup) {
     if (activeBody === "earth") {
       earthGroup.classList.add("earth-active");

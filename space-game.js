@@ -458,6 +458,8 @@ class SpaceWorld {
     const resumeState = config.progress.resumeState;
     this.timeLimit = Number.isFinite(resumeState?.timeLimit) ? THREE.MathUtils.clamp(resumeState.timeLimit, 0, 180) : 180;
     this.timedOut = this.timeLimit <= 0;
+    this.oxygenLimit = 120; // 2 minutes oxygen
+    this.oxygenDepleted = false;
     this.progress = {
       xp: Number(config.progress.xp) || 0,
       collectedSamples: Array.isArray(config.progress.collectedSamples) ? [...config.progress.collectedSamples] : [],
@@ -2933,6 +2935,7 @@ class SpaceWorld {
       this.updateSiteEnvironment(delta);
       this.updateFootprints();
       this.updateMissionClock(delta);
+      this.updateOxygen(delta);
       this.updateBeacon(delta);
       this.updateMeteors(delta);
     }
@@ -3336,6 +3339,31 @@ class SpaceWorld {
     if (seconds === 0) {
       this.timedOut = true;
       this.toast("انتهى وقت التحدي الزمني؛ واصل استكشافك وجمع العينات.");
+    }
+  }
+
+  updateOxygen(delta) {
+    if (this.character !== "astronaut" || this.oxygenDepleted || this.paused) return;
+    this.oxygenLimit -= delta;
+    const seconds = Math.max(0, Math.ceil(this.oxygenLimit));
+    const fill = this.hud.querySelector("#game-oxygen-fill");
+    const timeText = this.hud.querySelector("#game-oxygen-time");
+    const meter = this.hud.querySelector(".game-oxygen-meter");
+    if (fill) fill.style.width = `${Math.max(0, (seconds / 120) * 100)}%`;
+    if (timeText) timeText.textContent = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+    if (meter) meter.classList.toggle("is-urgent", seconds < 30);
+    if (seconds === 0) {
+      this.oxygenDepleted = true;
+      this.paused = true;
+      const overlay = this.hud.querySelector("#game-pause-overlay");
+      if (overlay) {
+        overlay.hidden = false;
+        const title = overlay.querySelector("h2");
+        const step = overlay.querySelector(".game-step");
+        if (step) step.textContent = "انتهى الأكسجين";
+        if (title) title.innerHTML = "حظ أوفر في المرة القادمة — انتهت المهمة";
+      }
+      this.toast("نفد الأكسجين. انتهت المهمة.");
     }
   }
 

@@ -2726,6 +2726,81 @@ p {
    Team Page — Showcase & Member Profiles
    ========================================================================== */
 
+.sources-page {
+  display: grid;
+  gap: 30px;
+  padding-bottom: 32px;
+}
+
+.sources-group {
+  padding-top: 20px;
+  border-top: 1px solid var(--border-glass-bright);
+}
+
+.sources-group-heading { margin-bottom: 16px; }
+.sources-group-heading h2 { margin-top: 3px; }
+.sources-group-heading p { max-width: 760px; margin-top: 5px; color: var(--text-muted); font-size: 13px; }
+
+.sources-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.source-entry {
+  min-width: 0;
+  padding: 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+}
+
+.sources-group-lunar .source-entry { border-top: 2px solid var(--lunar); }
+.sources-group-mars .source-entry { border-top: 2px solid var(--mars); }
+
+.source-entry-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.source-world-tag, .source-nasa-id { color: var(--text-muted); font-size: 11px; }
+.source-world-tag { color: var(--text-main); font-weight: 700; }
+.source-nasa-id, .source-record-title { font-family: "Plus Jakarta Sans", sans-serif; }
+.source-entry h3 { margin: 0 0 4px; font-size: 16px; }
+.source-location { min-height: 46px; color: var(--text-muted); font-size: 12px; }
+.source-record-title { min-height: 42px; margin-top: 12px; color: var(--text-main); font-size: 12px; line-height: 1.6; }
+
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 13px;
+  color: var(--cyan-bright);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.source-link:hover { color: #fff; }
+.sources-note { padding: 16px 18px; background: rgba(56, 189, 248, 0.07); border-inline-start: 3px solid var(--cyan-bright); }
+.sources-note strong { display: block; margin-bottom: 4px; }
+.sources-note p { color: var(--text-muted); font-size: 13px; }
+.english-ui .source-entry { direction: ltr; text-align: left; }
+.english-ui .source-entry-meta { direction: ltr; }
+
+@media (max-width: 1080px) {
+  .sources-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .sources-grid { grid-template-columns: 1fr; }
+  .source-location, .source-record-title { min-height: 0; }
+}
+
 .team-page-container {
   display: flex;
   flex-direction: column;

@@ -103,6 +103,14 @@ const siteGroups = {
   mars: { title: "بيئات مشابهة للمريخ", eyebrow: "استكشاف تضاريس المريخ", description: "ثلاث بيئات أرضية تتيح اختبار أسئلة محددة عن الجفاف أو التضاريس أو العمل الروبوتي. لكل موقع اختلافات مهمة عن ضغط المريخ وغلافه الجوي وإشعاعه.", ids: ["atacama", "death-valley", "mcmurdo"] }
 };
 
+const nasaSourcePages = {
+  "meteor-crater": { id: "iss074e0208832", title: "Meteor Crater in Arizona", url: "https://images.nasa.gov/details/iss074e0208832" },
+  hawaii: { id: "PIA02604", title: "ASTER Images the Island of Hawaii", url: "https://images.nasa.gov/details/PIA02604" },
+  devon: { id: "ARC-2007-ACD09-0255-001", title: "K-10 Rover near Haughton Crater", url: "https://images.nasa.gov/details/ARC-2007-ACD09-0255-001" },
+  atacama: { id: "PIA16191", title: "Dry Streambed on Alluvial Fan in Northern Chile", url: "https://images.nasa.gov/details/PIA16191" },
+  "death-valley": { id: "PIA26197", title: "Badwater, Death Valley", url: "https://images.nasa.gov/details/PIA26197" },
+  mcmurdo: { id: "PIA12461", title: "Dry Valleys, Antarctica", url: "https://images.nasa.gov/details/PIA12461" }
+};
 const teamMembers = [{ name: "Marwan Osama Mohamed", leader: true }, "Alaa Ramadan", "Martina mounir labib", "Menna Ahmed", "Haneen Khairy Ezzedine"];
 
 const siteDescriptions = {
@@ -1328,6 +1336,42 @@ function whyPage() {
     <div><strong>مبدأ علمي حاسم:</strong> لا يوجد أي موقع على وجه الأرض يطابق سطح القمر أو المريخ تطابقًا كاملًا. استخدام المواقع الأرضية مقتصر على أهداف اختبار تجريبية محددة.</div>
   </div>`;
 }
+function sourcesPage() {
+  const groups = [
+    { id: "lunar", title: "مواقع القمر", target: "القمر", sites: siteGroups.lunar.ids, description: "مراجع NASA للمواقع الأرضية المستخدمة لدراسة أسئلة جيولوجية وعملياتية مرتبطة بالقمر." },
+    { id: "mars", title: "مواقع المريخ", target: "المريخ", sites: siteGroups.mars.ids, description: "مراجع NASA للمواقع الأرضية المستخدمة لاختبار أسئلة محددة مرتبطة باستكشاف المريخ." }
+  ];
+  return `${heading("مراجع NASA الرسمية", "مصادر المواقع الستة", "سجلات NASA الأصلية المرتبطة بالصور والمشاهد المعروضة لكل موقع.")}
+    <div class="sources-page">
+      ${groups.map(group => `<section class="sources-group sources-group-${group.id}" aria-labelledby="sources-${group.id}-title">
+        <header class="sources-group-heading">
+          <span class="eyebrow">${group.sites.length} مواقع أرضية</span>
+          <h2 id="sources-${group.id}-title">${group.title}</h2>
+          <p>${group.description}</p>
+        </header>
+        <div class="sources-grid">
+          ${group.sites.map(siteId => {
+            const site = sites.find(item => item.id === siteId);
+            const source = nasaSourcePages[siteId];
+            return `<article class="source-entry">
+              <div class="source-entry-meta">
+                <span class="source-world-tag">${group.target}</span>
+                <span class="source-nasa-id">NASA ID: ${source.id}</span>
+              </div>
+              <h3>${escapeHtml(site.ar)}</h3>
+              <p class="source-location">${escapeHtml(site.country)} · ${escapeHtml(site.subsite)}</p>
+              <p class="source-record-title" lang="en" dir="ltr">${escapeHtml(source.title)}</p>
+              <a class="source-link" href="${source.url}" target="_blank" rel="noopener noreferrer">فتح سجل NASA الرسمي <span aria-hidden="true">↗</span></a>
+            </article>`;
+          }).join("")}
+        </div>
+      </section>`).join("")}
+      <aside class="sources-note">
+        <strong>حدود المراجع</strong>
+        <p>تدعم هذه السجلات وصف الصور والمشاهد ومواقعها؛ ولا تُعد بحد ذاتها قياسات ميدانية أو إثباتًا لخصائص التربة أو تطابق الموقع مع القمر أو المريخ.</p>
+      </aside>
+    </div>`;
+}
 function teamPage() {
   return `<div class="team-page-container">
     <img src="صوره عن الفريق.jpeg" alt="" aria-hidden="true" class="team-page-background">
@@ -1739,7 +1783,7 @@ function render() {
   const pageRoot = gamePresentation.active ? gamePresentation.content : app;
   const page = route();
   document.body.classList.toggle("team-view-active", page === "team");
-  const pageNames = { home: "الرئيسية", lunar: "البيئات المشابهة للقمر", "mars-analogs": "البيئات المشابهة للمريخ", map: "الخريطة التفاعلية", gallery: "معرض الصور", why: "لماذا تهمنا هذه البيئات؟", game: "Space Explorer", team: "عن الفريق", problems: "مشاكل وحلول رواد الفضاء" };
+  const pageNames = { home: "الرئيسية", lunar: "البيئات المشابهة للقمر", "mars-analogs": "البيئات المشابهة للمريخ", map: "الخريطة التفاعلية", gallery: "معرض الصور", why: "لماذا تهمنا هذه البيئات؟", game: "Space Explorer", sources: "المصادر", team: "عن الفريق", problems: "مشاكل وحلول رواد الفضاء" };
   const [kind, id] = page.split("/");
   document.body.dataset.page = kind || "home";
   const site = kind === "site" ? sites.find(item => item.id === id) : null;
@@ -1751,6 +1795,7 @@ function render() {
   else if (kind === "mars-analogs") pageRoot.innerHTML = sitesPage("mars-analogs");
   else if (kind === "gallery") pageRoot.innerHTML = galleryPage();
   else if (kind === "problems") pageRoot.innerHTML = problemsPage();
+  else if (kind === "sources") pageRoot.innerHTML = sourcesPage();
   else if (kind === "why") pageRoot.innerHTML = whyPage();
   else if (kind === "game") pageRoot.innerHTML = gamePresentation.active ? spaceGameSessionPage() : spaceGamePage();
   else if (kind === "team") pageRoot.innerHTML = teamPage();

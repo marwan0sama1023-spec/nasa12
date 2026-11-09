@@ -262,12 +262,12 @@ const worldLooks = {
 };
 
 const siteTerrainProfiles = {
-  "meteor-crater": { terrain: "impact", ground: [0x685c4b, 0x91806a, 0xb5a184], rock: [0x655b4e, 0x88765e], sample: "fragment" },
-  hawaii: { terrain: "lava", ground: [0x292c2b, 0x4e514a, 0x77766a], rock: [0x343735, 0x5b5d54], sample: "basalt" },
-  "death-valley": { terrain: "basin", ground: [0x795b43, 0xa68059, 0xc8a778], rock: [0x826145, 0xb08a5d], sample: "sediment" },
-  atacama: { terrain: "alluvial", ground: [0x713b2c, 0xa65f3c, 0xc58b5e], rock: [0x784632, 0xaa7049], sample: "sediment" },
-  devon: { terrain: "impact", ground: [0x626664, 0x898b85, 0xb0afa5], rock: [0x5c605f, 0x83847d], sample: "fragment" },
-  mcmurdo: { terrain: "polar-valley", ground: [0x555e61, 0x7d8988, 0xaab2aa], rock: [0x586365, 0x82908c], sample: "outcrop" }
+  "meteor-crater": { terrain: "impact", ground: [0x685c4b, 0x91806a, 0xb5a184], rock: [0x655b4e, 0x88765e], sample: "fragment", sky: 0x8db8d8, fog: 0xc8d7dc, hemiSky: 0xc7e1f1, hemiGround: 0x5a4b3b, sunIntensity: 2.55, audio: { droneFreqs: [58, 116, 174], windCutoff: 180, windGain: 0.006, stepCutoff: 620, stepTone: 74 } },
+  hawaii: { terrain: "lava", ground: [0x292c2b, 0x4e514a, 0x77766a], rock: [0x343735, 0x5b5d54], sample: "basalt", sky: 0x83b8d2, fog: 0xb1c7ce, hemiSky: 0xc5e3eb, hemiGround: 0x303935, sunIntensity: 2.4, audio: { droneFreqs: [48, 96, 144], windCutoff: 310, windGain: 0.004, stepCutoff: 360, stepTone: 58 } },
+  "death-valley": { terrain: "basin", ground: [0x795b43, 0xa68059, 0xc8a778], rock: [0x826145, 0xb08a5d], sample: "sediment", sky: 0x9bbdd0, fog: 0xd7c3a7, hemiSky: 0xe4d4bc, hemiGround: 0x5b4030, sunIntensity: 2.9, audio: { droneFreqs: [52, 104, 156], windCutoff: 250, windGain: 0.01, stepCutoff: 520, stepTone: 68 } },
+  atacama: { terrain: "alluvial", ground: [0x713b2c, 0xa65f3c, 0xc58b5e], rock: [0x784632, 0xaa7049], sample: "sediment", sky: 0x73b4db, fog: 0xb0c9d4, hemiSky: 0xc2e0ed, hemiGround: 0x513728, sunIntensity: 3.05, audio: { droneFreqs: [44, 88, 132], windCutoff: 225, windGain: 0.012, stepCutoff: 440, stepTone: 61 } },
+  devon: { terrain: "impact", ground: [0x626664, 0x898b85, 0xb0afa5], rock: [0x5c605f, 0x83847d], sample: "fragment", sky: 0x91b3c4, fog: 0xc1d0d2, hemiSky: 0xc9dce1, hemiGround: 0x3c474a, sunIntensity: 2.15, audio: { droneFreqs: [39, 78, 117], windCutoff: 200, windGain: 0.014, stepCutoff: 300, stepTone: 54 } },
+  mcmurdo: { terrain: "polar-valley", ground: [0x555e61, 0x7d8988, 0xaab2aa], rock: [0x586365, 0x82908c], sample: "outcrop", sky: 0x88afc8, fog: 0xb7cbd4, hemiSky: 0xc9e1eb, hemiGround: 0x3c4a4e, sunIntensity: 2.05, audio: { droneFreqs: [35, 70, 105], windCutoff: 165, windGain: 0.019, stepCutoff: 260, stepTone: 49 } }
 };
 
 let activeWorld = null;
@@ -401,6 +401,7 @@ class SpaceWorld {
     this.isNight = false;
     this.isAlien = config.character === "alien";
     this.stageSite = config.stageSite || null;
+    this.siteMovementFactor = ["devon", "mcmurdo"].includes(this.stageSite?.id) ? 0.82 : 1;
     this.suit = config.suit || null;
     this.spacecraft = config.spacecraft || null;
     this.equipment = Array.isArray(config.equipment) ? [...config.equipment] : [];
@@ -430,16 +431,19 @@ class SpaceWorld {
     } else if (this.isMars) {
       this.scene.background = new THREE.Color(0x1a0b08);
       this.scene.fog = new THREE.FogExp2(0x522316, 0.0035); // Subtle atmospheric Martian haze
+    } else if (this.siteProfile) {
+      this.scene.background = new THREE.Color(this.siteProfile.sky);
+      this.scene.fog = new THREE.Fog(this.siteProfile.fog, 55, 205);
     } else {
       this.scene.background = new THREE.Color(0x56a4e2); // Realistic bright daytime Earth sky
       this.scene.fog = new THREE.Fog(0x94ccf0, 60, 240);
     }
 
     this.camera = new THREE.PerspectiveCamera(65, 1, 0.1, 2400);
-    this.cameraYaw = this.isMoon ? Math.PI : 0;
-    this.cameraPitch = this.isMoon ? 0.58 : config.character === "astronaut" ? 0.08 : -0.12;
+    this.cameraYaw = this.isMoon ? Math.PI : this.stageSite?.id === "meteor-crater" ? Math.PI / 2 : 0;
+    this.cameraPitch = this.isMoon ? 0.58 : this.stageSite?.id === "meteor-crater" ? -0.24 : config.character === "astronaut" ? 0.08 : -0.12;
     this.cameraMode = "third"; // 'third' (3rd person), 'first' (1st person helmet), 'drone' (cinematic orbit)
-    this.cameraDistance = 5.6;
+    this.cameraDistance = this.siteProfile ? (this.stageSite?.id === "meteor-crater" ? 9.5 : 8.2) : 5.6;
     this.keys = new Set();
     this.touchMove = { x: 0, y: 0 };
     this.mouseLookPointer = null;
@@ -474,6 +478,9 @@ class SpaceWorld {
       xp: Number(config.progress.xp) || 0,
       collectedSamples: Array.isArray(config.progress.collectedSamples) ? [...config.progress.collectedSamples] : [],
       discoveredSamples: Array.isArray(config.progress.discoveredSamples) ? [...config.progress.discoveredSamples] : [],
+      analyzedSamples: Array.isArray(config.progress.analyzedSamples) ? [...config.progress.analyzedSamples] : [],
+      discoveredPoints: Array.isArray(config.progress.discoveredPoints) ? [...config.progress.discoveredPoints] : [],
+      readSites: Array.isArray(config.progress.readSites) ? [...config.progress.readSites] : [],
       analyzedSites: Array.isArray(config.progress.analyzedSites) ? [...config.progress.analyzedSites] : [],
       completedMissions: Array.isArray(config.progress.completedMissions) ? [...config.progress.completedMissions] : [],
       roverUnlocked: Boolean(config.progress.roverUnlocked)
@@ -483,7 +490,10 @@ class SpaceWorld {
     this.paused = false;
     this.sites = config.sites || [];
     this.samples = [];
+    this.sciencePoints = [];
     this.rocks = [];
+    this.rockBodies = [];
+    this.siteBodies = [];
     this.rockSurfaces = [];
     this.footprints = [];
     this.roverWheels = [];
@@ -499,6 +509,7 @@ class SpaceWorld {
     this.createPlayer();
     this.createCompanion();
     this.createSamples();
+    this.createScientificPoints();
 
     const savedMissionComplete = this.progress.completedMissions.includes(this.sampleMissionId);
     this.stageComplete = Boolean(this.stageSite && savedMissionComplete
@@ -513,6 +524,7 @@ class SpaceWorld {
     this.createAtmosphericDust();
     this.createSurfaceBaseCamp();
     this.createEarthDayNightButton();
+    this.createFieldLogButton();
     this.bindInputs();
     this.resizeObserver.observe(this.container);
     this.setQuality(this.quality);
@@ -559,7 +571,7 @@ class SpaceWorld {
     this.ambientGain = masterGain;
 
     // Cosmic drone generator (subtle space chord)
-    const droneFreqs = [55, 110, 165];
+    const droneFreqs = this.siteProfile?.audio?.droneFreqs || [55, 110, 165];
     droneFreqs.forEach((freq, idx) => {
       const osc = ctx.createOscillator();
       const oscGain = ctx.createGain();
@@ -572,7 +584,7 @@ class SpaceWorld {
     });
 
     // On Mars: Synthesized atmospheric howling wind!
-    if (this.isMars) {
+    if (this.isMars || this.siteProfile?.audio?.windGain) {
       const bufferSize = ctx.sampleRate * 2;
       const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -588,11 +600,11 @@ class SpaceWorld {
 
       const filter = ctx.createBiquadFilter();
       filter.type = "bandpass";
-      filter.frequency.setValueAtTime(280, now);
-      filter.Q.setValueAtTime(3.2, now);
+      filter.frequency.setValueAtTime(this.siteProfile?.audio?.windCutoff || 280, now);
+      filter.Q.setValueAtTime(this.isMars ? 3.2 : 1.4, now);
 
       const windGain = ctx.createGain();
-      windGain.gain.setValueAtTime(0.035, now);
+      windGain.gain.setValueAtTime(this.siteProfile?.audio?.windGain || 0.035, now);
 
       whiteNoise.connect(filter);
       filter.connect(windGain);
@@ -638,7 +650,7 @@ class SpaceWorld {
     const impactGain = context.createGain();
     source.buffer = buffer;
     filter.type = "lowpass";
-    filter.frequency.value = this.isMoon ? 420 : this.isMars ? 260 : 520;
+    filter.frequency.value = this.isMoon ? 420 : this.isMars ? 260 : this.siteProfile?.audio?.stepCutoff || 520;
     impactGain.gain.setValueAtTime(sprinting ? 0.13 : 0.09, now);
     impactGain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
     source.connect(filter);
@@ -649,7 +661,7 @@ class SpaceWorld {
     const thud = context.createOscillator();
     const thudGain = context.createGain();
     thud.type = "sine";
-    thud.frequency.setValueAtTime(this.isMoon ? 82 : 64, now);
+    thud.frequency.setValueAtTime(this.isMoon ? 82 : this.siteProfile?.audio?.stepTone || 64, now);
     thudGain.gain.setValueAtTime(sprinting ? 0.04 : 0.026, now);
     thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
     thud.connect(thudGain);
@@ -718,8 +730,8 @@ class SpaceWorld {
   createLighting() {
     const isEarthDay = !this.isMoon && !this.isMars;
     // Ambient / Hemisphere Light tailored to environment
-    const hemiSky = this.isMoon ? 0xd5d8e0 : this.isMars ? 0xe28a58 : 0x78bbf8;
-    const hemiGround = this.isMoon ? 0x121418 : this.isMars ? 0x2e1109 : 0x485838;
+    const hemiSky = this.isMoon ? 0xd5d8e0 : this.isMars ? 0xe28a58 : this.siteProfile?.hemiSky || 0x78bbf8;
+    const hemiGround = this.isMoon ? 0x121418 : this.isMars ? 0x2e1109 : this.siteProfile?.hemiGround || 0x485838;
     const hemiIntensity = this.isMoon ? 0.32 : this.isMars ? 0.72 : 1.35;
     const hemi = new THREE.HemisphereLight(hemiSky, hemiGround, hemiIntensity);
     this.scene.add(hemi);
@@ -727,8 +739,9 @@ class SpaceWorld {
 
     // Sun: on Mars it has forward-scattering blue corona glow; on Moon stark white; on Earth bright warm daytime sun
     const sunColor = this.isMoon ? 0xffffff : this.isMars ? 0xffdfbe : 0xfffaee;
-    const sunIntensity = isEarthDay ? 2.8 : this.look.sunIntensity;
-    const sun = new THREE.DirectionalLight(sunColor, sunIntensity);
+    const selectedSunColor = this.siteProfile?.sunColor || sunColor;
+    const sunIntensity = this.siteProfile?.sunIntensity || (isEarthDay ? 2.8 : this.look.sunIntensity);
+    const sun = new THREE.DirectionalLight(selectedSunColor, sunIntensity);
     sun.position.set(-42, 68, 30);
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
@@ -1564,13 +1577,24 @@ class SpaceWorld {
     }
 
     if (this.siteProfile?.terrain === "lava") {
-      const coast = THREE.MathUtils.smoothstep(Math.hypot(x, z), 34, 57);
-      base += Math.sin(z * 0.17 + Math.sin(x * 0.08) * 2.2) * 1.1 + Math.cos(x * 0.12 + z * 0.07) * 0.65;
-      base += (1 - coast) * 2.5;
-      base = THREE.MathUtils.lerp(base, -2.65, coast);
+      const flowRidges = Math.abs(Math.sin(z * 0.13 + Math.sin(x * 0.055) * 1.8)) * 0.85;
+      base += Math.sin(z * 0.17 + Math.sin(x * 0.08) * 2.2) * 1.1 + Math.cos(x * 0.12 + z * 0.07) * 0.65 + flowRidges;
     } else if (this.siteProfile?.terrain === "alluvial") {
       const channel = z - Math.sin(x * 0.075) * 5;
-      base += Math.sin(x * 0.045) * 1.2 - Math.exp(-((channel / 2.2) ** 2)) * 1.25;
+      const desertRidge = Math.max(0, Math.abs(x) - 25) * 0.28;
+      base += Math.sin(x * 0.045) * 1.2 - Math.exp(-((channel / 2.2) ** 2)) * 1.25 + desertRidge;
+    } else if (this.siteProfile?.terrain === "basin") {
+      const basinRadius = Math.hypot(x * 0.82, z);
+      const basinFloor = Math.exp(-((basinRadius / 27) ** 4)) * 3.2;
+      const basinRange = Math.max(0, basinRadius - 30) * 0.48;
+      base += basinRange - basinFloor;
+    } else if (this.siteProfile?.terrain === "polar-valley") {
+      const valleyRidge = Math.max(0, Math.abs(x) - 21) * 0.58;
+      base += Math.min(26, valleyRidge) + Math.sin(z * 0.045) * 0.9;
+    }
+
+    if (this.stageSite?.id === "devon") {
+      base += Math.min(18, Math.max(0, Math.abs(x) - 29) * 0.42);
     }
 
     // Main landmark crater
@@ -1578,8 +1602,10 @@ class SpaceWorld {
     const craterZ = z + 9;
     const craterR = Math.hypot(craterX, craterZ);
     const hasCrater = !this.siteProfile || this.siteProfile.terrain === "impact";
-    const bowl = hasCrater ? -Math.exp(-((craterR / 8.6) ** 2)) * (this.isMoon ? 3.4 : 2.4) : 0;
-    const rim = hasCrater ? Math.exp(-(((craterR - 8.8) / 1.25) ** 2)) * 1.15 : 0;
+    const craterRadius = this.stageSite?.id === "meteor-crater" ? 17 : this.stageSite?.id === "devon" ? 13 : 8.6;
+    const craterDepth = this.stageSite?.id === "meteor-crater" ? 8.5 : this.stageSite?.id === "devon" ? 5.2 : this.isMoon ? 3.4 : 2.4;
+    const bowl = hasCrater ? -Math.exp(-((craterR / craterRadius) ** 2)) * craterDepth : 0;
+    const rim = hasCrater ? Math.exp(-(((craterR - craterRadius * 1.03) / (craterRadius > 10 ? 2.2 : 1.25)) ** 2)) * (craterRadius > 10 ? 2.1 : 1.15) : 0;
     return base + bowl + rim;
   }
 
@@ -1632,17 +1658,6 @@ class SpaceWorld {
 
     const terrain = new THREE.Mesh(geometry, terrainMat);
     terrain.receiveShadow = true;
-    if (this.siteProfile?.terrain === "lava") {
-      const ocean = new THREE.Mesh(
-        new THREE.PlaneGeometry(420, 420),
-        new THREE.MeshPhysicalMaterial({ color: 0x167d9d, roughness: 0.24, metalness: 0.12, transparent: true, opacity: 0.9, clearcoat: 0.65, clearcoatRoughness: 0.2 })
-      );
-      ocean.rotation.x = -Math.PI / 2;
-      ocean.position.y = -1.75;
-      ocean.receiveShadow = true;
-      this.scene.add(ocean);
-      this.ocean = ocean;
-    }
     this.scene.add(terrain);
     this.terrainMesh = terrain;
 
@@ -1672,6 +1687,17 @@ class SpaceWorld {
       wall.addShape(new CANNON.Box(new CANNON.Vec3(sx / 2, sy / 2, sz / 2)));
       this.physics.addBody(wall);
     });
+  }
+
+  addSiteCollider(shape, x, y, z) {
+    const body = new CANNON.Body({
+      mass: 0,
+      material: this.terrainMaterial,
+      position: new CANNON.Vec3(x, y, z)
+    });
+    body.addShape(shape);
+    this.physics.addBody(body);
+    this.siteBodies.push(body);
   }
 
   addTerrainDetails() {
@@ -1712,40 +1738,112 @@ class SpaceWorld {
         dummy.updateMatrix();
         batch.setMatrixAt(index, dummy.matrix);
         this.rockSurfaces.push({ x, z, radius: scale * 0.85, height });
+        if (this.siteProfile && index % 2 === 0) {
+          const collider = new CANNON.Body({
+            mass: 0,
+            material: this.terrainMaterial,
+            position: new CANNON.Vec3(x, height + scale * 0.58, z)
+          });
+          collider.addShape(new CANNON.Sphere(scale * 0.58));
+          this.physics.addBody(collider);
+          this.rockBodies.push(collider);
+        }
       }
       batch.instanceMatrix.needsUpdate = true;
     });
   }
 
+  addSiteSurfacePatch(x, z, radiusX, radiusZ, color, options = {}) {
+    const shape = new THREE.Shape();
+    const points = 14;
+    for (let index = 0; index < points; index += 1) {
+      const angle = index * TAU / points;
+      const irregularity = 0.82 + seededValue(options.seed || 17, index + 3) * 0.28;
+      const pointX = Math.cos(angle) * radiusX * irregularity;
+      const pointY = Math.sin(angle) * radiusZ * irregularity;
+      if (index === 0) shape.moveTo(pointX, pointY);
+      else shape.lineTo(pointX, pointY);
+    }
+    shape.closePath();
+
+    const patch = new THREE.Mesh(
+      new THREE.ShapeGeometry(shape, points),
+      new THREE.MeshStandardMaterial({
+        color,
+        roughness: options.roughness ?? 0.92,
+        metalness: 0.01,
+        transparent: Boolean(options.opacity),
+        opacity: options.opacity || 1,
+        side: THREE.DoubleSide
+      })
+    );
+    patch.rotation.x = -Math.PI / 2;
+    patch.position.set(x, this.terrainHeight(x, z) + (options.heightOffset || 0.07), z);
+    patch.receiveShadow = true;
+    this.scene.add(patch);
+
+    if (options.cracked) {
+      const vertices = [];
+      for (let index = 0; index < 8; index += 1) {
+        const angle = index * TAU / 8 + 0.12;
+        const startRadius = 0.2 + seededValue(options.seed || 17, index + 20) * 0.3;
+        const endRadius = 0.75 + seededValue(options.seed || 17, index + 40) * 0.2;
+        vertices.push(
+          x + Math.cos(angle) * radiusX * startRadius, patch.position.y + 0.035, z + Math.sin(angle) * radiusZ * startRadius,
+          x + Math.cos(angle + 0.09) * radiusX * endRadius, patch.position.y + 0.035, z + Math.sin(angle + 0.09) * radiusZ * endRadius
+        );
+      }
+      const crackGeometry = new THREE.BufferGeometry();
+      crackGeometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+      this.scene.add(new THREE.LineSegments(crackGeometry, new THREE.LineBasicMaterial({ color: 0x72695e, transparent: true, opacity: 0.55 })));
+    }
+    return patch;
+  }
+
   createSiteEnvironment() {
     if (this.siteProfile?.terrain === "lava") {
-      const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x76513a, roughness: 0.94 });
-      const leafMaterial = new THREE.MeshStandardMaterial({ color: 0x34744b, roughness: 0.88, side: THREE.DoubleSide });
-      for (let index = 0; index < 9; index += 1) {
-        const angle = index * 2.4;
-        const radius = 16 + seededValue(index + 41, 5) * 15;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-        const palm = new THREE.Group();
-        palm.position.set(x, this.terrainHeight(x, z), z);
-        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.3, 5.5, 8), trunkMaterial);
-        trunk.position.y = 2.75;
-        trunk.castShadow = true;
-        palm.add(trunk);
-        for (let frond = 0; frond < 8; frond += 1) {
-          const direction = frond * TAU / 8;
-          const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.18, 4, 5), leafMaterial);
-          leaf.position.set(Math.cos(direction) * 1.15, 5.25, Math.sin(direction) * 1.15);
-          leaf.rotation.z = Math.PI / 2;
-          leaf.rotation.y = direction;
-          leaf.castShadow = true;
-          palm.add(leaf);
-        }
-        this.scene.add(palm);
+      const tubeX = 4;
+      const tubeZ = -17;
+      const tubeY = this.terrainHeight(tubeX, tubeZ);
+      const entrance = new THREE.Group();
+      entrance.position.set(tubeX, tubeY, tubeZ);
+      const darkOpening = new THREE.Mesh(new THREE.CircleGeometry(2.15, 24), new THREE.MeshBasicMaterial({ color: 0x080a0b }));
+      darkOpening.position.set(0, 2.15, -0.5);
+      entrance.add(darkOpening);
+      const arch = new THREE.Mesh(new THREE.TorusGeometry(2.15, 0.42, 8, 24), new THREE.MeshStandardMaterial({ color: 0x3c3e3b, roughness: 0.98 }));
+      arch.position.set(0, 2.15, -0.46);
+      entrance.add(arch);
+      const tube = new THREE.Mesh(new THREE.CylinderGeometry(2.05, 2.05, 11, 24, 1, true), new THREE.MeshStandardMaterial({ color: 0x222423, side: THREE.BackSide, roughness: 1 }));
+      tube.rotation.x = Math.PI / 2;
+      tube.position.set(0, 2.15, -6);
+      entrance.add(tube);
+      this.scene.add(entrance);
+      this.lavaTube = entrance;
+      for (let segment = 0; segment < 8; segment += 1) {
+        const angle = segment * TAU / 8;
+        this.addSiteCollider(
+          new CANNON.Box(new CANNON.Vec3(0.58, 0.58, 5)),
+          tubeX + Math.cos(angle) * 1.8,
+          tubeY + 2.15 + Math.sin(angle) * 1.8,
+          tubeZ - 5.8
+        );
       }
+      const tubeLight = new THREE.PointLight(0x92b7b2, 0.45, 13, 2);
+      tubeLight.position.set(tubeX, tubeY + 2.4, tubeZ - 5.5);
+      this.scene.add(tubeLight);
+
+      const ventMaterial = new THREE.MeshStandardMaterial({ color: 0x3c3934, roughness: 0.97, flatShading: true });
+      [[-20, -8], [19, -20], [-25, 22]].forEach(([x, z], index) => {
+        const height = 2.2 + index * 0.5;
+        const vent = new THREE.Mesh(new THREE.ConeGeometry(2.7 + index * 0.35, height, 7), ventMaterial);
+        vent.position.set(x, this.terrainHeight(x, z) + height / 2, z);
+        vent.castShadow = true;
+        this.scene.add(vent);
+        this.addSiteCollider(new CANNON.Cylinder(0.1, 2.7 + index * 0.35, height, 7), x, vent.position.y, z);
+      });
     }
 
-    if (["death-valley", "atacama"].includes(this.stageSite?.id)) {
+    if (this.stageSite?.id === "death-valley") {
       this.desertAnimals = [];
       for (let index = 0; index < 3; index += 1) {
         const model = makeDesertAnimal(index);
@@ -1761,27 +1859,58 @@ class SpaceWorld {
       }
     }
 
-    if (this.stageSite?.id === "atacama") {
-      // Atacama: add cacti, Andean foxes, and cats
-      for (let i = 0; i < 7; i++) {
-        const angle = i * 0.9 + 0.4;
-        const r = 14 + seededValue(i + 77, 3) * 24;
-        const cx = Math.cos(angle) * r;
-        const cz = Math.sin(angle) * r;
-        const cactus = makeCactus(i);
-        cactus.position.set(cx, this.terrainHeight(cx, cz), cz);
-        this.scene.add(cactus);
+    if (["atacama", "death-valley"].includes(this.stageSite?.id)) {
+      const isAtacama = this.stageSite.id === "atacama";
+      const crustColor = isAtacama ? 0xb5b3a5 : 0xd0c8b3;
+      const patches = isAtacama
+        ? [[14, -5, 8, 4], [-22, 18, 6, 4]]
+        : [[-15, -7, 17, 10], [18, 6, 12, 8], [5, 27, 8, 5]];
+      patches.forEach(([x, z, width, depth], index) => {
+        this.addSiteSurfacePatch(x, z, width, depth, crustColor, { cracked: true, seed: index + 21, roughness: 0.96 });
+      });
+    }
+
+    if (["devon", "mcmurdo"].includes(this.stageSite?.id)) {
+      const isMcMurdo = this.stageSite.id === "mcmurdo";
+      const iceColor = isMcMurdo ? 0x9cbcc8 : 0xb4cbd0;
+      const glacier = isMcMurdo ? [-20, -17, 12, 4.5, 1.5] : [-25, -13, 9, 4, 1.2];
+      const glacierBody = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 28, 14),
+        new THREE.MeshStandardMaterial({ color: iceColor, roughness: 0.66, metalness: 0.01 })
+      );
+      glacierBody.scale.set(glacier[2], glacier[4], glacier[3]);
+      glacierBody.rotation.y = -0.22;
+      glacierBody.position.set(glacier[0], this.terrainHeight(glacier[0], glacier[1]) + glacier[4] * 0.58, glacier[1]);
+      glacierBody.castShadow = true;
+      glacierBody.receiveShadow = true;
+      this.scene.add(glacierBody);
+      for (let segment = -1; segment <= 1; segment += 1) {
+        this.addSiteCollider(
+          new CANNON.Box(new CANNON.Vec3(glacier[2] * 0.34, glacier[4] * 0.48, glacier[3] * 0.52)),
+          glacier[0] + segment * glacier[2] * 0.56,
+          glacierBody.position.y,
+          glacier[1]
+        );
       }
-      this.atacamaWildlife = [
-        { kind: "fox", x: 18, z: -14 },
-        { kind: "fox", x: -22, z: 9 },
-        { kind: "cat", x: 7, z: 20 },
-        { kind: "cat", x: -10, z: -18 }
-      ].map((w, idx) => {
-        const model = makeArcticWildlife(w.kind);
-        model.position.set(w.x, this.terrainHeight(w.x, w.z), w.z);
-        this.scene.add(model);
-        return { ...w, model, phase: idx * 2.1, turnIn: 2 + idx * 0.8, fleeingUntil: 0 };
+
+      const lakes = isMcMurdo
+        ? [[13, -5, 6, 4], [21, 14, 5, 3.5], [-4, 25, 4, 3]]
+        : [[14, -13, 5, 3.5], [8, 16, 4, 3]];
+      lakes.forEach(([x, z, width, depth], index) => {
+        this.addSiteSurfacePatch(x, z, width, depth, isMcMurdo ? 0x5b91a5 : 0x719eaa, {
+          opacity: 0.68,
+          roughness: 0.38,
+          heightOffset: 0.045,
+          seed: index + 51
+        });
+        const rim = new THREE.Mesh(
+          new THREE.TorusGeometry(1, 0.12, 5, 36),
+          new THREE.MeshStandardMaterial({ color: iceColor, roughness: 0.82, transparent: true, opacity: 0.76 })
+        );
+        rim.position.set(x, this.terrainHeight(x, z) + 0.16, z);
+        rim.rotation.x = Math.PI / 2;
+        rim.scale.set(width, depth, 1);
+        this.scene.add(rim);
       });
     }
 
@@ -1872,9 +2001,11 @@ class SpaceWorld {
 
   createSurfaceBaseCamp() {
     if (this.config.character === "alien") {
+      if (this.stageSite) return;
       // Alien: spawn a cartoon flying saucer at their base camp
       const saucer = makeAlienFlyingSaucer();
-      const sX = -10, sZ = -12;
+      const sX = this.stageSite ? -42 : -10;
+      const sZ = this.stageSite ? -38 : -12;
       const sY = this.findLandingElevation(sX, sZ);
       saucer.position.set(sX, sY + 0.4, sZ);
       this.scene.add(saucer);
@@ -1992,11 +2123,13 @@ class SpaceWorld {
      Player (Astronaut / Alien) & Controls
      ----------------------------------------------------------------------- */
   createPlayer() {
-    const startY = this.terrainHeight(0, 0) + PLAYER_COLLIDER_HEIGHT + 0.08;
+    const startX = this.stageSite?.id === "meteor-crater" ? 1 : 0;
+    const startZ = this.stageSite?.id === "meteor-crater" ? -9 : 0;
+    const startY = this.terrainHeight(startX, startZ) + PLAYER_COLLIDER_HEIGHT + 0.08;
     this.playerBody = new CANNON.Body({
       mass: 65,
       material: this.playerMaterial,
-      position: new CANNON.Vec3(0, startY, 0),
+      position: new CANNON.Vec3(startX, startY, startZ),
       linearDamping: 0.18,
       angularDamping: 1,
       allowSleep: false
@@ -2037,15 +2170,13 @@ class SpaceWorld {
         "assets/crew/crew-3.jpg",
         "assets/crew/crew-face-5.jpg"
       ] : [null, null, null, null];
-      const crewOffsets = [
-        { x: 0, z: 2.5 },
-        { x: -1.6, z: 4.5 },
-        { x: 1.6, z: 4.5 },
-        { x: 0, z: 6.5 }
-      ];
+      const crewOffsets = this.config.character === "alien"
+        ? [{ x: -2.6, z: 4.2 }, { x: 2.6, z: 4.2 }, { x: -5.2, z: 7.6 }, { x: 5.2, z: 7.6 }]
+        : [{ x: 0, z: 2.5 }, { x: -1.6, z: 4.5 }, { x: 1.6, z: 4.5 }, { x: 0, z: 6.5 }];
 
       crewFaces.forEach((faceUrl, idx) => {
         const crewModel = makeCharacter(this.config.character, 0, faceUrl);
+        if (this.config.character === "alien") crewModel.scale.setScalar(0.76);
         this.applySuitVisuals(crewModel);
         const initX = this.playerBody.position.x + crewOffsets[idx].x;
         const initZ = this.playerBody.position.z + crewOffsets[idx].z;
@@ -2285,6 +2416,24 @@ class SpaceWorld {
     });
   }
 
+  createScientificPoints() {
+    const records = this.stageSite?.science?.points || [];
+    const markerMaterial = new THREE.MeshStandardMaterial({ color: 0x7fe2db, emissive: 0x155f61, emissiveIntensity: 1.15, roughness: 0.4 });
+    records.forEach((record, index) => {
+      const marker = new THREE.Group();
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.09, 8, 24), markerMaterial);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.28;
+      marker.add(ring);
+      const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.7, 6), new THREE.MeshBasicMaterial({ color: 0x74e4d8, transparent: true, opacity: 0.45 }));
+      beacon.position.y = 1.1;
+      marker.add(beacon);
+      marker.position.set(record.x, this.terrainHeight(record.x, record.z), record.z);
+      this.scene.add(marker);
+      this.sciencePoints.push({ ...record, id: `${this.stageSite.id}-point-${index + 1}`, marker, visited: false });
+    });
+  }
+
   createRover() {
     const rover = makeDetailedRover(this.isMars);
     rover.position.set(3.8, this.terrainHeight(3.8, 2.2), 2.2);
@@ -2310,6 +2459,20 @@ class SpaceWorld {
       this.ensureAudio();
       this.toggleEarthNight();
     });
+    actions.prepend(button);
+  }
+
+  createFieldLogButton() {
+    if (!this.stageSite) return;
+    const actions = this.hud.querySelector(".game-hud-actions");
+    if (!actions) return;
+    const button = document.createElement("button");
+    button.className = "game-icon-control";
+    button.type = "button";
+    button.dataset.engineAction = "field-log";
+    button.setAttribute("aria-label", "سجل الملاحظات العلمية");
+    button.title = "سجل الملاحظات العلمية";
+    button.textContent = "▤";
     actions.prepend(button);
   }
 
@@ -2524,6 +2687,7 @@ class SpaceWorld {
       const button = event.target.closest("button");
       if (!button) return;
       this.ensureAudio();
+      if (button.dataset.sampleAnalysis) this.analyzeSample(button.dataset.sampleAnalysis);
       const engineAction = button.dataset.engineAction;
       const engineButton = button.dataset.engineButton;
 
@@ -2534,6 +2698,14 @@ class SpaceWorld {
       if (engineAction === "camera") this.toggleCameraMode();
       if (engineAction === "inventory") this.toggleInventory(true);
       if (engineAction === "inventory-close") this.toggleInventory(false);
+      if (engineAction === "field-log") {
+        const fieldLog = this.hud.querySelector("#game-field-log");
+        if (fieldLog) fieldLog.hidden = !fieldLog.hidden;
+      }
+      if (engineAction === "field-log-close") {
+        const fieldLog = this.hud.querySelector("#game-field-log");
+        if (fieldLog) fieldLog.hidden = true;
+      }
       if (engineAction === "equipment") this.toggleEquipmentPanel(true);
       if (engineAction === "equipment-close") this.toggleEquipmentPanel(false);
       if (button.dataset.equipmentUse) this.useEquipment(button.dataset.equipmentUse);
@@ -3009,11 +3181,20 @@ class SpaceWorld {
     list.innerHTML = collected.map(sample => {
       const nameLabel = sample.name || sample.type;
       const sampleNumber = collectionOrder.get(sample.id) + 1;
-      if (this.isAlien) {
-        return `<div class="game-inventory-item"><span class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">العينة رقم ${sampleNumber} · ${sample.type || "عينة افتراضية"}</small></span></div>`;
-      }
-      return `<div class="game-inventory-item"><span class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">العينة رقم ${sampleNumber} · ${sample.type || "عينة افتراضية"}</small></span><span aria-hidden="true">✓</span></div>`;
+      const analyzed = this.progress.analyzedSamples.includes(sample.id);
+      return `<article class="game-inventory-item game-analyzer-item"><div class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">العينة رقم ${sampleNumber} · ${sample.type || "عينة افتراضية"}</small></div><button type="button" class="game-analyze-button" data-sample-analysis="${sample.id}" ${analyzed ? "disabled" : ""}>${analyzed ? "تم التحليل" : "تحليل العينة"}</button>${analyzed ? `<div class="game-analysis-result"><strong>قراءة تعليمية · ليست نتيجة مختبرية</strong><p>${sample.analysis}</p><small>مواد الموقع المرجعية: ${this.stageSite?.science?.rocks || "لا تتوفر بيانات تركيب محددة لهذا الموقع."}</small><small>${sample.limitations}</small><a href="${sample.source}" target="_blank" rel="noopener noreferrer">فتح المرجع ↗</a></div>` : ""}</article>`;
     }).join("");
+  }
+
+  analyzeSample(sampleId) {
+    const sample = this.samples.find(item => item.id === sampleId && item.collected);
+    if (!sample || this.progress.analyzedSamples.includes(sampleId)) return;
+    this.progress.analyzedSamples.push(sampleId);
+    this.progress.xp += 5;
+    this.syncProgress();
+    this._renderInventory();
+    this.toast(`اكتمل الفحص التعليمي: ${sample.name || sample.type}. راجع حدود التحليل في الحقيبة.`);
+    this.playPing(860, 0.1);
   }
 
   resize() {
@@ -3249,7 +3430,8 @@ class SpaceWorld {
     }
 
     // Default: Third Person Dynamic Spring Camera
-    const distance = this.roverMode ? 8.2 : this.crewMembers?.length ? 9.4 : 5.8;
+    const crewDistance = this.siteProfile && this.config.character === "alien" ? 14 : 9.4;
+    const distance = this.roverMode ? 8.2 : this.crewMembers?.length ? crewDistance : this.siteProfile ? this.cameraDistance : 5.8;
     const targetHeight = this.roverMode ? 0.95 : 1.15;
     const pitchScale = Math.cos(this.cameraPitch);
     const target = new THREE.Vector3(player.x, player.y + targetHeight, player.z);
@@ -3301,7 +3483,7 @@ class SpaceWorld {
     const sprint = this.keys.has("ShiftLeft") || this.keys.has("ShiftRight");
     this.isRunning = inputLength > 0.08 || this.touchRun;
     const isSprint = (sprint || this.touchRun) && this.isRunning;
-    const speed = (isSprint ? this.look.run : this.look.walk) * (this.roverMode ? 1.85 : 1);
+    const speed = (isSprint ? this.look.run : this.look.walk) * (this.roverMode ? 1.85 : 1) * this.siteMovementFactor;
     const grounded = this.isGrounded();
     const acceleration = this.isRunning ? this.look.acceleration : this.look.braking;
     const control = grounded ? 1.0 : (this.isEarth ? 0.95 : this.look.airControl);
@@ -3457,6 +3639,29 @@ class SpaceWorld {
     });
     if (newlyDiscovered) this.syncProgress();
 
+    const nearestPoint = this.sciencePoints
+      .map(point => ({ point, distance: Math.hypot(this.playerBody.position.x - point.x, this.playerBody.position.z - point.z) }))
+      .filter(item => item.distance < 7)
+      .sort((left, right) => left.distance - right.distance)[0]?.point;
+    const scienceCard = this.hud.querySelector("#game-science-point");
+    if (scienceCard && nearestPoint) {
+      scienceCard.hidden = false;
+      setText(this.hud, "#game-science-point-title", nearestPoint.title);
+      setText(this.hud, "#game-science-point-text", nearestPoint.text);
+      if (!nearestPoint.visited) {
+        nearestPoint.visited = true;
+        if (!this.progress.discoveredPoints.includes(nearestPoint.id)) {
+          this.progress.discoveredPoints.push(nearestPoint.id);
+        }
+        if (this.stageSite && !this.progress.readSites.includes(this.stageSite.id)) {
+          this.progress.readSites.push(this.stageSite.id);
+        }
+        this.syncProgress();
+      }
+    } else if (scienceCard) {
+      scienceCard.hidden = true;
+    }
+
     const uncollected = this.nearestSample(8);
     const collected = this.nearestSample(8, true);
     const nearest = uncollected || collected;
@@ -3598,6 +3803,8 @@ class SpaceWorld {
     if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
     clearTimeout(this.toastTimeout);
     this.baseCampBodies?.forEach(b => this.physics?.removeBody(b));
+    this.rockBodies?.forEach(body => this.physics?.removeBody(body));
+    this.siteBodies?.forEach(body => this.physics?.removeBody(body));
     this.crewMembers?.forEach(c => this.scene?.remove(c.model));
     this.audioContext?.close?.();
     this.planetStrip?.dispose();

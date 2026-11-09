@@ -3093,17 +3093,17 @@ var _Matrix3 = class _Matrix3 {
    * @return {Matrix3} A reference to this matrix.
    */
   transpose() {
-    let tmp2;
+    let tmp4;
     const m = this.elements;
-    tmp2 = m[1];
+    tmp4 = m[1];
     m[1] = m[3];
-    m[3] = tmp2;
-    tmp2 = m[2];
+    m[3] = tmp4;
+    tmp4 = m[2];
     m[2] = m[6];
-    m[6] = tmp2;
-    tmp2 = m[5];
+    m[6] = tmp4;
+    tmp4 = m[5];
     m[5] = m[7];
-    m[7] = tmp2;
+    m[7] = tmp4;
     return this;
   }
   /**
@@ -5572,25 +5572,25 @@ var _Matrix4 = class _Matrix4 {
    */
   transpose() {
     const te = this.elements;
-    let tmp2;
-    tmp2 = te[1];
+    let tmp4;
+    tmp4 = te[1];
     te[1] = te[4];
-    te[4] = tmp2;
-    tmp2 = te[2];
+    te[4] = tmp4;
+    tmp4 = te[2];
     te[2] = te[8];
-    te[8] = tmp2;
-    tmp2 = te[6];
+    te[8] = tmp4;
+    tmp4 = te[6];
     te[6] = te[9];
-    te[9] = tmp2;
-    tmp2 = te[3];
+    te[9] = tmp4;
+    tmp4 = te[3];
     te[3] = te[12];
-    te[12] = tmp2;
-    tmp2 = te[7];
+    te[12] = tmp4;
+    tmp4 = te[7];
     te[7] = te[13];
-    te[13] = tmp2;
-    tmp2 = te[11];
+    te[13] = tmp4;
+    tmp4 = te[11];
     te[11] = te[14];
-    te[14] = tmp2;
+    te[14] = tmp4;
     return this;
   }
   /**
@@ -7173,11 +7173,11 @@ var Object3D = class _Object3D extends EventDispatcher {
     this.matrix.compose(this.position, this.quaternion, this.scale);
     const pivot = this.pivot;
     if (pivot !== null) {
-      const px = pivot.x, py = pivot.y, pz = pivot.z;
+      const px2 = pivot.x, py2 = pivot.y, pz2 = pivot.z;
       const te = this.matrix.elements;
-      te[12] += px - te[0] * px - te[4] * py - te[8] * pz;
-      te[13] += py - te[1] * px - te[5] * py - te[9] * pz;
-      te[14] += pz - te[2] * px - te[6] * py - te[10] * pz;
+      te[12] += px2 - te[0] * px2 - te[4] * py2 - te[8] * pz2;
+      te[13] += py2 - te[1] * px2 - te[5] * py2 - te[9] * pz2;
+      te[14] += pz2 - te[2] * px2 - te[6] * py2 - te[10] * pz2;
     }
     this.matrixWorldNeedsUpdate = true;
   }
@@ -10746,18 +10746,18 @@ var BufferGeometry = class _BufferGeometry extends EventDispatcher {
         );
       }
     }
-    const tmp2 = new Vector3(), tmp22 = new Vector3();
+    const tmp4 = new Vector3(), tmp22 = new Vector3();
     const n = new Vector3(), n2 = new Vector3();
     function handleVertex(v) {
       n.fromBufferAttribute(normalAttribute, v);
       n2.copy(n);
       const t = tan1[v];
-      tmp2.copy(t);
-      tmp2.sub(n.multiplyScalar(n.dot(t))).normalize();
+      tmp4.copy(t);
+      tmp4.sub(n.multiplyScalar(n.dot(t))).normalize();
       tmp22.crossVectors(n2, t);
       const test = tmp22.dot(tan2[v]);
       const w = test < 0 ? -1 : 1;
-      tangentAttribute.setXYZW(v, tmp2.x, tmp2.y, tmp2.z, w);
+      tangentAttribute.setXYZW(v, tmp4.x, tmp4.y, tmp4.z, w);
     }
     for (let i = 0, il = groups.length; i < il; ++i) {
       const group = groups[i];
@@ -12482,7 +12482,7 @@ var Sprite = class extends Object3D {
    * @param {Raycaster} raycaster - The raycaster.
    * @param {Array<Object>} intersects - The target array that holds the intersection points.
    */
-  raycast(raycaster, intersects) {
+  raycast(raycaster, intersects2) {
     if (raycaster.camera === null) {
       error('Sprite: "Raycaster.camera" needs to be set in order to raycast against sprites.');
     }
@@ -12517,7 +12517,7 @@ var Sprite = class extends Object3D {
     }
     const distance = raycaster.ray.origin.distanceTo(_intersectPoint);
     if (distance < raycaster.near || distance > raycaster.far) return;
-    intersects.push({
+    intersects2.push({
       distance,
       point: _intersectPoint.clone(),
       uv: Triangle.getInterpolation(_intersectPoint, _vA$1, _vB$1, _vC$1, _uvA, _uvB, _uvC, new Vector2()),
@@ -13163,7 +13163,7 @@ var Mesh = class extends Object3D {
    * @param {Raycaster} raycaster - The raycaster.
    * @param {Array<Object>} intersects - The target array that holds the intersection points.
    */
-  raycast(raycaster, intersects) {
+  raycast(raycaster, intersects2) {
     const geometry = this.geometry;
     const material = this.material;
     const matrixWorld = this.matrixWorld;
@@ -13181,9 +13181,9 @@ var Mesh = class extends Object3D {
     if (geometry.boundingBox !== null) {
       if (_ray$3.intersectsBox(geometry.boundingBox) === false) return;
     }
-    this._computeIntersections(raycaster, intersects, _ray$3);
+    this._computeIntersections(raycaster, intersects2, _ray$3);
   }
-  _computeIntersections(raycaster, intersects, rayLocalSpace) {
+  _computeIntersections(raycaster, intersects2, rayLocalSpace) {
     let intersection;
     const geometry = this.geometry;
     const material = this.material;
@@ -13209,7 +13209,7 @@ var Mesh = class extends Object3D {
             if (intersection) {
               intersection.faceIndex = Math.floor(j / 3);
               intersection.face.materialIndex = group.materialIndex;
-              intersects.push(intersection);
+              intersects2.push(intersection);
             }
           }
         }
@@ -13223,7 +13223,7 @@ var Mesh = class extends Object3D {
           intersection = checkGeometryIntersection(this, material, raycaster, rayLocalSpace, uv, uv1, normal, a2, b2, c2);
           if (intersection) {
             intersection.faceIndex = Math.floor(i / 3);
-            intersects.push(intersection);
+            intersects2.push(intersection);
           }
         }
       }
@@ -13242,7 +13242,7 @@ var Mesh = class extends Object3D {
             if (intersection) {
               intersection.faceIndex = Math.floor(j / 3);
               intersection.face.materialIndex = group.materialIndex;
-              intersects.push(intersection);
+              intersects2.push(intersection);
             }
           }
         }
@@ -13256,7 +13256,7 @@ var Mesh = class extends Object3D {
           intersection = checkGeometryIntersection(this, material, raycaster, rayLocalSpace, uv, uv1, normal, a2, b2, c2);
           if (intersection) {
             intersection.faceIndex = Math.floor(i / 3);
-            intersects.push(intersection);
+            intersects2.push(intersection);
           }
         }
       }
@@ -13485,7 +13485,7 @@ var InstancedMesh = class extends Mesh {
       objectInfluences[i] = array[dataIndex + i];
     }
   }
-  raycast(raycaster, intersects) {
+  raycast(raycaster, intersects2) {
     const matrixWorld = this.matrixWorld;
     const raycastTimes = this.count;
     _mesh$1.geometry = this.geometry;
@@ -13504,7 +13504,7 @@ var InstancedMesh = class extends Mesh {
         const intersect3 = _instanceIntersects[i];
         intersect3.instanceId = instanceId;
         intersect3.object = this;
-        intersects.push(intersect3);
+        intersects2.push(intersect3);
       }
       _instanceIntersects.length = 0;
     }
@@ -13865,7 +13865,7 @@ var Line = class extends Object3D {
    * @param {Raycaster} raycaster - The raycaster.
    * @param {Array<Object>} intersects - The target array that holds the intersection points.
    */
-  raycast(raycaster, intersects) {
+  raycast(raycaster, intersects2) {
     const geometry = this.geometry;
     const matrixWorld = this.matrixWorld;
     const threshold = raycaster.params.Line.threshold;
@@ -13891,7 +13891,7 @@ var Line = class extends Object3D {
         const b2 = index.getX(i + 1);
         const intersect3 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a2, b2, i);
         if (intersect3) {
-          intersects.push(intersect3);
+          intersects2.push(intersect3);
         }
       }
       if (this.isLineLoop) {
@@ -13899,7 +13899,7 @@ var Line = class extends Object3D {
         const b2 = index.getX(start);
         const intersect3 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a2, b2, end - 1);
         if (intersect3) {
-          intersects.push(intersect3);
+          intersects2.push(intersect3);
         }
       }
     } else {
@@ -13908,13 +13908,13 @@ var Line = class extends Object3D {
       for (let i = start, l = end - 1; i < l; i += step) {
         const intersect3 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, i, i + 1, i);
         if (intersect3) {
-          intersects.push(intersect3);
+          intersects2.push(intersect3);
         }
       }
       if (this.isLineLoop) {
         const intersect3 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, end - 1, start, end - 1);
         if (intersect3) {
-          intersects.push(intersect3);
+          intersects2.push(intersect3);
         }
       }
     }
@@ -13962,6 +13962,38 @@ function checkIntersection(object, raycaster, ray, thresholdSq, a2, b2, i) {
     object
   };
 }
+var _start = /* @__PURE__ */ new Vector3();
+var _end = /* @__PURE__ */ new Vector3();
+var LineSegments = class extends Line {
+  /**
+   * Constructs a new line segments.
+   *
+   * @param {BufferGeometry} [geometry] - The line geometry.
+   * @param {Material|Array<Material>} [material] - The line material.
+   */
+  constructor(geometry, material) {
+    super(geometry, material);
+    this.isLineSegments = true;
+    this.type = "LineSegments";
+  }
+  computeLineDistances() {
+    const geometry = this.geometry;
+    if (geometry.index === null) {
+      const positionAttribute = geometry.attributes.position;
+      const lineDistances = [];
+      for (let i = 0, l = positionAttribute.count; i < l; i += 2) {
+        _start.fromBufferAttribute(positionAttribute, i);
+        _end.fromBufferAttribute(positionAttribute, i + 1);
+        lineDistances[i] = i === 0 ? 0 : lineDistances[i - 1];
+        lineDistances[i + 1] = lineDistances[i] + _start.distanceTo(_end);
+      }
+      geometry.setAttribute("lineDistance", new Float32BufferAttribute(lineDistances, 1));
+    } else {
+      warn("LineSegments.computeLineDistances(): Computation only possible with non-indexed BufferGeometry.");
+    }
+    return this;
+  }
+};
 var PointsMaterial = class extends Material {
   /**
    * Constructs a new points material.
@@ -14037,7 +14069,7 @@ var Points = class extends Object3D {
    * @param {Raycaster} raycaster - The raycaster.
    * @param {Array<Object>} intersects - The target array that holds the intersection points.
    */
-  raycast(raycaster, intersects) {
+  raycast(raycaster, intersects2) {
     const geometry = this.geometry;
     const matrixWorld = this.matrixWorld;
     const threshold = raycaster.params.Points.threshold;
@@ -14060,14 +14092,14 @@ var Points = class extends Object3D {
       for (let i = start, il = end; i < il; i++) {
         const a2 = index.getX(i);
         _position$3.fromBufferAttribute(positionAttribute, a2);
-        testPoint(_position$3, a2, localThresholdSq, matrixWorld, raycaster, intersects, this);
+        testPoint(_position$3, a2, localThresholdSq, matrixWorld, raycaster, intersects2, this);
       }
     } else {
       const start = Math.max(0, drawRange.start);
       const end = Math.min(positionAttribute.count, drawRange.start + drawRange.count);
       for (let i = start, l = end; i < l; i++) {
         _position$3.fromBufferAttribute(positionAttribute, i);
-        testPoint(_position$3, i, localThresholdSq, matrixWorld, raycaster, intersects, this);
+        testPoint(_position$3, i, localThresholdSq, matrixWorld, raycaster, intersects2, this);
       }
     }
   }
@@ -14093,7 +14125,7 @@ var Points = class extends Object3D {
     }
   }
 };
-function testPoint(point, index, localThresholdSq, matrixWorld, raycaster, intersects, object) {
+function testPoint(point, index, localThresholdSq, matrixWorld, raycaster, intersects2, object) {
   const rayPointDistanceSq = _ray.distanceSqToPoint(point);
   if (rayPointDistanceSq < localThresholdSq) {
     const intersectPoint2 = new Vector3();
@@ -14101,7 +14133,7 @@ function testPoint(point, index, localThresholdSq, matrixWorld, raycaster, inter
     intersectPoint2.applyMatrix4(matrixWorld);
     const distance = raycaster.ray.origin.distanceTo(intersectPoint2);
     if (distance < raycaster.near || distance > raycaster.far) return;
-    intersects.push({
+    intersects2.push({
       distance,
       distanceToRay: Math.sqrt(rayPointDistanceSq),
       point: intersectPoint2,
@@ -14637,10 +14669,10 @@ var CylinderGeometry = class _CylinderGeometry extends BufferGeometry {
       const vertex2 = new Vector3();
       let groupCount = 0;
       const radius = top === true ? radiusTop : radiusBottom;
-      const sign = top === true ? 1 : -1;
+      const sign2 = top === true ? 1 : -1;
       for (let x = 1; x <= radialSegments; x++) {
-        vertices.push(0, halfHeight * sign, 0);
-        normals.push(0, sign, 0);
+        vertices.push(0, halfHeight * sign2, 0);
+        normals.push(0, sign2, 0);
         uvs.push(0.5, 0.5);
         index++;
       }
@@ -14651,12 +14683,12 @@ var CylinderGeometry = class _CylinderGeometry extends BufferGeometry {
         const cosTheta = Math.cos(theta);
         const sinTheta = Math.sin(theta);
         vertex2.x = radius * sinTheta;
-        vertex2.y = halfHeight * sign;
+        vertex2.y = halfHeight * sign2;
         vertex2.z = radius * cosTheta;
         vertices.push(vertex2.x, vertex2.y, vertex2.z);
-        normals.push(0, sign, 0);
+        normals.push(0, sign2, 0);
         uv.x = cosTheta * 0.5 + 0.5;
-        uv.y = sinTheta * 0.5 * sign + 0.5;
+        uv.y = sinTheta * 0.5 * sign2 + 0.5;
         uvs.push(uv.x, uv.y);
         index++;
       }
@@ -14901,6 +14933,1952 @@ var PolyhedronGeometry = class _PolyhedronGeometry extends BufferGeometry {
     return new _PolyhedronGeometry(data.vertices, data.indices, data.radius, data.detail);
   }
 };
+var Curve = class {
+  /**
+   * Constructs a new curve.
+   */
+  constructor() {
+    this.type = "Curve";
+    this.arcLengthDivisions = 200;
+    this.needsUpdate = false;
+    this.cacheArcLengths = null;
+  }
+  /**
+   * This method returns a vector in 2D or 3D space (depending on the curve definition)
+   * for the given interpolation factor.
+   *
+   * @abstract
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {(Vector2|Vector3)} [optionalTarget] - The optional target vector the result is written to.
+   * @return {(Vector2|Vector3)} The position on the curve. It can be a 2D or 3D vector depending on the curve definition.
+   */
+  getPoint() {
+    warn("Curve: .getPoint() not implemented.");
+  }
+  /**
+   * This method returns a vector in 2D or 3D space (depending on the curve definition)
+   * for the given interpolation factor. Unlike {@link Curve#getPoint}, this method honors the length
+   * of the curve which equidistant samples.
+   *
+   * @param {number} u - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {(Vector2|Vector3)} [optionalTarget] - The optional target vector the result is written to.
+   * @return {(Vector2|Vector3)} The position on the curve. It can be a 2D or 3D vector depending on the curve definition.
+   */
+  getPointAt(u, optionalTarget) {
+    const t = this.getUtoTmapping(u);
+    return this.getPoint(t, optionalTarget);
+  }
+  /**
+   * This method samples the curve via {@link Curve#getPoint} and returns an array of points representing
+   * the curve shape.
+   *
+   * @param {number} [divisions=5] - The number of divisions.
+   * @return {Array<(Vector2|Vector3)>} An array holding the sampled curve values. The number of points is `divisions + 1`.
+   */
+  getPoints(divisions = 5) {
+    const points = [];
+    for (let d = 0; d <= divisions; d++) {
+      points.push(this.getPoint(d / divisions));
+    }
+    return points;
+  }
+  // Get sequence of points using getPointAt( u )
+  /**
+   * This method samples the curve via {@link Curve#getPointAt} and returns an array of points representing
+   * the curve shape. Unlike {@link Curve#getPoints}, this method returns equi-spaced points across the entire
+   * curve.
+   *
+   * @param {number} [divisions=5] - The number of divisions.
+   * @return {Array<(Vector2|Vector3)>} An array holding the sampled curve values. The number of points is `divisions + 1`.
+   */
+  getSpacedPoints(divisions = 5) {
+    const points = [];
+    for (let d = 0; d <= divisions; d++) {
+      points.push(this.getPointAt(d / divisions));
+    }
+    return points;
+  }
+  /**
+   * Returns the total arc length of the curve.
+   *
+   * @return {number} The length of the curve.
+   */
+  getLength() {
+    const lengths = this.getLengths();
+    return lengths[lengths.length - 1];
+  }
+  /**
+   * Returns an array of cumulative segment lengths of the curve.
+   *
+   * @param {number} [divisions=this.arcLengthDivisions] - The number of divisions.
+   * @return {Array<number>} An array holding the cumulative segment lengths.
+   */
+  getLengths(divisions = this.arcLengthDivisions) {
+    if (this.cacheArcLengths && this.cacheArcLengths.length === divisions + 1 && !this.needsUpdate) {
+      return this.cacheArcLengths;
+    }
+    this.needsUpdate = false;
+    const cache = [];
+    let current, last = this.getPoint(0);
+    let sum = 0;
+    cache.push(0);
+    for (let p = 1; p <= divisions; p++) {
+      current = this.getPoint(p / divisions);
+      sum += current.distanceTo(last);
+      cache.push(sum);
+      last = current;
+    }
+    this.cacheArcLengths = cache;
+    return cache;
+  }
+  /**
+   * Update the cumulative segment distance cache. The method must be called
+   * every time curve parameters are changed. If an updated curve is part of a
+   * composed curve like {@link CurvePath}, this method must be called on the
+   * composed curve, too.
+   */
+  updateArcLengths() {
+    this.needsUpdate = true;
+    this.getLengths();
+  }
+  /**
+   * Given an interpolation factor in the range `[0,1]`, this method returns an updated
+   * interpolation factor in the same range that can be ued to sample equidistant points
+   * from a curve.
+   *
+   * @param {number} u - The interpolation factor.
+   * @param {?number} distance - An optional distance on the curve.
+   * @return {number} The updated interpolation factor.
+   */
+  getUtoTmapping(u, distance = null) {
+    const arcLengths = this.getLengths();
+    let i = 0;
+    const il = arcLengths.length;
+    let targetArcLength;
+    if (distance) {
+      targetArcLength = distance;
+    } else {
+      targetArcLength = u * arcLengths[il - 1];
+    }
+    let low = 0, high = il - 1, comparison;
+    while (low <= high) {
+      i = Math.floor(low + (high - low) / 2);
+      comparison = arcLengths[i] - targetArcLength;
+      if (comparison < 0) {
+        low = i + 1;
+      } else if (comparison > 0) {
+        high = i - 1;
+      } else {
+        high = i;
+        break;
+      }
+    }
+    i = high;
+    if (arcLengths[i] === targetArcLength) {
+      return i / (il - 1);
+    }
+    const lengthBefore = arcLengths[i];
+    const lengthAfter = arcLengths[i + 1];
+    const segmentLength = lengthAfter - lengthBefore;
+    const segmentFraction = (targetArcLength - lengthBefore) / segmentLength;
+    const t = (i + segmentFraction) / (il - 1);
+    return t;
+  }
+  /**
+   * Returns a unit vector tangent for the given interpolation factor.
+   * If the derived curve does not implement its tangent derivation,
+   * two points a small delta apart will be used to find its gradient
+   * which seems to give a reasonable approximation.
+   *
+   * @param {number} t - The interpolation factor.
+   * @param {(Vector2|Vector3)} [optionalTarget] - The optional target vector the result is written to.
+   * @return {(Vector2|Vector3)} The tangent vector.
+   */
+  getTangent(t, optionalTarget) {
+    const delta = 1e-4;
+    let t1 = t - delta;
+    let t2 = t + delta;
+    if (t1 < 0) t1 = 0;
+    if (t2 > 1) t2 = 1;
+    const pt1 = this.getPoint(t1);
+    const pt2 = this.getPoint(t2);
+    const tangent = optionalTarget || (pt1.isVector2 ? new Vector2() : new Vector3());
+    tangent.copy(pt2).sub(pt1).normalize();
+    return tangent;
+  }
+  /**
+   * Same as {@link Curve#getTangent} but with equidistant samples.
+   *
+   * @param {number} u - The interpolation factor.
+   * @param {(Vector2|Vector3)} [optionalTarget] - The optional target vector the result is written to.
+   * @return {(Vector2|Vector3)} The tangent vector.
+   * @see {@link Curve#getPointAt}
+   */
+  getTangentAt(u, optionalTarget) {
+    const t = this.getUtoTmapping(u);
+    return this.getTangent(t, optionalTarget);
+  }
+  /**
+   * Generates the Frenet Frames. Requires a curve definition in 3D space. Used
+   * in geometries like {@link TubeGeometry} or {@link ExtrudeGeometry}.
+   *
+   * @param {number} segments - The number of segments.
+   * @param {boolean} [closed=false] - Whether the curve is closed or not.
+   * @return {{tangents: Array<Vector3>, normals: Array<Vector3>, binormals: Array<Vector3>}} The Frenet Frames.
+   */
+  computeFrenetFrames(segments, closed = false) {
+    const normal = new Vector3();
+    const tangents = [];
+    const normals = [];
+    const binormals = [];
+    const vec = new Vector3();
+    const mat = new Matrix4();
+    for (let i = 0; i <= segments; i++) {
+      const u = i / segments;
+      tangents[i] = this.getTangentAt(u, new Vector3());
+    }
+    normals[0] = new Vector3();
+    binormals[0] = new Vector3();
+    let min = Number.MAX_VALUE;
+    const tx = Math.abs(tangents[0].x);
+    const ty = Math.abs(tangents[0].y);
+    const tz = Math.abs(tangents[0].z);
+    if (tx <= min) {
+      min = tx;
+      normal.set(1, 0, 0);
+    }
+    if (ty <= min) {
+      min = ty;
+      normal.set(0, 1, 0);
+    }
+    if (tz <= min) {
+      normal.set(0, 0, 1);
+    }
+    vec.crossVectors(tangents[0], normal).normalize();
+    normals[0].crossVectors(tangents[0], vec);
+    binormals[0].crossVectors(tangents[0], normals[0]);
+    for (let i = 1; i <= segments; i++) {
+      normals[i] = normals[i - 1].clone();
+      binormals[i] = binormals[i - 1].clone();
+      vec.crossVectors(tangents[i - 1], tangents[i]);
+      if (vec.length() > Number.EPSILON) {
+        vec.normalize();
+        const theta = Math.acos(clamp(tangents[i - 1].dot(tangents[i]), -1, 1));
+        normals[i].applyMatrix4(mat.makeRotationAxis(vec, theta));
+      }
+      binormals[i].crossVectors(tangents[i], normals[i]);
+    }
+    if (closed === true) {
+      let theta = Math.acos(clamp(normals[0].dot(normals[segments]), -1, 1));
+      theta /= segments;
+      if (tangents[0].dot(vec.crossVectors(normals[0], normals[segments])) > 0) {
+        theta = -theta;
+      }
+      for (let i = 1; i <= segments; i++) {
+        normals[i].applyMatrix4(mat.makeRotationAxis(tangents[i], theta * i));
+        binormals[i].crossVectors(tangents[i], normals[i]);
+      }
+    }
+    return {
+      tangents,
+      normals,
+      binormals
+    };
+  }
+  /**
+   * Returns a new curve with copied values from this instance.
+   *
+   * @return {Curve} A clone of this instance.
+   */
+  clone() {
+    return new this.constructor().copy(this);
+  }
+  /**
+   * Copies the values of the given curve to this instance.
+   *
+   * @param {Curve} source - The curve to copy.
+   * @return {Curve} A reference to this curve.
+   */
+  copy(source) {
+    this.arcLengthDivisions = source.arcLengthDivisions;
+    return this;
+  }
+  /**
+   * Serializes the curve into JSON.
+   *
+   * @return {Object} A JSON object representing the serialized curve.
+   * @see {@link ObjectLoader#parse}
+   */
+  toJSON() {
+    const data = {
+      metadata: {
+        version: 4.7,
+        type: "Curve",
+        generator: "Curve.toJSON"
+      }
+    };
+    data.arcLengthDivisions = this.arcLengthDivisions;
+    data.type = this.type;
+    return data;
+  }
+  /**
+   * Deserializes the curve from the given JSON.
+   *
+   * @param {Object} json - The JSON holding the serialized curve.
+   * @return {Curve} A reference to this curve.
+   */
+  fromJSON(json) {
+    this.arcLengthDivisions = json.arcLengthDivisions;
+    return this;
+  }
+};
+var EllipseCurve = class extends Curve {
+  /**
+   * Constructs a new ellipse curve.
+   *
+   * @param {number} [aX=0] - The X center of the ellipse.
+   * @param {number} [aY=0] - The Y center of the ellipse.
+   * @param {number} [xRadius=1] - The radius of the ellipse in the x direction.
+   * @param {number} [yRadius=1] - The radius of the ellipse in the y direction.
+   * @param {number} [aStartAngle=0] - The start angle of the curve in radians starting from the positive X axis.
+   * @param {number} [aEndAngle=Math.PI*2] - The end angle of the curve in radians starting from the positive X axis.
+   * @param {boolean} [aClockwise=false] - Whether the ellipse is drawn clockwise or not.
+   * @param {number} [aRotation=0] - The rotation angle of the ellipse in radians, counterclockwise from the positive X axis.
+   */
+  constructor(aX = 0, aY = 0, xRadius = 1, yRadius = 1, aStartAngle = 0, aEndAngle = Math.PI * 2, aClockwise = false, aRotation = 0) {
+    super();
+    this.isEllipseCurve = true;
+    this.type = "EllipseCurve";
+    this.aX = aX;
+    this.aY = aY;
+    this.xRadius = xRadius;
+    this.yRadius = yRadius;
+    this.aStartAngle = aStartAngle;
+    this.aEndAngle = aEndAngle;
+    this.aClockwise = aClockwise;
+    this.aRotation = aRotation;
+  }
+  /**
+   * Returns a point on the curve.
+   *
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector2} The position on the curve.
+   */
+  getPoint(t, optionalTarget = new Vector2()) {
+    const point = optionalTarget;
+    const twoPi = Math.PI * 2;
+    let deltaAngle = this.aEndAngle - this.aStartAngle;
+    const samePoints = Math.abs(deltaAngle) < Number.EPSILON;
+    while (deltaAngle < 0) deltaAngle += twoPi;
+    while (deltaAngle > twoPi) deltaAngle -= twoPi;
+    if (deltaAngle < Number.EPSILON) {
+      if (samePoints) {
+        deltaAngle = 0;
+      } else {
+        deltaAngle = twoPi;
+      }
+    }
+    if (this.aClockwise === true && !samePoints) {
+      if (deltaAngle === twoPi) {
+        deltaAngle = -twoPi;
+      } else {
+        deltaAngle = deltaAngle - twoPi;
+      }
+    }
+    const angle = this.aStartAngle + t * deltaAngle;
+    let x = this.aX + this.xRadius * Math.cos(angle);
+    let y = this.aY + this.yRadius * Math.sin(angle);
+    if (this.aRotation !== 0) {
+      const cos = Math.cos(this.aRotation);
+      const sin = Math.sin(this.aRotation);
+      const tx = x - this.aX;
+      const ty = y - this.aY;
+      x = tx * cos - ty * sin + this.aX;
+      y = tx * sin + ty * cos + this.aY;
+    }
+    return point.set(x, y);
+  }
+  copy(source) {
+    super.copy(source);
+    this.aX = source.aX;
+    this.aY = source.aY;
+    this.xRadius = source.xRadius;
+    this.yRadius = source.yRadius;
+    this.aStartAngle = source.aStartAngle;
+    this.aEndAngle = source.aEndAngle;
+    this.aClockwise = source.aClockwise;
+    this.aRotation = source.aRotation;
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.aX = this.aX;
+    data.aY = this.aY;
+    data.xRadius = this.xRadius;
+    data.yRadius = this.yRadius;
+    data.aStartAngle = this.aStartAngle;
+    data.aEndAngle = this.aEndAngle;
+    data.aClockwise = this.aClockwise;
+    data.aRotation = this.aRotation;
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.aX = json.aX;
+    this.aY = json.aY;
+    this.xRadius = json.xRadius;
+    this.yRadius = json.yRadius;
+    this.aStartAngle = json.aStartAngle;
+    this.aEndAngle = json.aEndAngle;
+    this.aClockwise = json.aClockwise;
+    this.aRotation = json.aRotation;
+    return this;
+  }
+};
+var ArcCurve = class extends EllipseCurve {
+  /**
+   * Constructs a new arc curve.
+   *
+   * @param {number} [aX=0] - The X center of the ellipse.
+   * @param {number} [aY=0] - The Y center of the ellipse.
+   * @param {number} [aRadius=1] - The radius of the ellipse in the x direction.
+   * @param {number} [aStartAngle=0] - The start angle of the curve in radians starting from the positive X axis.
+   * @param {number} [aEndAngle=Math.PI*2] - The end angle of the curve in radians starting from the positive X axis.
+   * @param {boolean} [aClockwise=false] - Whether the ellipse is drawn clockwise or not.
+   */
+  constructor(aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise) {
+    super(aX, aY, aRadius, aRadius, aStartAngle, aEndAngle, aClockwise);
+    this.isArcCurve = true;
+    this.type = "ArcCurve";
+  }
+};
+function CubicPoly() {
+  let c0 = 0, c1 = 0, c2 = 0, c3 = 0;
+  function init(x0, x1, t0, t1) {
+    c0 = x0;
+    c1 = t0;
+    c2 = -3 * x0 + 3 * x1 - 2 * t0 - t1;
+    c3 = 2 * x0 - 2 * x1 + t0 + t1;
+  }
+  return {
+    initCatmullRom: function(x0, x1, x2, x3, tension) {
+      init(x1, x2, tension * (x2 - x0), tension * (x3 - x1));
+    },
+    initNonuniformCatmullRom: function(x0, x1, x2, x3, dt0, dt1, dt2) {
+      let t1 = (x1 - x0) / dt0 - (x2 - x0) / (dt0 + dt1) + (x2 - x1) / dt1;
+      let t2 = (x2 - x1) / dt1 - (x3 - x1) / (dt1 + dt2) + (x3 - x2) / dt2;
+      t1 *= dt1;
+      t2 *= dt1;
+      init(x1, x2, t1, t2);
+    },
+    calc: function(t) {
+      const t2 = t * t;
+      const t3 = t2 * t;
+      return c0 + c1 * t + c2 * t2 + c3 * t3;
+    }
+  };
+}
+var tmp = /* @__PURE__ */ new Vector3();
+var tmp2 = /* @__PURE__ */ new Vector3();
+var px = /* @__PURE__ */ new CubicPoly();
+var py = /* @__PURE__ */ new CubicPoly();
+var pz = /* @__PURE__ */ new CubicPoly();
+var CatmullRomCurve3 = class extends Curve {
+  /**
+   * Constructs a new Catmull-Rom curve.
+   *
+   * @param {Array<Vector3>} [points] - An array of 3D points defining the curve.
+   * @param {boolean} [closed=false] - Whether the curve is closed or not.
+   * @param {('centripetal'|'chordal'|'catmullrom')} [curveType='centripetal'] - The curve type.
+   * @param {number} [tension=0.5] - Tension of the curve.
+   */
+  constructor(points = [], closed = false, curveType = "centripetal", tension = 0.5) {
+    super();
+    this.isCatmullRomCurve3 = true;
+    this.type = "CatmullRomCurve3";
+    this.points = points;
+    this.closed = closed;
+    this.curveType = curveType;
+    this.tension = tension;
+  }
+  /**
+   * Returns a point on the curve.
+   *
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {Vector3} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector3} The position on the curve.
+   */
+  getPoint(t, optionalTarget = new Vector3()) {
+    const point = optionalTarget;
+    const points = this.points;
+    const l = points.length;
+    const p = (l - (this.closed ? 0 : 1)) * t;
+    let intPoint = Math.floor(p);
+    let weight = p - intPoint;
+    if (this.closed) {
+      intPoint += intPoint > 0 ? 0 : (Math.floor(Math.abs(intPoint) / l) + 1) * l;
+    } else if (weight === 0 && intPoint === l - 1) {
+      intPoint = l - 2;
+      weight = 1;
+    }
+    let p0, p3;
+    if (this.closed || intPoint > 0) {
+      p0 = points[(intPoint - 1) % l];
+    } else {
+      tmp2.subVectors(points[0], points[1]).add(points[0]);
+      p0 = tmp2;
+    }
+    const p1 = points[intPoint % l];
+    const p2 = points[(intPoint + 1) % l];
+    if (this.closed || intPoint + 2 < l) {
+      p3 = points[(intPoint + 2) % l];
+    } else {
+      tmp.subVectors(points[l - 1], points[l - 2]).add(points[l - 1]);
+      p3 = tmp;
+    }
+    if (this.curveType === "centripetal" || this.curveType === "chordal") {
+      const pow = this.curveType === "chordal" ? 0.5 : 0.25;
+      let dt0 = Math.pow(p0.distanceToSquared(p1), pow);
+      let dt1 = Math.pow(p1.distanceToSquared(p2), pow);
+      let dt2 = Math.pow(p2.distanceToSquared(p3), pow);
+      if (dt1 < 1e-4) dt1 = 1;
+      if (dt0 < 1e-4) dt0 = dt1;
+      if (dt2 < 1e-4) dt2 = dt1;
+      px.initNonuniformCatmullRom(p0.x, p1.x, p2.x, p3.x, dt0, dt1, dt2);
+      py.initNonuniformCatmullRom(p0.y, p1.y, p2.y, p3.y, dt0, dt1, dt2);
+      pz.initNonuniformCatmullRom(p0.z, p1.z, p2.z, p3.z, dt0, dt1, dt2);
+    } else if (this.curveType === "catmullrom") {
+      px.initCatmullRom(p0.x, p1.x, p2.x, p3.x, this.tension);
+      py.initCatmullRom(p0.y, p1.y, p2.y, p3.y, this.tension);
+      pz.initCatmullRom(p0.z, p1.z, p2.z, p3.z, this.tension);
+    }
+    point.set(
+      px.calc(weight),
+      py.calc(weight),
+      pz.calc(weight)
+    );
+    return point;
+  }
+  copy(source) {
+    super.copy(source);
+    this.points = [];
+    for (let i = 0, l = source.points.length; i < l; i++) {
+      const point = source.points[i];
+      this.points.push(point.clone());
+    }
+    this.closed = source.closed;
+    this.curveType = source.curveType;
+    this.tension = source.tension;
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.points = [];
+    for (let i = 0, l = this.points.length; i < l; i++) {
+      const point = this.points[i];
+      data.points.push(point.toArray());
+    }
+    data.closed = this.closed;
+    data.curveType = this.curveType;
+    data.tension = this.tension;
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.points = [];
+    for (let i = 0, l = json.points.length; i < l; i++) {
+      const point = json.points[i];
+      this.points.push(new Vector3().fromArray(point));
+    }
+    this.closed = json.closed;
+    this.curveType = json.curveType;
+    this.tension = json.tension;
+    return this;
+  }
+};
+function CatmullRom(t, p0, p1, p2, p3) {
+  const v02 = (p2 - p0) * 0.5;
+  const v12 = (p3 - p1) * 0.5;
+  const t2 = t * t;
+  const t3 = t * t2;
+  return (2 * p1 - 2 * p2 + v02 + v12) * t3 + (-3 * p1 + 3 * p2 - 2 * v02 - v12) * t2 + v02 * t + p1;
+}
+function QuadraticBezierP0(t, p) {
+  const k = 1 - t;
+  return k * k * p;
+}
+function QuadraticBezierP1(t, p) {
+  return 2 * (1 - t) * t * p;
+}
+function QuadraticBezierP2(t, p) {
+  return t * t * p;
+}
+function QuadraticBezier(t, p0, p1, p2) {
+  return QuadraticBezierP0(t, p0) + QuadraticBezierP1(t, p1) + QuadraticBezierP2(t, p2);
+}
+function CubicBezierP0(t, p) {
+  const k = 1 - t;
+  return k * k * k * p;
+}
+function CubicBezierP1(t, p) {
+  const k = 1 - t;
+  return 3 * k * k * t * p;
+}
+function CubicBezierP2(t, p) {
+  return 3 * (1 - t) * t * t * p;
+}
+function CubicBezierP3(t, p) {
+  return t * t * t * p;
+}
+function CubicBezier(t, p0, p1, p2, p3) {
+  return CubicBezierP0(t, p0) + CubicBezierP1(t, p1) + CubicBezierP2(t, p2) + CubicBezierP3(t, p3);
+}
+var CubicBezierCurve = class extends Curve {
+  /**
+   * Constructs a new Cubic Bezier curve.
+   *
+   * @param {Vector2} [v0] - The start point.
+   * @param {Vector2} [v1] - The first control point.
+   * @param {Vector2} [v2] - The second control point.
+   * @param {Vector2} [v3] - The end point.
+   */
+  constructor(v02 = new Vector2(), v12 = new Vector2(), v22 = new Vector2(), v3 = new Vector2()) {
+    super();
+    this.isCubicBezierCurve = true;
+    this.type = "CubicBezierCurve";
+    this.v0 = v02;
+    this.v1 = v12;
+    this.v2 = v22;
+    this.v3 = v3;
+  }
+  /**
+   * Returns a point on the curve.
+   *
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector2} The position on the curve.
+   */
+  getPoint(t, optionalTarget = new Vector2()) {
+    const point = optionalTarget;
+    const v02 = this.v0, v12 = this.v1, v22 = this.v2, v3 = this.v3;
+    point.set(
+      CubicBezier(t, v02.x, v12.x, v22.x, v3.x),
+      CubicBezier(t, v02.y, v12.y, v22.y, v3.y)
+    );
+    return point;
+  }
+  copy(source) {
+    super.copy(source);
+    this.v0.copy(source.v0);
+    this.v1.copy(source.v1);
+    this.v2.copy(source.v2);
+    this.v3.copy(source.v3);
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.v0 = this.v0.toArray();
+    data.v1 = this.v1.toArray();
+    data.v2 = this.v2.toArray();
+    data.v3 = this.v3.toArray();
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.v0.fromArray(json.v0);
+    this.v1.fromArray(json.v1);
+    this.v2.fromArray(json.v2);
+    this.v3.fromArray(json.v3);
+    return this;
+  }
+};
+var CubicBezierCurve3 = class extends Curve {
+  /**
+   * Constructs a new Cubic Bezier curve.
+   *
+   * @param {Vector3} [v0] - The start point.
+   * @param {Vector3} [v1] - The first control point.
+   * @param {Vector3} [v2] - The second control point.
+   * @param {Vector3} [v3] - The end point.
+   */
+  constructor(v02 = new Vector3(), v12 = new Vector3(), v22 = new Vector3(), v3 = new Vector3()) {
+    super();
+    this.isCubicBezierCurve3 = true;
+    this.type = "CubicBezierCurve3";
+    this.v0 = v02;
+    this.v1 = v12;
+    this.v2 = v22;
+    this.v3 = v3;
+  }
+  /**
+   * Returns a point on the curve.
+   *
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {Vector3} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector3} The position on the curve.
+   */
+  getPoint(t, optionalTarget = new Vector3()) {
+    const point = optionalTarget;
+    const v02 = this.v0, v12 = this.v1, v22 = this.v2, v3 = this.v3;
+    point.set(
+      CubicBezier(t, v02.x, v12.x, v22.x, v3.x),
+      CubicBezier(t, v02.y, v12.y, v22.y, v3.y),
+      CubicBezier(t, v02.z, v12.z, v22.z, v3.z)
+    );
+    return point;
+  }
+  copy(source) {
+    super.copy(source);
+    this.v0.copy(source.v0);
+    this.v1.copy(source.v1);
+    this.v2.copy(source.v2);
+    this.v3.copy(source.v3);
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.v0 = this.v0.toArray();
+    data.v1 = this.v1.toArray();
+    data.v2 = this.v2.toArray();
+    data.v3 = this.v3.toArray();
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.v0.fromArray(json.v0);
+    this.v1.fromArray(json.v1);
+    this.v2.fromArray(json.v2);
+    this.v3.fromArray(json.v3);
+    return this;
+  }
+};
+var LineCurve = class extends Curve {
+  /**
+   * Constructs a new line curve.
+   *
+   * @param {Vector2} [v1] - The start point.
+   * @param {Vector2} [v2] - The end point.
+   */
+  constructor(v12 = new Vector2(), v22 = new Vector2()) {
+    super();
+    this.isLineCurve = true;
+    this.type = "LineCurve";
+    this.v1 = v12;
+    this.v2 = v22;
+  }
+  /**
+   * Returns a point on the line.
+   *
+   * @param {number} t - A interpolation factor representing a position on the line. Must be in the range `[0,1]`.
+   * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector2} The position on the line.
+   */
+  getPoint(t, optionalTarget = new Vector2()) {
+    const point = optionalTarget;
+    if (t === 1) {
+      point.copy(this.v2);
+    } else {
+      point.copy(this.v2).sub(this.v1);
+      point.multiplyScalar(t).add(this.v1);
+    }
+    return point;
+  }
+  // Line curve is linear, so we can overwrite default getPointAt
+  getPointAt(u, optionalTarget) {
+    return this.getPoint(u, optionalTarget);
+  }
+  getTangent(t, optionalTarget = new Vector2()) {
+    return optionalTarget.subVectors(this.v2, this.v1).normalize();
+  }
+  getTangentAt(u, optionalTarget) {
+    return this.getTangent(u, optionalTarget);
+  }
+  copy(source) {
+    super.copy(source);
+    this.v1.copy(source.v1);
+    this.v2.copy(source.v2);
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.v1 = this.v1.toArray();
+    data.v2 = this.v2.toArray();
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.v1.fromArray(json.v1);
+    this.v2.fromArray(json.v2);
+    return this;
+  }
+};
+var LineCurve3 = class extends Curve {
+  /**
+   * Constructs a new line curve.
+   *
+   * @param {Vector3} [v1] - The start point.
+   * @param {Vector3} [v2] - The end point.
+   */
+  constructor(v12 = new Vector3(), v22 = new Vector3()) {
+    super();
+    this.isLineCurve3 = true;
+    this.type = "LineCurve3";
+    this.v1 = v12;
+    this.v2 = v22;
+  }
+  /**
+   * Returns a point on the line.
+   *
+   * @param {number} t - A interpolation factor representing a position on the line. Must be in the range `[0,1]`.
+   * @param {Vector3} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector3} The position on the line.
+   */
+  getPoint(t, optionalTarget = new Vector3()) {
+    const point = optionalTarget;
+    if (t === 1) {
+      point.copy(this.v2);
+    } else {
+      point.copy(this.v2).sub(this.v1);
+      point.multiplyScalar(t).add(this.v1);
+    }
+    return point;
+  }
+  // Line curve is linear, so we can overwrite default getPointAt
+  getPointAt(u, optionalTarget) {
+    return this.getPoint(u, optionalTarget);
+  }
+  getTangent(t, optionalTarget = new Vector3()) {
+    return optionalTarget.subVectors(this.v2, this.v1).normalize();
+  }
+  getTangentAt(u, optionalTarget) {
+    return this.getTangent(u, optionalTarget);
+  }
+  copy(source) {
+    super.copy(source);
+    this.v1.copy(source.v1);
+    this.v2.copy(source.v2);
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.v1 = this.v1.toArray();
+    data.v2 = this.v2.toArray();
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.v1.fromArray(json.v1);
+    this.v2.fromArray(json.v2);
+    return this;
+  }
+};
+var QuadraticBezierCurve = class extends Curve {
+  /**
+   * Constructs a new Quadratic Bezier curve.
+   *
+   * @param {Vector2} [v0] - The start point.
+   * @param {Vector2} [v1] - The control point.
+   * @param {Vector2} [v2] - The end point.
+   */
+  constructor(v02 = new Vector2(), v12 = new Vector2(), v22 = new Vector2()) {
+    super();
+    this.isQuadraticBezierCurve = true;
+    this.type = "QuadraticBezierCurve";
+    this.v0 = v02;
+    this.v1 = v12;
+    this.v2 = v22;
+  }
+  /**
+   * Returns a point on the curve.
+   *
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector2} The position on the curve.
+   */
+  getPoint(t, optionalTarget = new Vector2()) {
+    const point = optionalTarget;
+    const v02 = this.v0, v12 = this.v1, v22 = this.v2;
+    point.set(
+      QuadraticBezier(t, v02.x, v12.x, v22.x),
+      QuadraticBezier(t, v02.y, v12.y, v22.y)
+    );
+    return point;
+  }
+  copy(source) {
+    super.copy(source);
+    this.v0.copy(source.v0);
+    this.v1.copy(source.v1);
+    this.v2.copy(source.v2);
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.v0 = this.v0.toArray();
+    data.v1 = this.v1.toArray();
+    data.v2 = this.v2.toArray();
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.v0.fromArray(json.v0);
+    this.v1.fromArray(json.v1);
+    this.v2.fromArray(json.v2);
+    return this;
+  }
+};
+var QuadraticBezierCurve3 = class extends Curve {
+  /**
+   * Constructs a new Quadratic Bezier curve.
+   *
+   * @param {Vector3} [v0] - The start point.
+   * @param {Vector3} [v1] - The control point.
+   * @param {Vector3} [v2] - The end point.
+   */
+  constructor(v02 = new Vector3(), v12 = new Vector3(), v22 = new Vector3()) {
+    super();
+    this.isQuadraticBezierCurve3 = true;
+    this.type = "QuadraticBezierCurve3";
+    this.v0 = v02;
+    this.v1 = v12;
+    this.v2 = v22;
+  }
+  /**
+   * Returns a point on the curve.
+   *
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {Vector3} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector3} The position on the curve.
+   */
+  getPoint(t, optionalTarget = new Vector3()) {
+    const point = optionalTarget;
+    const v02 = this.v0, v12 = this.v1, v22 = this.v2;
+    point.set(
+      QuadraticBezier(t, v02.x, v12.x, v22.x),
+      QuadraticBezier(t, v02.y, v12.y, v22.y),
+      QuadraticBezier(t, v02.z, v12.z, v22.z)
+    );
+    return point;
+  }
+  copy(source) {
+    super.copy(source);
+    this.v0.copy(source.v0);
+    this.v1.copy(source.v1);
+    this.v2.copy(source.v2);
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.v0 = this.v0.toArray();
+    data.v1 = this.v1.toArray();
+    data.v2 = this.v2.toArray();
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.v0.fromArray(json.v0);
+    this.v1.fromArray(json.v1);
+    this.v2.fromArray(json.v2);
+    return this;
+  }
+};
+var SplineCurve = class extends Curve {
+  /**
+   * Constructs a new 2D spline curve.
+   *
+   * @param {Array<Vector2>} [points] -  An array of 2D points defining the curve.
+   */
+  constructor(points = []) {
+    super();
+    this.isSplineCurve = true;
+    this.type = "SplineCurve";
+    this.points = points;
+  }
+  /**
+   * Returns a point on the curve.
+   *
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+   * @return {Vector2} The position on the curve.
+   */
+  getPoint(t, optionalTarget = new Vector2()) {
+    const point = optionalTarget;
+    const points = this.points;
+    const p = (points.length - 1) * t;
+    const intPoint = Math.floor(p);
+    const weight = p - intPoint;
+    const p0 = points[intPoint === 0 ? intPoint : intPoint - 1];
+    const p1 = points[intPoint];
+    const p2 = points[intPoint > points.length - 2 ? points.length - 1 : intPoint + 1];
+    const p3 = points[intPoint > points.length - 3 ? points.length - 1 : intPoint + 2];
+    point.set(
+      CatmullRom(weight, p0.x, p1.x, p2.x, p3.x),
+      CatmullRom(weight, p0.y, p1.y, p2.y, p3.y)
+    );
+    return point;
+  }
+  copy(source) {
+    super.copy(source);
+    this.points = [];
+    for (let i = 0, l = source.points.length; i < l; i++) {
+      const point = source.points[i];
+      this.points.push(point.clone());
+    }
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.points = [];
+    for (let i = 0, l = this.points.length; i < l; i++) {
+      const point = this.points[i];
+      data.points.push(point.toArray());
+    }
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.points = [];
+    for (let i = 0, l = json.points.length; i < l; i++) {
+      const point = json.points[i];
+      this.points.push(new Vector2().fromArray(point));
+    }
+    return this;
+  }
+};
+var Curves = /* @__PURE__ */ Object.freeze({
+  __proto__: null,
+  ArcCurve,
+  CatmullRomCurve3,
+  CubicBezierCurve,
+  CubicBezierCurve3,
+  EllipseCurve,
+  LineCurve,
+  LineCurve3,
+  QuadraticBezierCurve,
+  QuadraticBezierCurve3,
+  SplineCurve
+});
+var CurvePath = class extends Curve {
+  /**
+   * Constructs a new curve path.
+   */
+  constructor() {
+    super();
+    this.type = "CurvePath";
+    this.curves = [];
+    this.autoClose = false;
+  }
+  /**
+   * Adds a curve to this curve path.
+   *
+   * @param {Curve} curve - The curve to add.
+   */
+  add(curve) {
+    this.curves.push(curve);
+  }
+  /**
+   * Adds a line curve to close the path.
+   *
+   * @return {CurvePath} A reference to this curve path.
+   */
+  closePath() {
+    const startPoint = this.curves[0].getPoint(0);
+    const endPoint = this.curves[this.curves.length - 1].getPoint(1);
+    if (!startPoint.equals(endPoint)) {
+      const lineType = startPoint.isVector2 === true ? "LineCurve" : "LineCurve3";
+      this.curves.push(new Curves[lineType](endPoint, startPoint));
+    }
+    return this;
+  }
+  /**
+   * This method returns a vector in 2D or 3D space (depending on the curve definitions)
+   * for the given interpolation factor.
+   *
+   * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+   * @param {(Vector2|Vector3)} [optionalTarget] - The optional target vector the result is written to.
+   * @return {?(Vector2|Vector3)} The position on the curve. It can be a 2D or 3D vector depending on the curve definition.
+   */
+  getPoint(t, optionalTarget) {
+    const d = t * this.getLength();
+    const curveLengths = this.getCurveLengths();
+    let i = 0;
+    while (i < curveLengths.length) {
+      if (curveLengths[i] >= d) {
+        const diff = curveLengths[i] - d;
+        const curve = this.curves[i];
+        const segmentLength = curve.getLength();
+        const u = segmentLength === 0 ? 0 : 1 - diff / segmentLength;
+        return curve.getPointAt(u, optionalTarget);
+      }
+      i++;
+    }
+    return null;
+  }
+  getLength() {
+    const lens = this.getCurveLengths();
+    return lens[lens.length - 1];
+  }
+  updateArcLengths() {
+    this.needsUpdate = true;
+    this.cacheLengths = null;
+    this.getCurveLengths();
+  }
+  /**
+   * Returns list of cumulative curve lengths of the defined curves.
+   *
+   * @return {Array<number>} The curve lengths.
+   */
+  getCurveLengths() {
+    if (this.cacheLengths && this.cacheLengths.length === this.curves.length) {
+      return this.cacheLengths;
+    }
+    const lengths = [];
+    let sums = 0;
+    for (let i = 0, l = this.curves.length; i < l; i++) {
+      sums += this.curves[i].getLength();
+      lengths.push(sums);
+    }
+    this.cacheLengths = lengths;
+    return lengths;
+  }
+  getSpacedPoints(divisions = 40) {
+    const points = [];
+    for (let i = 0; i <= divisions; i++) {
+      points.push(this.getPoint(i / divisions));
+    }
+    if (this.autoClose) {
+      points.push(points[0]);
+    }
+    return points;
+  }
+  getPoints(divisions = 12) {
+    const points = [];
+    let last;
+    for (let i = 0, curves = this.curves; i < curves.length; i++) {
+      const curve = curves[i];
+      const resolution = curve.isEllipseCurve ? divisions * 2 : curve.isLineCurve || curve.isLineCurve3 ? 1 : curve.isSplineCurve ? divisions * curve.points.length : divisions;
+      const pts = curve.getPoints(resolution);
+      for (let j = 0; j < pts.length; j++) {
+        const point = pts[j];
+        if (last && last.equals(point)) continue;
+        points.push(point);
+        last = point;
+      }
+    }
+    if (this.autoClose && points.length > 1 && !points[points.length - 1].equals(points[0])) {
+      points.push(points[0]);
+    }
+    return points;
+  }
+  copy(source) {
+    super.copy(source);
+    this.curves = [];
+    for (let i = 0, l = source.curves.length; i < l; i++) {
+      const curve = source.curves[i];
+      this.curves.push(curve.clone());
+    }
+    this.autoClose = source.autoClose;
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.autoClose = this.autoClose;
+    data.curves = [];
+    for (let i = 0, l = this.curves.length; i < l; i++) {
+      const curve = this.curves[i];
+      data.curves.push(curve.toJSON());
+    }
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.autoClose = json.autoClose;
+    this.curves = [];
+    for (let i = 0, l = json.curves.length; i < l; i++) {
+      const curve = json.curves[i];
+      this.curves.push(new Curves[curve.type]().fromJSON(curve));
+    }
+    return this;
+  }
+};
+var Path = class extends CurvePath {
+  /**
+   * Constructs a new path.
+   *
+   * @param {Array<Vector2>} [points] - An array of 2D points defining the path.
+   */
+  constructor(points) {
+    super();
+    this.type = "Path";
+    this.currentPoint = new Vector2();
+    if (points) {
+      this.setFromPoints(points);
+    }
+  }
+  /**
+   * Creates a path from the given list of points. The points are added
+   * to the path as instances of {@link LineCurve}.
+   *
+   * @param {Array<Vector2>} points - An array of 2D points.
+   * @return {Path} A reference to this path.
+   */
+  setFromPoints(points) {
+    this.moveTo(points[0].x, points[0].y);
+    for (let i = 1, l = points.length; i < l; i++) {
+      this.lineTo(points[i].x, points[i].y);
+    }
+    return this;
+  }
+  /**
+   * Moves {@link Path#currentPoint} to the given point.
+   *
+   * @param {number} x - The x coordinate.
+   * @param {number} y - The y coordinate.
+   * @return {Path} A reference to this path.
+   */
+  moveTo(x, y) {
+    this.currentPoint.set(x, y);
+    return this;
+  }
+  /**
+   * Adds an instance of {@link LineCurve} to the path by connecting
+   * the current point with the given one.
+   *
+   * @param {number} x - The x coordinate of the end point.
+   * @param {number} y - The y coordinate of the end point.
+   * @return {Path} A reference to this path.
+   */
+  lineTo(x, y) {
+    const curve = new LineCurve(this.currentPoint.clone(), new Vector2(x, y));
+    this.curves.push(curve);
+    this.currentPoint.set(x, y);
+    return this;
+  }
+  /**
+   * Adds an instance of {@link QuadraticBezierCurve} to the path by connecting
+   * the current point with the given one.
+   *
+   * @param {number} aCPx - The x coordinate of the control point.
+   * @param {number} aCPy - The y coordinate of the control point.
+   * @param {number} aX - The x coordinate of the end point.
+   * @param {number} aY - The y coordinate of the end point.
+   * @return {Path} A reference to this path.
+   */
+  quadraticCurveTo(aCPx, aCPy, aX, aY) {
+    const curve = new QuadraticBezierCurve(
+      this.currentPoint.clone(),
+      new Vector2(aCPx, aCPy),
+      new Vector2(aX, aY)
+    );
+    this.curves.push(curve);
+    this.currentPoint.set(aX, aY);
+    return this;
+  }
+  /**
+   * Adds an instance of {@link CubicBezierCurve} to the path by connecting
+   * the current point with the given one.
+   *
+   * @param {number} aCP1x - The x coordinate of the first control point.
+   * @param {number} aCP1y - The y coordinate of the first control point.
+   * @param {number} aCP2x - The x coordinate of the second control point.
+   * @param {number} aCP2y - The y coordinate of the second control point.
+   * @param {number} aX - The x coordinate of the end point.
+   * @param {number} aY - The y coordinate of the end point.
+   * @return {Path} A reference to this path.
+   */
+  bezierCurveTo(aCP1x, aCP1y, aCP2x, aCP2y, aX, aY) {
+    const curve = new CubicBezierCurve(
+      this.currentPoint.clone(),
+      new Vector2(aCP1x, aCP1y),
+      new Vector2(aCP2x, aCP2y),
+      new Vector2(aX, aY)
+    );
+    this.curves.push(curve);
+    this.currentPoint.set(aX, aY);
+    return this;
+  }
+  /**
+   * Adds an instance of {@link SplineCurve} to the path by connecting
+   * the current point with the given list of points.
+   *
+   * @param {Array<Vector2>} pts - An array of points in 2D space.
+   * @return {Path} A reference to this path.
+   */
+  splineThru(pts) {
+    const npts = [this.currentPoint.clone()].concat(pts);
+    const curve = new SplineCurve(npts);
+    this.curves.push(curve);
+    this.currentPoint.copy(pts[pts.length - 1]);
+    return this;
+  }
+  /**
+   * Adds an arc as an instance of {@link EllipseCurve} to the path, positioned relative
+   * to the current point.
+   *
+   * @param {number} [aX=0] - The x coordinate of the center of the arc offsetted from the previous curve.
+   * @param {number} [aY=0] - The y coordinate of the center of the arc offsetted from the previous curve.
+   * @param {number} [aRadius=1] - The radius of the arc.
+   * @param {number} [aStartAngle=0] - The start angle in radians.
+   * @param {number} [aEndAngle=Math.PI*2] - The end angle in radians.
+   * @param {boolean} [aClockwise=false] - Whether to sweep the arc clockwise or not.
+   * @return {Path} A reference to this path.
+   */
+  arc(aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise) {
+    const x0 = this.currentPoint.x;
+    const y0 = this.currentPoint.y;
+    this.absarc(
+      aX + x0,
+      aY + y0,
+      aRadius,
+      aStartAngle,
+      aEndAngle,
+      aClockwise
+    );
+    return this;
+  }
+  /**
+   * Adds an absolutely positioned arc as an instance of {@link EllipseCurve} to the path.
+   *
+   * @param {number} [aX=0] - The x coordinate of the center of the arc.
+   * @param {number} [aY=0] - The y coordinate of the center of the arc.
+   * @param {number} [aRadius=1] - The radius of the arc.
+   * @param {number} [aStartAngle=0] - The start angle in radians.
+   * @param {number} [aEndAngle=Math.PI*2] - The end angle in radians.
+   * @param {boolean} [aClockwise=false] - Whether to sweep the arc clockwise or not.
+   * @return {Path} A reference to this path.
+   */
+  absarc(aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise) {
+    this.absellipse(aX, aY, aRadius, aRadius, aStartAngle, aEndAngle, aClockwise);
+    return this;
+  }
+  /**
+   * Adds an ellipse as an instance of {@link EllipseCurve} to the path, positioned relative
+   * to the current point
+   *
+   * @param {number} [aX=0] - The x coordinate of the center of the ellipse offsetted from the previous curve.
+   * @param {number} [aY=0] - The y coordinate of the center of the ellipse offsetted from the previous curve.
+   * @param {number} [xRadius=1] - The radius of the ellipse in the x axis.
+   * @param {number} [yRadius=1] - The radius of the ellipse in the y axis.
+   * @param {number} [aStartAngle=0] - The start angle in radians.
+   * @param {number} [aEndAngle=Math.PI*2] - The end angle in radians.
+   * @param {boolean} [aClockwise=false] - Whether to sweep the ellipse clockwise or not.
+   * @param {number} [aRotation=0] - The rotation angle of the ellipse in radians, counterclockwise from the positive X axis.
+   * @return {Path} A reference to this path.
+   */
+  ellipse(aX, aY, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation) {
+    const x0 = this.currentPoint.x;
+    const y0 = this.currentPoint.y;
+    this.absellipse(aX + x0, aY + y0, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation);
+    return this;
+  }
+  /**
+   * Adds an absolutely positioned ellipse as an instance of {@link EllipseCurve} to the path.
+   *
+   * @param {number} [aX=0] - The x coordinate of the absolute center of the ellipse.
+   * @param {number} [aY=0] - The y coordinate of the absolute center of the ellipse.
+   * @param {number} [xRadius=1] - The radius of the ellipse in the x axis.
+   * @param {number} [yRadius=1] - The radius of the ellipse in the y axis.
+   * @param {number} [aStartAngle=0] - The start angle in radians.
+   * @param {number} [aEndAngle=Math.PI*2] - The end angle in radians.
+   * @param {boolean} [aClockwise=false] - Whether to sweep the ellipse clockwise or not.
+   * @param {number} [aRotation=0] - The rotation angle of the ellipse in radians, counterclockwise from the positive X axis.
+   * @return {Path} A reference to this path.
+   */
+  absellipse(aX, aY, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation) {
+    const curve = new EllipseCurve(aX, aY, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation);
+    if (this.curves.length > 0) {
+      const firstPoint = curve.getPoint(0);
+      if (!firstPoint.equals(this.currentPoint)) {
+        this.lineTo(firstPoint.x, firstPoint.y);
+      }
+    }
+    this.curves.push(curve);
+    const lastPoint = curve.getPoint(1);
+    this.currentPoint.copy(lastPoint);
+    return this;
+  }
+  copy(source) {
+    super.copy(source);
+    this.currentPoint.copy(source.currentPoint);
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.currentPoint = this.currentPoint.toArray();
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.currentPoint.fromArray(json.currentPoint);
+    return this;
+  }
+};
+var Shape = class extends Path {
+  /**
+   * Constructs a new shape.
+   *
+   * @param {Array<Vector2>} [points] - An array of 2D points defining the shape.
+   */
+  constructor(points) {
+    super(points);
+    this.uuid = generateUUID();
+    this.type = "Shape";
+    this.holes = [];
+  }
+  /**
+   * Returns an array representing each contour of the holes
+   * as a list of 2D points.
+   *
+   * @param {number} divisions - The fineness of the result.
+   * @return {Array<Array<Vector2>>} The holes as a series of 2D points.
+   */
+  getPointsHoles(divisions) {
+    const holesPts = [];
+    for (let i = 0, l = this.holes.length; i < l; i++) {
+      holesPts[i] = this.holes[i].getPoints(divisions);
+    }
+    return holesPts;
+  }
+  // get points of shape and holes (keypoints based on segments parameter)
+  /**
+   * Returns an object that holds contour data for the shape and its holes as
+   * arrays of 2D points.
+   *
+   * @param {number} divisions - The fineness of the result.
+   * @return {{shape:Array<Vector2>,holes:Array<Array<Vector2>>}} An object with contour data.
+   */
+  extractPoints(divisions) {
+    return {
+      shape: this.getPoints(divisions),
+      holes: this.getPointsHoles(divisions)
+    };
+  }
+  copy(source) {
+    super.copy(source);
+    this.holes = [];
+    for (let i = 0, l = source.holes.length; i < l; i++) {
+      const hole = source.holes[i];
+      this.holes.push(hole.clone());
+    }
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    data.uuid = this.uuid;
+    data.holes = [];
+    for (let i = 0, l = this.holes.length; i < l; i++) {
+      const hole = this.holes[i];
+      data.holes.push(hole.toJSON());
+    }
+    return data;
+  }
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.uuid = json.uuid;
+    this.holes = [];
+    for (let i = 0, l = json.holes.length; i < l; i++) {
+      const hole = json.holes[i];
+      this.holes.push(new Path().fromJSON(hole));
+    }
+    return this;
+  }
+};
+function earcut(data, holeIndices, dim = 2) {
+  const hasHoles = holeIndices && holeIndices.length;
+  const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
+  let outerNode = linkedList(data, 0, outerLen, dim, true);
+  const triangles = [];
+  if (!outerNode || outerNode.next === outerNode.prev) return triangles;
+  let minX, minY, invSize;
+  if (hasHoles) outerNode = eliminateHoles(data, holeIndices, outerNode, dim);
+  if (data.length > 80 * dim) {
+    minX = data[0];
+    minY = data[1];
+    let maxX = minX;
+    let maxY = minY;
+    for (let i = dim; i < outerLen; i += dim) {
+      const x = data[i];
+      const y = data[i + 1];
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    }
+    invSize = Math.max(maxX - minX, maxY - minY);
+    invSize = invSize !== 0 ? 32767 / invSize : 0;
+  }
+  earcutLinked(outerNode, triangles, dim, minX, minY, invSize, 0);
+  return triangles;
+}
+function linkedList(data, start, end, dim, clockwise) {
+  let last;
+  if (clockwise === signedArea(data, start, end, dim) > 0) {
+    for (let i = start; i < end; i += dim) last = insertNode(i / dim | 0, data[i], data[i + 1], last);
+  } else {
+    for (let i = end - dim; i >= start; i -= dim) last = insertNode(i / dim | 0, data[i], data[i + 1], last);
+  }
+  if (last && equals(last, last.next)) {
+    removeNode(last);
+    last = last.next;
+  }
+  return last;
+}
+function filterPoints(start, end) {
+  if (!start) return start;
+  if (!end) end = start;
+  let p = start, again;
+  do {
+    again = false;
+    if (!p.steiner && (equals(p, p.next) || area(p.prev, p, p.next) === 0)) {
+      removeNode(p);
+      p = end = p.prev;
+      if (p === p.next) break;
+      again = true;
+    } else {
+      p = p.next;
+    }
+  } while (again || p !== end);
+  return end;
+}
+function earcutLinked(ear, triangles, dim, minX, minY, invSize, pass) {
+  if (!ear) return;
+  if (!pass && invSize) indexCurve(ear, minX, minY, invSize);
+  let stop = ear;
+  while (ear.prev !== ear.next) {
+    const prev = ear.prev;
+    const next = ear.next;
+    if (invSize ? isEarHashed(ear, minX, minY, invSize) : isEar(ear)) {
+      triangles.push(prev.i, ear.i, next.i);
+      removeNode(ear);
+      ear = next.next;
+      stop = next.next;
+      continue;
+    }
+    ear = next;
+    if (ear === stop) {
+      if (!pass) {
+        earcutLinked(filterPoints(ear), triangles, dim, minX, minY, invSize, 1);
+      } else if (pass === 1) {
+        ear = cureLocalIntersections(filterPoints(ear), triangles);
+        earcutLinked(ear, triangles, dim, minX, minY, invSize, 2);
+      } else if (pass === 2) {
+        splitEarcut(ear, triangles, dim, minX, minY, invSize);
+      }
+      break;
+    }
+  }
+}
+function isEar(ear) {
+  const a2 = ear.prev, b2 = ear, c2 = ear.next;
+  if (area(a2, b2, c2) >= 0) return false;
+  const ax = a2.x, bx = b2.x, cx = c2.x, ay = a2.y, by = b2.y, cy = c2.y;
+  const x0 = Math.min(ax, bx, cx), y0 = Math.min(ay, by, cy), x1 = Math.max(ax, bx, cx), y1 = Math.max(ay, by, cy);
+  let p = c2.next;
+  while (p !== a2) {
+    if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
+    p = p.next;
+  }
+  return true;
+}
+function isEarHashed(ear, minX, minY, invSize) {
+  const a2 = ear.prev, b2 = ear, c2 = ear.next;
+  if (area(a2, b2, c2) >= 0) return false;
+  const ax = a2.x, bx = b2.x, cx = c2.x, ay = a2.y, by = b2.y, cy = c2.y;
+  const x0 = Math.min(ax, bx, cx), y0 = Math.min(ay, by, cy), x1 = Math.max(ax, bx, cx), y1 = Math.max(ay, by, cy);
+  const minZ = zOrder(x0, y0, minX, minY, invSize), maxZ = zOrder(x1, y1, minX, minY, invSize);
+  let p = ear.prevZ, n = ear.nextZ;
+  while (p && p.z >= minZ && n && n.z <= maxZ) {
+    if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && p !== a2 && p !== c2 && pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
+    p = p.prevZ;
+    if (n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && n !== a2 && n !== c2 && pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, n.x, n.y) && area(n.prev, n, n.next) >= 0) return false;
+    n = n.nextZ;
+  }
+  while (p && p.z >= minZ) {
+    if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && p !== a2 && p !== c2 && pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
+    p = p.prevZ;
+  }
+  while (n && n.z <= maxZ) {
+    if (n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && n !== a2 && n !== c2 && pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, n.x, n.y) && area(n.prev, n, n.next) >= 0) return false;
+    n = n.nextZ;
+  }
+  return true;
+}
+function cureLocalIntersections(start, triangles) {
+  let p = start;
+  do {
+    const a2 = p.prev, b2 = p.next.next;
+    if (!equals(a2, b2) && intersects(a2, p, p.next, b2) && locallyInside(a2, b2) && locallyInside(b2, a2)) {
+      triangles.push(a2.i, p.i, b2.i);
+      removeNode(p);
+      removeNode(p.next);
+      p = start = b2;
+    }
+    p = p.next;
+  } while (p !== start);
+  return filterPoints(p);
+}
+function splitEarcut(start, triangles, dim, minX, minY, invSize) {
+  let a2 = start;
+  do {
+    let b2 = a2.next.next;
+    while (b2 !== a2.prev) {
+      if (a2.i !== b2.i && isValidDiagonal(a2, b2)) {
+        let c2 = splitPolygon(a2, b2);
+        a2 = filterPoints(a2, a2.next);
+        c2 = filterPoints(c2, c2.next);
+        earcutLinked(a2, triangles, dim, minX, minY, invSize, 0);
+        earcutLinked(c2, triangles, dim, minX, minY, invSize, 0);
+        return;
+      }
+      b2 = b2.next;
+    }
+    a2 = a2.next;
+  } while (a2 !== start);
+}
+function eliminateHoles(data, holeIndices, outerNode, dim) {
+  const queue = [];
+  for (let i = 0, len = holeIndices.length; i < len; i++) {
+    const start = holeIndices[i] * dim;
+    const end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
+    const list = linkedList(data, start, end, dim, false);
+    if (list === list.next) list.steiner = true;
+    queue.push(getLeftmost(list));
+  }
+  queue.sort(compareXYSlope);
+  for (let i = 0; i < queue.length; i++) {
+    outerNode = eliminateHole(queue[i], outerNode);
+  }
+  return outerNode;
+}
+function compareXYSlope(a2, b2) {
+  let result = a2.x - b2.x;
+  if (result === 0) {
+    result = a2.y - b2.y;
+    if (result === 0) {
+      const aSlope = (a2.next.y - a2.y) / (a2.next.x - a2.x);
+      const bSlope = (b2.next.y - b2.y) / (b2.next.x - b2.x);
+      result = aSlope - bSlope;
+    }
+  }
+  return result;
+}
+function eliminateHole(hole, outerNode) {
+  const bridge = findHoleBridge(hole, outerNode);
+  if (!bridge) {
+    return outerNode;
+  }
+  const bridgeReverse = splitPolygon(bridge, hole);
+  filterPoints(bridgeReverse, bridgeReverse.next);
+  return filterPoints(bridge, bridge.next);
+}
+function findHoleBridge(hole, outerNode) {
+  let p = outerNode;
+  const hx = hole.x;
+  const hy = hole.y;
+  let qx = -Infinity;
+  let m;
+  if (equals(hole, p)) return p;
+  do {
+    if (equals(hole, p.next)) return p.next;
+    else if (hy <= p.y && hy >= p.next.y && p.next.y !== p.y) {
+      const x = p.x + (hy - p.y) * (p.next.x - p.x) / (p.next.y - p.y);
+      if (x <= hx && x > qx) {
+        qx = x;
+        m = p.x < p.next.x ? p : p.next;
+        if (x === hx) return m;
+      }
+    }
+    p = p.next;
+  } while (p !== outerNode);
+  if (!m) return null;
+  const stop = m;
+  const mx = m.x;
+  const my = m.y;
+  let tanMin = Infinity;
+  p = m;
+  do {
+    if (hx >= p.x && p.x >= mx && hx !== p.x && pointInTriangle(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p.x, p.y)) {
+      const tan = Math.abs(hy - p.y) / (hx - p.x);
+      if (locallyInside(p, hole) && (tan < tanMin || tan === tanMin && (p.x > m.x || p.x === m.x && sectorContainsSector(m, p)))) {
+        m = p;
+        tanMin = tan;
+      }
+    }
+    p = p.next;
+  } while (p !== stop);
+  return m;
+}
+function sectorContainsSector(m, p) {
+  return area(m.prev, m, p.prev) < 0 && area(p.next, m, m.next) < 0;
+}
+function indexCurve(start, minX, minY, invSize) {
+  let p = start;
+  do {
+    if (p.z === 0) p.z = zOrder(p.x, p.y, minX, minY, invSize);
+    p.prevZ = p.prev;
+    p.nextZ = p.next;
+    p = p.next;
+  } while (p !== start);
+  p.prevZ.nextZ = null;
+  p.prevZ = null;
+  sortLinked(p);
+}
+function sortLinked(list) {
+  let numMerges;
+  let inSize = 1;
+  do {
+    let p = list;
+    let e;
+    list = null;
+    let tail = null;
+    numMerges = 0;
+    while (p) {
+      numMerges++;
+      let q = p;
+      let pSize = 0;
+      for (let i = 0; i < inSize; i++) {
+        pSize++;
+        q = q.nextZ;
+        if (!q) break;
+      }
+      let qSize = inSize;
+      while (pSize > 0 || qSize > 0 && q) {
+        if (pSize !== 0 && (qSize === 0 || !q || p.z <= q.z)) {
+          e = p;
+          p = p.nextZ;
+          pSize--;
+        } else {
+          e = q;
+          q = q.nextZ;
+          qSize--;
+        }
+        if (tail) tail.nextZ = e;
+        else list = e;
+        e.prevZ = tail;
+        tail = e;
+      }
+      p = q;
+    }
+    tail.nextZ = null;
+    inSize *= 2;
+  } while (numMerges > 1);
+  return list;
+}
+function zOrder(x, y, minX, minY, invSize) {
+  x = (x - minX) * invSize | 0;
+  y = (y - minY) * invSize | 0;
+  x = (x | x << 8) & 16711935;
+  x = (x | x << 4) & 252645135;
+  x = (x | x << 2) & 858993459;
+  x = (x | x << 1) & 1431655765;
+  y = (y | y << 8) & 16711935;
+  y = (y | y << 4) & 252645135;
+  y = (y | y << 2) & 858993459;
+  y = (y | y << 1) & 1431655765;
+  return x | y << 1;
+}
+function getLeftmost(start) {
+  let p = start, leftmost = start;
+  do {
+    if (p.x < leftmost.x || p.x === leftmost.x && p.y < leftmost.y) leftmost = p;
+    p = p.next;
+  } while (p !== start);
+  return leftmost;
+}
+function pointInTriangle(ax, ay, bx, by, cx, cy, px2, py2) {
+  return (cx - px2) * (ay - py2) >= (ax - px2) * (cy - py2) && (ax - px2) * (by - py2) >= (bx - px2) * (ay - py2) && (bx - px2) * (cy - py2) >= (cx - px2) * (by - py2);
+}
+function pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, px2, py2) {
+  return !(ax === px2 && ay === py2) && pointInTriangle(ax, ay, bx, by, cx, cy, px2, py2);
+}
+function isValidDiagonal(a2, b2) {
+  return a2.next.i !== b2.i && a2.prev.i !== b2.i && !intersectsPolygon(a2, b2) && // doesn't intersect other edges
+  (locallyInside(a2, b2) && locallyInside(b2, a2) && middleInside(a2, b2) && // locally visible
+  (area(a2.prev, a2, b2.prev) || area(a2, b2.prev, b2)) || // does not create opposite-facing sectors
+  equals(a2, b2) && area(a2.prev, a2, a2.next) > 0 && area(b2.prev, b2, b2.next) > 0);
+}
+function area(p, q, r) {
+  return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+}
+function equals(p1, p2) {
+  return p1.x === p2.x && p1.y === p2.y;
+}
+function intersects(p1, q1, p2, q2) {
+  const o1 = sign(area(p1, q1, p2));
+  const o2 = sign(area(p1, q1, q2));
+  const o3 = sign(area(p2, q2, p1));
+  const o4 = sign(area(p2, q2, q1));
+  if (o1 !== o2 && o3 !== o4) return true;
+  if (o1 === 0 && onSegment(p1, p2, q1)) return true;
+  if (o2 === 0 && onSegment(p1, q2, q1)) return true;
+  if (o3 === 0 && onSegment(p2, p1, q2)) return true;
+  if (o4 === 0 && onSegment(p2, q1, q2)) return true;
+  return false;
+}
+function onSegment(p, q, r) {
+  return q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) && q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y);
+}
+function sign(num) {
+  return num > 0 ? 1 : num < 0 ? -1 : 0;
+}
+function intersectsPolygon(a2, b2) {
+  let p = a2;
+  do {
+    if (p.i !== a2.i && p.next.i !== a2.i && p.i !== b2.i && p.next.i !== b2.i && intersects(p, p.next, a2, b2)) return true;
+    p = p.next;
+  } while (p !== a2);
+  return false;
+}
+function locallyInside(a2, b2) {
+  return area(a2.prev, a2, a2.next) < 0 ? area(a2, b2, a2.next) >= 0 && area(a2, a2.prev, b2) >= 0 : area(a2, b2, a2.prev) < 0 || area(a2, a2.next, b2) < 0;
+}
+function middleInside(a2, b2) {
+  let p = a2;
+  let inside = false;
+  const px2 = (a2.x + b2.x) / 2;
+  const py2 = (a2.y + b2.y) / 2;
+  do {
+    if (p.y > py2 !== p.next.y > py2 && p.next.y !== p.y && px2 < (p.next.x - p.x) * (py2 - p.y) / (p.next.y - p.y) + p.x)
+      inside = !inside;
+    p = p.next;
+  } while (p !== a2);
+  return inside;
+}
+function splitPolygon(a2, b2) {
+  const a22 = createNode(a2.i, a2.x, a2.y), b22 = createNode(b2.i, b2.x, b2.y), an = a2.next, bp = b2.prev;
+  a2.next = b2;
+  b2.prev = a2;
+  a22.next = an;
+  an.prev = a22;
+  b22.next = a22;
+  a22.prev = b22;
+  bp.next = b22;
+  b22.prev = bp;
+  return b22;
+}
+function insertNode(i, x, y, last) {
+  const p = createNode(i, x, y);
+  if (!last) {
+    p.prev = p;
+    p.next = p;
+  } else {
+    p.next = last.next;
+    p.prev = last;
+    last.next.prev = p;
+    last.next = p;
+  }
+  return p;
+}
+function removeNode(p) {
+  p.next.prev = p.prev;
+  p.prev.next = p.next;
+  if (p.prevZ) p.prevZ.nextZ = p.nextZ;
+  if (p.nextZ) p.nextZ.prevZ = p.prevZ;
+}
+function createNode(i, x, y) {
+  return {
+    i,
+    // vertex index in coordinates array
+    x,
+    y,
+    // vertex coordinates
+    prev: null,
+    // previous and next vertex nodes in a polygon ring
+    next: null,
+    z: 0,
+    // z-order curve value
+    prevZ: null,
+    // previous and next nodes in z-order
+    nextZ: null,
+    steiner: false
+    // indicates whether this is a steiner point
+  };
+}
+function signedArea(data, start, end, dim) {
+  let sum = 0;
+  for (let i = start, j = end - dim; i < end; i += dim) {
+    sum += (data[j] - data[i]) * (data[i + 1] + data[j + 1]);
+    j = i;
+  }
+  return sum;
+}
+var Earcut = class {
+  /**
+   * Triangulates the given shape definition by returning an array of triangles.
+   *
+   * @param {Array<number>} data - An array with 2D points.
+   * @param {Array<number>} holeIndices - An array with indices defining holes.
+   * @param {number} [dim=2] - The number of coordinates per vertex in the input array.
+   * @return {Array<number>} An array representing the triangulated faces. Each face is defined by three consecutive numbers
+   * representing vertex indices.
+   */
+  static triangulate(data, holeIndices, dim = 2) {
+    return earcut(data, holeIndices, dim);
+  }
+};
+var ShapeUtils = class _ShapeUtils {
+  /**
+   * Calculate area of a ( 2D ) contour polygon.
+   *
+   * @param {Array<Vector2>} contour - An array of 2D points.
+   * @return {number} The area.
+   */
+  static area(contour) {
+    const n = contour.length;
+    let a2 = 0;
+    for (let p = n - 1, q = 0; q < n; p = q++) {
+      a2 += contour[p].x * contour[q].y - contour[q].x * contour[p].y;
+    }
+    return a2 * 0.5;
+  }
+  /**
+   * Returns `true` if the given contour uses a clockwise winding order.
+   *
+   * @param {Array<Vector2>} pts - An array of 2D points defining a polygon.
+   * @return {boolean} Whether the given contour uses a clockwise winding order or not.
+   */
+  static isClockWise(pts) {
+    return _ShapeUtils.area(pts) < 0;
+  }
+  /**
+   * Triangulates the given shape definition.
+   *
+   * @param {Array<Vector2>} contour - An array of 2D points defining the contour.
+   * @param {Array<Array<Vector2>>} holes - An array that holds arrays of 2D points defining the holes.
+   * @return {Array<Array<number>>} An array that holds for each face definition an array with three indices.
+   */
+  static triangulateShape(contour, holes) {
+    const vertices = [];
+    const holeIndices = [];
+    const faces = [];
+    removeDupEndPts(contour);
+    addContour(vertices, contour);
+    let holeIndex = contour.length;
+    holes.forEach(removeDupEndPts);
+    for (let i = 0; i < holes.length; i++) {
+      holeIndices.push(holeIndex);
+      holeIndex += holes[i].length;
+      addContour(vertices, holes[i]);
+    }
+    const triangles = Earcut.triangulate(vertices, holeIndices);
+    for (let i = 0; i < triangles.length; i += 3) {
+      faces.push(triangles.slice(i, i + 3));
+    }
+    return faces;
+  }
+};
+function removeDupEndPts(points) {
+  const l = points.length;
+  if (l > 2 && points[l - 1].equals(points[0])) {
+    points.pop();
+  }
+}
+function addContour(vertices, contour) {
+  for (let i = 0; i < contour.length; i++) {
+    vertices.push(contour[i].x);
+    vertices.push(contour[i].y);
+  }
+}
 var IcosahedronGeometry = class _IcosahedronGeometry extends PolyhedronGeometry {
   /**
    * Constructs a new icosahedron geometry.
@@ -15249,6 +17227,114 @@ var RingGeometry = class _RingGeometry extends BufferGeometry {
     return new _RingGeometry(data.innerRadius, data.outerRadius, data.thetaSegments, data.phiSegments, data.thetaStart, data.thetaLength);
   }
 };
+var ShapeGeometry = class _ShapeGeometry extends BufferGeometry {
+  /**
+   * Constructs a new shape geometry.
+   *
+   * @param {Shape|Array<Shape>} [shapes] - A shape or an array of shapes.
+   * @param {number} [curveSegments=12] - Number of segments per shape.
+   */
+  constructor(shapes = new Shape([new Vector2(0, 0.5), new Vector2(-0.5, -0.5), new Vector2(0.5, -0.5)]), curveSegments = 12) {
+    super();
+    this.type = "ShapeGeometry";
+    this.parameters = {
+      shapes,
+      curveSegments
+    };
+    const indices = [];
+    const vertices = [];
+    const normals = [];
+    const uvs = [];
+    let groupStart = 0;
+    let groupCount = 0;
+    if (Array.isArray(shapes) === false) {
+      addShape(shapes);
+    } else {
+      for (let i = 0; i < shapes.length; i++) {
+        addShape(shapes[i]);
+        this.addGroup(groupStart, groupCount, i);
+        groupStart += groupCount;
+        groupCount = 0;
+      }
+    }
+    this.setIndex(indices);
+    this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+    this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+    this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    function addShape(shape) {
+      const indexOffset = vertices.length / 3;
+      const points = shape.extractPoints(curveSegments);
+      let shapeVertices = points.shape;
+      const shapeHoles = points.holes;
+      if (ShapeUtils.isClockWise(shapeVertices) === false) {
+        shapeVertices = shapeVertices.reverse();
+      }
+      for (let i = 0, l = shapeHoles.length; i < l; i++) {
+        const shapeHole = shapeHoles[i];
+        if (ShapeUtils.isClockWise(shapeHole) === true) {
+          shapeHoles[i] = shapeHole.reverse();
+        }
+      }
+      const faces = ShapeUtils.triangulateShape(shapeVertices, shapeHoles);
+      for (let i = 0, l = shapeHoles.length; i < l; i++) {
+        const shapeHole = shapeHoles[i];
+        shapeVertices = shapeVertices.concat(shapeHole);
+      }
+      for (let i = 0, l = shapeVertices.length; i < l; i++) {
+        const vertex2 = shapeVertices[i];
+        vertices.push(vertex2.x, vertex2.y, 0);
+        normals.push(0, 0, 1);
+        uvs.push(vertex2.x, vertex2.y);
+      }
+      for (let i = 0, l = faces.length; i < l; i++) {
+        const face = faces[i];
+        const a2 = face[0] + indexOffset;
+        const b2 = face[1] + indexOffset;
+        const c2 = face[2] + indexOffset;
+        indices.push(a2, b2, c2);
+        groupCount += 3;
+      }
+    }
+  }
+  copy(source) {
+    super.copy(source);
+    this.parameters = Object.assign({}, source.parameters);
+    return this;
+  }
+  toJSON() {
+    const data = super.toJSON();
+    const shapes = this.parameters.shapes;
+    return toJSON(shapes, data);
+  }
+  /**
+   * Factory method for creating an instance of this class from the given
+   * JSON object.
+   *
+   * @param {Object} data - A JSON object representing the serialized geometry.
+   * @param {Array<Shape>} shapes - An array of shapes.
+   * @return {ShapeGeometry} A new instance.
+   */
+  static fromJSON(data, shapes) {
+    const geometryShapes = [];
+    for (let j = 0, jl = data.shapes.length; j < jl; j++) {
+      const shape = shapes[data.shapes[j]];
+      geometryShapes.push(shape);
+    }
+    return new _ShapeGeometry(geometryShapes, data.curveSegments);
+  }
+};
+function toJSON(shapes, data) {
+  data.shapes = [];
+  if (Array.isArray(shapes)) {
+    for (let i = 0, l = shapes.length; i < l; i++) {
+      const shape = shapes[i];
+      data.shapes.push(shape.uuid);
+    }
+  } else {
+    data.shapes.push(shapes.uuid);
+  }
+  return data;
+}
 var SphereGeometry = class _SphereGeometry extends BufferGeometry {
   /**
    * Constructs a new sphere geometry.
@@ -15454,9 +17540,9 @@ function cloneUniforms(src) {
 function mergeUniforms(uniforms) {
   const merged = {};
   for (let u = 0; u < uniforms.length; u++) {
-    const tmp2 = cloneUniforms(uniforms[u]);
-    for (const p in tmp2) {
-      merged[p] = tmp2[p];
+    const tmp4 = cloneUniforms(uniforms[u]);
+    for (const p in tmp4) {
+      merged[p] = tmp4[p];
     }
   }
   return merged;
@@ -15759,226 +17845,6 @@ var MeshStandardMaterial = class extends Material {
     this.wireframeLinejoin = source.wireframeLinejoin;
     this.flatShading = source.flatShading;
     this.fog = source.fog;
-    return this;
-  }
-};
-var MeshPhysicalMaterial = class extends MeshStandardMaterial {
-  /**
-   * Constructs a new mesh physical material.
-   *
-   * @param {Object} [parameters] - An object with one or more properties
-   * defining the material's appearance. Any property of the material
-   * (including any property from inherited materials) can be passed
-   * in here. Color values can be passed any type of value accepted
-   * by {@link Color#set}.
-   */
-  constructor(parameters) {
-    super();
-    this.isMeshPhysicalMaterial = true;
-    this.defines = {
-      "STANDARD": "",
-      "PHYSICAL": ""
-    };
-    this.type = "MeshPhysicalMaterial";
-    this.anisotropyRotation = 0;
-    this.anisotropyMap = null;
-    this.clearcoatMap = null;
-    this.clearcoatRoughness = 0;
-    this.clearcoatRoughnessMap = null;
-    this.clearcoatNormalScale = new Vector2(1, 1);
-    this.clearcoatNormalMap = null;
-    this.ior = 1.5;
-    Object.defineProperty(this, "reflectivity", {
-      get: function() {
-        return clamp(2.5 * (this.ior - 1) / (this.ior + 1), 0, 1);
-      },
-      set: function(reflectivity) {
-        this.ior = (1 + 0.4 * reflectivity) / (1 - 0.4 * reflectivity);
-      }
-    });
-    this.iridescenceMap = null;
-    this.iridescenceIOR = 1.3;
-    this.iridescenceThicknessRange = [100, 400];
-    this.iridescenceThicknessMap = null;
-    this.sheenColor = new Color(0);
-    this.sheenColorMap = null;
-    this.sheenRoughness = 1;
-    this.sheenRoughnessMap = null;
-    this.transmissionMap = null;
-    this.thickness = 0;
-    this.thicknessMap = null;
-    this.attenuationDistance = Infinity;
-    this.attenuationColor = new Color(1, 1, 1);
-    this.specularIntensity = 1;
-    this.specularIntensityMap = null;
-    this.specularColor = new Color(1, 1, 1);
-    this.specularColorMap = null;
-    this._anisotropy = 0;
-    this._clearcoat = 0;
-    this._dispersion = 0;
-    this._iridescence = 0;
-    this._retroreflectivity = 0;
-    this._sheen = 0;
-    this._transmission = 0;
-    this.setValues(parameters);
-  }
-  /**
-   * The anisotropy strength, from `0.0` to `1.0`.
-   *
-   * @type {number}
-   * @default 0
-   */
-  get anisotropy() {
-    return this._anisotropy;
-  }
-  set anisotropy(value) {
-    if (this._anisotropy > 0 !== value > 0) {
-      this.version++;
-    }
-    this._anisotropy = value;
-  }
-  /**
-   * Represents the intensity of the clear coat layer, from `0.0` to `1.0`. Use
-   * clear coat related properties to enable multilayer materials that have a
-   * thin translucent layer over the base layer.
-   *
-   * @type {number}
-   * @default 0
-   */
-  get clearcoat() {
-    return this._clearcoat;
-  }
-  set clearcoat(value) {
-    if (this._clearcoat > 0 !== value > 0) {
-      this.version++;
-    }
-    this._clearcoat = value;
-  }
-  /**
-   * The intensity of the iridescence layer, simulating RGB color shift based on the angle between
-   * the surface and the viewer, from `0.0` to `1.0`.
-   *
-   * @type {number}
-   * @default 0
-   */
-  get iridescence() {
-    return this._iridescence;
-  }
-  set iridescence(value) {
-    if (this._iridescence > 0 !== value > 0) {
-      this.version++;
-    }
-    this._iridescence = value;
-  }
-  /**
-   * Defines the strength of the angular separation of colors (chromatic aberration) transmitting
-   * through a relatively clear volume. Any value zero or larger is valid, the typical range of
-   * realistic values is `[0, 1]`. This property can be only be used with transmissive objects.
-   *
-   * @type {number}
-   * @default 0
-   */
-  get dispersion() {
-    return this._dispersion;
-  }
-  set dispersion(value) {
-    if (this._dispersion > 0 !== value > 0) {
-      this.version++;
-    }
-    this._dispersion = value;
-  }
-  /**
-   * The strength of retroreflection, from `0.0` to `1.0`. A value of `1.0`
-   * evaluates the material's microfacet reflection with the view direction
-   * reflected about the surface normal, redirecting the specular lobe back
-   * toward the light source.
-   *
-   * @type {number}
-   * @default 0
-   */
-  get retroreflectivity() {
-    return this._retroreflectivity;
-  }
-  set retroreflectivity(value) {
-    if (this._retroreflectivity > 0 !== value > 0) {
-      this.version++;
-    }
-    this._retroreflectivity = value;
-  }
-  /**
-   * The intensity of the sheen layer, from `0.0` to `1.0`.
-   *
-   * @type {number}
-   * @default 0
-   */
-  get sheen() {
-    return this._sheen;
-  }
-  set sheen(value) {
-    if (this._sheen > 0 !== value > 0) {
-      this.version++;
-    }
-    this._sheen = value;
-  }
-  /**
-   * Degree of transmission (or optical transparency), from `0.0` to `1.0`.
-   *
-   * Thin, transparent or semitransparent, plastic or glass materials remain
-   * largely reflective even if they are fully transmissive. The transmission
-   * property can be used to model these materials.
-   *
-   * When transmission is non-zero, `opacity` should be  set to `1`.
-   *
-   * @type {number}
-   * @default 0
-   */
-  get transmission() {
-    return this._transmission;
-  }
-  set transmission(value) {
-    if (this._transmission > 0 !== value > 0) {
-      this.version++;
-    }
-    this._transmission = value;
-  }
-  copy(source) {
-    super.copy(source);
-    this.defines = {
-      "STANDARD": "",
-      "PHYSICAL": ""
-    };
-    this.anisotropy = source.anisotropy;
-    this.anisotropyRotation = source.anisotropyRotation;
-    this.anisotropyMap = source.anisotropyMap;
-    this.clearcoat = source.clearcoat;
-    this.clearcoatMap = source.clearcoatMap;
-    this.clearcoatRoughness = source.clearcoatRoughness;
-    this.clearcoatRoughnessMap = source.clearcoatRoughnessMap;
-    this.clearcoatNormalMap = source.clearcoatNormalMap;
-    this.clearcoatNormalScale.copy(source.clearcoatNormalScale);
-    this.dispersion = source.dispersion;
-    this.ior = source.ior;
-    this.iridescence = source.iridescence;
-    this.iridescenceMap = source.iridescenceMap;
-    this.iridescenceIOR = source.iridescenceIOR;
-    this.iridescenceThicknessRange = [...source.iridescenceThicknessRange];
-    this.iridescenceThicknessMap = source.iridescenceThicknessMap;
-    this.retroreflectivity = source.retroreflectivity;
-    this.sheen = source.sheen;
-    this.sheenColor.copy(source.sheenColor);
-    this.sheenColorMap = source.sheenColorMap;
-    this.sheenRoughness = source.sheenRoughness;
-    this.sheenRoughnessMap = source.sheenRoughnessMap;
-    this.transmission = source.transmission;
-    this.transmissionMap = source.transmissionMap;
-    this.thickness = source.thickness;
-    this.thicknessMap = source.thicknessMap;
-    this.attenuationDistance = source.attenuationDistance;
-    this.attenuationColor.copy(source.attenuationColor);
-    this.specularIntensity = source.specularIntensity;
-    this.specularIntensityMap = source.specularIntensityMap;
-    this.specularColor.copy(source.specularColor);
-    this.specularColorMap = source.specularColorMap;
     return this;
   }
 };
@@ -17805,6 +19671,63 @@ var PerspectiveCamera = class extends Camera {
     return data;
   }
 };
+var PointLightShadow = class extends LightShadow {
+  /**
+   * Constructs a new point light shadow.
+   */
+  constructor() {
+    super(new PerspectiveCamera(90, 1, 0.5, 500));
+    this.isPointLightShadow = true;
+  }
+};
+var PointLight = class extends Light {
+  /**
+   * Constructs a new point light.
+   *
+   * @param {(number|Color|string)} [color=0xffffff] - The light's color.
+   * @param {number} [intensity=1] - The light's strength/intensity measured in candela (cd).
+   * @param {number} [distance=0] - Maximum range of the light. `0` means no limit.
+   * @param {number} [decay=2] - The amount the light dims along the distance of the light.
+   */
+  constructor(color, intensity, distance = 0, decay = 2) {
+    super(color, intensity);
+    this.isPointLight = true;
+    this.type = "PointLight";
+    this.distance = distance;
+    this.decay = decay;
+    this.shadow = new PointLightShadow();
+  }
+  /**
+   * The light's power. Power is the luminous power of the light measured in lumens (lm).
+   * Changing the power will also change the light's intensity.
+   *
+   * @type {number}
+   */
+  get power() {
+    return this.intensity * 4 * Math.PI;
+  }
+  set power(power) {
+    this.intensity = power / (4 * Math.PI);
+  }
+  dispose() {
+    super.dispose();
+    this.shadow.dispose();
+  }
+  copy(source, recursive) {
+    super.copy(source, recursive);
+    this.distance = source.distance;
+    this.decay = source.decay;
+    this.shadow = source.shadow.clone();
+    return this;
+  }
+  toJSON(meta) {
+    const data = super.toJSON(meta);
+    data.object.distance = this.distance;
+    data.object.decay = this.decay;
+    data.object.shadow = this.shadow.toJSON();
+    return data;
+  }
+};
 var OrthographicCamera = class extends Camera {
   /**
    * Constructs a new orthographic camera.
@@ -18635,10 +20558,10 @@ var Raycaster = class {
    * @param {Array<Raycaster~Intersection>} [intersects=[]] The target array that holds the result of the method.
    * @return {Array<Raycaster~Intersection>} An array holding the intersection points.
    */
-  intersectObject(object, recursive = true, intersects = []) {
-    intersect(object, this, intersects, recursive);
-    intersects.sort(ascSort);
-    return intersects;
+  intersectObject(object, recursive = true, intersects2 = []) {
+    intersect(object, this, intersects2, recursive);
+    intersects2.sort(ascSort);
+    return intersects2;
   }
   /**
    * Checks all intersection between the ray and the objects with or without
@@ -18650,27 +20573,27 @@ var Raycaster = class {
    * @param {Array<Raycaster~Intersection>} [intersects=[]] The target array that holds the result of the method.
    * @return {Array<Raycaster~Intersection>} An array holding the intersection points.
    */
-  intersectObjects(objects, recursive = true, intersects = []) {
+  intersectObjects(objects, recursive = true, intersects2 = []) {
     for (let i = 0, l = objects.length; i < l; i++) {
-      intersect(objects[i], this, intersects, recursive);
+      intersect(objects[i], this, intersects2, recursive);
     }
-    intersects.sort(ascSort);
-    return intersects;
+    intersects2.sort(ascSort);
+    return intersects2;
   }
 };
 function ascSort(a2, b2) {
   return a2.distance - b2.distance;
 }
-function intersect(object, raycaster, intersects, recursive) {
+function intersect(object, raycaster, intersects2, recursive) {
   let propagate = true;
   if (object.layers.test(raycaster.layers)) {
-    const result = object.raycast(raycaster, intersects);
+    const result = object.raycast(raycaster, intersects2);
     if (result === false) propagate = false;
   }
   if (propagate === true && recursive === true) {
     const children = object.children;
     for (let i = 0, l = children.length; i < l; i++) {
-      intersect(children[i], raycaster, intersects, true);
+      intersect(children[i], raycaster, intersects2, true);
     }
   }
 }
@@ -30732,19 +32655,19 @@ var Mat3 = class _Mat3 {
     }
     const M = this.elements;
     const T = target.elements;
-    let tmp2;
+    let tmp4;
     T[0] = M[0];
     T[4] = M[4];
     T[8] = M[8];
-    tmp2 = M[1];
+    tmp4 = M[1];
     T[1] = M[3];
-    T[3] = tmp2;
-    tmp2 = M[2];
+    T[3] = tmp4;
+    tmp4 = M[2];
     T[2] = M[6];
-    T[6] = tmp2;
-    tmp2 = M[5];
+    T[6] = tmp4;
+    tmp4 = M[5];
     T[5] = M[7];
-    T[7] = tmp2;
+    T[7] = tmp4;
     return target;
   }
 };
@@ -30899,10 +32822,10 @@ var Vec3 = class _Vec3 {
     const x = this.x;
     const y = this.y;
     const z = this.z;
-    const px = p.x;
-    const py = p.y;
-    const pz = p.z;
-    return Math.sqrt((px - x) * (px - x) + (py - y) * (py - y) + (pz - z) * (pz - z));
+    const px2 = p.x;
+    const py2 = p.y;
+    const pz2 = p.z;
+    return Math.sqrt((px2 - x) * (px2 - x) + (py2 - y) * (py2 - y) + (pz2 - z) * (pz2 - z));
   }
   /**
    * Get squared distance from this point to another point
@@ -30911,10 +32834,10 @@ var Vec3 = class _Vec3 {
     const x = this.x;
     const y = this.y;
     const z = this.z;
-    const px = p.x;
-    const py = p.y;
-    const pz = p.z;
-    return (px - x) * (px - x) + (py - y) * (py - y) + (pz - z) * (pz - z);
+    const px2 = p.x;
+    const py2 = p.y;
+    const pz2 = p.z;
+    return (px2 - x) * (px2 - x) + (py2 - y) * (py2 - y) + (pz2 - z) * (pz2 - z);
   }
   /**
    * Multiply all the components of the vector with a scalar.
@@ -34650,10 +36573,10 @@ var Equation = class _Equation {
     const invIi = bi.invInertiaWorldSolve;
     const invIj = bj.invInertiaWorldSolve;
     let result = invMassi + invMassj;
-    invIi.vmult(GA.rotational, tmp);
-    result += tmp.dot(GA.rotational);
-    invIj.vmult(GB.rotational, tmp);
-    result += tmp.dot(GB.rotational);
+    invIi.vmult(GA.rotational, tmp3);
+    result += tmp3.dot(GA.rotational);
+    invIj.vmult(GB.rotational, tmp3);
+    result += tmp3.dot(GB.rotational);
     return result;
   }
   /**
@@ -34684,7 +36607,7 @@ var iMfi = new Vec3();
 var iMfj = new Vec3();
 var invIi_vmult_taui = new Vec3();
 var invIj_vmult_tauj = new Vec3();
-var tmp = new Vec3();
+var tmp3 = new Vec3();
 var addToWlambda_temp = new Vec3();
 var ContactEquation = class extends Equation {
   /**
@@ -36806,7 +38729,7 @@ var Narrowphase = class {
     const edgeVector = sphereTrimesh_edgeVector;
     const edgeVectorUnit = sphereTrimesh_edgeVectorUnit;
     const localSpherePos = sphereTrimesh_localSpherePos;
-    const tmp2 = sphereTrimesh_tmp;
+    const tmp4 = sphereTrimesh_tmp;
     const localSphereAABB = sphereTrimesh_localSphereAABB;
     const v22 = sphereTrimesh_v2;
     const relpos2 = sphereTrimesh_relpos;
@@ -36848,30 +38771,30 @@ var Narrowphase = class {
         trimeshShape.getVertex(trimeshShape.indices[triangles[i] * 3 + j], edgeVertexA);
         trimeshShape.getVertex(trimeshShape.indices[triangles[i] * 3 + (j + 1) % 3], edgeVertexB);
         edgeVertexB.vsub(edgeVertexA, edgeVector);
-        localSpherePos.vsub(edgeVertexB, tmp2);
-        const positionAlongEdgeB = tmp2.dot(edgeVector);
-        localSpherePos.vsub(edgeVertexA, tmp2);
-        let positionAlongEdgeA = tmp2.dot(edgeVector);
+        localSpherePos.vsub(edgeVertexB, tmp4);
+        const positionAlongEdgeB = tmp4.dot(edgeVector);
+        localSpherePos.vsub(edgeVertexA, tmp4);
+        let positionAlongEdgeA = tmp4.dot(edgeVector);
         if (positionAlongEdgeA > 0 && positionAlongEdgeB < 0) {
-          localSpherePos.vsub(edgeVertexA, tmp2);
+          localSpherePos.vsub(edgeVertexA, tmp4);
           edgeVectorUnit.copy(edgeVector);
           edgeVectorUnit.normalize();
-          positionAlongEdgeA = tmp2.dot(edgeVectorUnit);
-          edgeVectorUnit.scale(positionAlongEdgeA, tmp2);
-          tmp2.vadd(edgeVertexA, tmp2);
-          const dist = tmp2.distanceTo(localSpherePos);
+          positionAlongEdgeA = tmp4.dot(edgeVectorUnit);
+          edgeVectorUnit.scale(positionAlongEdgeA, tmp4);
+          tmp4.vadd(edgeVertexA, tmp4);
+          const dist = tmp4.distanceTo(localSpherePos);
           if (dist < sphereShape.radius) {
             if (justTest) {
               return true;
             }
             const r = this.createContactEquation(sphereBody, trimeshBody, sphereShape, trimeshShape, rsi, rsj);
-            tmp2.vsub(localSpherePos, r.ni);
+            tmp4.vsub(localSpherePos, r.ni);
             r.ni.normalize();
             r.ni.scale(sphereShape.radius, r.ri);
             r.ri.vadd(spherePos, r.ri);
             r.ri.vsub(sphereBody.position, r.ri);
-            Transform.pointToWorldFrame(trimeshPos, trimeshQuat, tmp2, tmp2);
-            tmp2.vsub(trimeshBody.position, r.rj);
+            Transform.pointToWorldFrame(trimeshPos, trimeshQuat, tmp4, tmp4);
+            tmp4.vsub(trimeshBody.position, r.rj);
             Transform.vectorToWorldFrame(trimeshQuat, r.ni, r.ni);
             Transform.vectorToWorldFrame(trimeshQuat, r.ri, r.ri);
             this.result.push(r);
@@ -36887,23 +38810,23 @@ var Narrowphase = class {
     for (let i = 0, N = triangles.length; i !== N; i++) {
       trimeshShape.getTriangleVertices(triangles[i], va2, vb2, vc2);
       trimeshShape.getNormal(triangles[i], normal);
-      localSpherePos.vsub(va2, tmp2);
-      let dist = tmp2.dot(normal);
-      normal.scale(dist, tmp2);
-      localSpherePos.vsub(tmp2, tmp2);
-      dist = tmp2.distanceTo(localSpherePos);
-      if (Ray2.pointInTriangle(tmp2, va2, vb2, vc2) && dist < sphereShape.radius) {
+      localSpherePos.vsub(va2, tmp4);
+      let dist = tmp4.dot(normal);
+      normal.scale(dist, tmp4);
+      localSpherePos.vsub(tmp4, tmp4);
+      dist = tmp4.distanceTo(localSpherePos);
+      if (Ray2.pointInTriangle(tmp4, va2, vb2, vc2) && dist < sphereShape.radius) {
         if (justTest) {
           return true;
         }
         let r = this.createContactEquation(sphereBody, trimeshBody, sphereShape, trimeshShape, rsi, rsj);
-        tmp2.vsub(localSpherePos, r.ni);
+        tmp4.vsub(localSpherePos, r.ni);
         r.ni.normalize();
         r.ni.scale(sphereShape.radius, r.ri);
         r.ri.vadd(spherePos, r.ri);
         r.ri.vsub(sphereBody.position, r.ri);
-        Transform.pointToWorldFrame(trimeshPos, trimeshQuat, tmp2, tmp2);
-        tmp2.vsub(trimeshBody.position, r.rj);
+        Transform.pointToWorldFrame(trimeshPos, trimeshQuat, tmp4, tmp4);
+        tmp4.vsub(trimeshBody.position, r.rj);
         Transform.vectorToWorldFrame(trimeshQuat, r.ni, r.ni);
         Transform.vectorToWorldFrame(trimeshQuat, r.ri, r.ri);
         this.result.push(r);
@@ -37139,9 +39062,9 @@ var OverlapKeeper = class {
    * tick
    */
   tick() {
-    const tmp2 = this.current;
+    const tmp4 = this.current;
     this.current = this.previous;
-    this.previous = tmp2;
+    this.previous = tmp4;
     this.current.length = 0;
   }
   /**
@@ -38170,12 +40093,12 @@ var worldLooks = {
   }
 };
 var siteTerrainProfiles = {
-  "meteor-crater": { terrain: "impact", ground: [6839371, 9535594, 11903364], rock: [6642510, 8943198], sample: "fragment" },
-  hawaii: { terrain: "lava", ground: [2698283, 5132618, 7829098], rock: [3422005, 5987668], sample: "basalt" },
-  "death-valley": { terrain: "basin", ground: [7953219, 10911833, 13150072], rock: [8544581, 11569757], sample: "sediment" },
-  atacama: { terrain: "alluvial", ground: [7420716, 10903356, 12946270], rock: [7882290, 11169865], sample: "sediment" },
-  devon: { terrain: "impact", ground: [6448740, 9014149, 11579301], rock: [6053983, 8619133], sample: "fragment" },
-  mcmurdo: { terrain: "polar-valley", ground: [5594721, 8227208, 11186858], rock: [5792613, 8556684], sample: "outcrop" }
+  "meteor-crater": { terrain: "impact", ground: [6839371, 9535594, 11903364], rock: [6642510, 8943198], sample: "fragment", sky: 9287896, fog: 13162460, hemiSky: 13099505, hemiGround: 5917499, sunIntensity: 2.55, audio: { droneFreqs: [58, 116, 174], windCutoff: 180, windGain: 6e-3, stepCutoff: 620, stepTone: 74 } },
+  hawaii: { terrain: "lava", ground: [2698283, 5132618, 7829098], rock: [3422005, 5987668], sample: "basalt", sky: 8632530, fog: 11651022, hemiSky: 12968939, hemiGround: 3160373, sunIntensity: 2.4, audio: { droneFreqs: [48, 96, 144], windCutoff: 310, windGain: 4e-3, stepCutoff: 360, stepTone: 58 } },
+  "death-valley": { terrain: "basin", ground: [7953219, 10911833, 13150072], rock: [8544581, 11569757], sample: "sediment", sky: 10206672, fog: 14140327, hemiSky: 14996668, hemiGround: 5980208, sunIntensity: 2.9, audio: { droneFreqs: [52, 104, 156], windCutoff: 250, windGain: 0.01, stepCutoff: 520, stepTone: 68 } },
+  atacama: { terrain: "alluvial", ground: [7420716, 10903356, 12946270], rock: [7882290, 11169865], sample: "sediment", sky: 7582939, fog: 11586004, hemiSky: 12771565, hemiGround: 5322536, sunIntensity: 3.05, audio: { droneFreqs: [44, 88, 132], windCutoff: 225, windGain: 0.012, stepCutoff: 440, stepTone: 61 } },
+  devon: { terrain: "impact", ground: [6448740, 9014149, 11579301], rock: [6053983, 8619133], sample: "fragment", sky: 9548740, fog: 12701906, hemiSky: 13229281, hemiGround: 3950410, sunIntensity: 2.15, audio: { droneFreqs: [39, 78, 117], windCutoff: 200, windGain: 0.014, stepCutoff: 300, stepTone: 54 } },
+  mcmurdo: { terrain: "polar-valley", ground: [5594721, 8227208, 11186858], rock: [5792613, 8556684], sample: "outcrop", sky: 8957896, fog: 12045268, hemiSky: 13230571, hemiGround: 3951182, sunIntensity: 2.05, audio: { droneFreqs: [35, 70, 105], windCutoff: 165, windGain: 0.019, stepCutoff: 260, stepTone: 49 } }
 };
 var activeWorld = null;
 function startSpaceExplorer(config) {
@@ -38290,6 +40213,7 @@ var SpaceWorld = class {
     this.isNight = false;
     this.isAlien = config.character === "alien";
     this.stageSite = config.stageSite || null;
+    this.siteMovementFactor = ["devon", "mcmurdo"].includes(this.stageSite?.id) ? 0.82 : 1;
     this.suit = config.suit || null;
     this.spacecraft = config.spacecraft || null;
     this.equipment = Array.isArray(config.equipment) ? [...config.equipment] : [];
@@ -38314,15 +40238,18 @@ var SpaceWorld = class {
     } else if (this.isMars) {
       this.scene.background = new Color(1706760);
       this.scene.fog = new FogExp2(5382934, 35e-4);
+    } else if (this.siteProfile) {
+      this.scene.background = new Color(this.siteProfile.sky);
+      this.scene.fog = new Fog(this.siteProfile.fog, 55, 205);
     } else {
       this.scene.background = new Color(5678306);
       this.scene.fog = new Fog(9751792, 60, 240);
     }
     this.camera = new PerspectiveCamera(65, 1, 0.1, 2400);
-    this.cameraYaw = this.isMoon ? Math.PI : 0;
-    this.cameraPitch = this.isMoon ? 0.58 : config.character === "astronaut" ? 0.08 : -0.12;
+    this.cameraYaw = this.isMoon ? Math.PI : this.stageSite?.id === "meteor-crater" ? Math.PI / 2 : 0;
+    this.cameraPitch = this.isMoon ? 0.58 : this.stageSite?.id === "meteor-crater" ? -0.24 : config.character === "astronaut" ? 0.08 : -0.12;
     this.cameraMode = "third";
-    this.cameraDistance = 5.6;
+    this.cameraDistance = this.siteProfile ? this.stageSite?.id === "meteor-crater" ? 9.5 : 8.2 : 5.6;
     this.keys = /* @__PURE__ */ new Set();
     this.touchMove = { x: 0, y: 0 };
     this.mouseLookPointer = null;
@@ -38356,6 +40283,9 @@ var SpaceWorld = class {
       xp: Number(config.progress.xp) || 0,
       collectedSamples: Array.isArray(config.progress.collectedSamples) ? [...config.progress.collectedSamples] : [],
       discoveredSamples: Array.isArray(config.progress.discoveredSamples) ? [...config.progress.discoveredSamples] : [],
+      analyzedSamples: Array.isArray(config.progress.analyzedSamples) ? [...config.progress.analyzedSamples] : [],
+      discoveredPoints: Array.isArray(config.progress.discoveredPoints) ? [...config.progress.discoveredPoints] : [],
+      readSites: Array.isArray(config.progress.readSites) ? [...config.progress.readSites] : [],
       analyzedSites: Array.isArray(config.progress.analyzedSites) ? [...config.progress.analyzedSites] : [],
       completedMissions: Array.isArray(config.progress.completedMissions) ? [...config.progress.completedMissions] : [],
       roverUnlocked: Boolean(config.progress.roverUnlocked)
@@ -38365,7 +40295,10 @@ var SpaceWorld = class {
     this.paused = false;
     this.sites = config.sites || [];
     this.samples = [];
+    this.sciencePoints = [];
     this.rocks = [];
+    this.rockBodies = [];
+    this.siteBodies = [];
     this.rockSurfaces = [];
     this.footprints = [];
     this.roverWheels = [];
@@ -38380,6 +40313,7 @@ var SpaceWorld = class {
     this.createPlayer();
     this.createCompanion();
     this.createSamples();
+    this.createScientificPoints();
     const savedMissionComplete = this.progress.completedMissions.includes(this.sampleMissionId);
     this.stageComplete = Boolean(this.stageSite && savedMissionComplete && this.worldCollectedCount() >= this.sampleGoal);
     this.finalMissionComplete = Boolean(!this.stageSite && config.character === "astronaut" && savedMissionComplete && this.worldCollectedCount() >= this.sampleGoal && this.progress.completedMissions.includes(this.craterMissionId));
@@ -38389,6 +40323,7 @@ var SpaceWorld = class {
     this.createAtmosphericDust();
     this.createSurfaceBaseCamp();
     this.createEarthDayNightButton();
+    this.createFieldLogButton();
     this.bindInputs();
     this.resizeObserver.observe(this.container);
     this.setQuality(this.quality);
@@ -38429,7 +40364,7 @@ var SpaceWorld = class {
     masterGain.gain.setValueAtTime(0.045, now);
     masterGain.connect(ctx.destination);
     this.ambientGain = masterGain;
-    const droneFreqs = [55, 110, 165];
+    const droneFreqs = this.siteProfile?.audio?.droneFreqs || [55, 110, 165];
     droneFreqs.forEach((freq, idx) => {
       const osc = ctx.createOscillator();
       const oscGain = ctx.createGain();
@@ -38440,7 +40375,7 @@ var SpaceWorld = class {
       oscGain.connect(masterGain);
       osc.start();
     });
-    if (this.isMars) {
+    if (this.isMars || this.siteProfile?.audio?.windGain) {
       const bufferSize = ctx.sampleRate * 2;
       const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -38455,10 +40390,10 @@ var SpaceWorld = class {
       whiteNoise.loop = true;
       const filter = ctx.createBiquadFilter();
       filter.type = "bandpass";
-      filter.frequency.setValueAtTime(280, now);
-      filter.Q.setValueAtTime(3.2, now);
+      filter.frequency.setValueAtTime(this.siteProfile?.audio?.windCutoff || 280, now);
+      filter.Q.setValueAtTime(this.isMars ? 3.2 : 1.4, now);
       const windGain = ctx.createGain();
-      windGain.gain.setValueAtTime(0.035, now);
+      windGain.gain.setValueAtTime(this.siteProfile?.audio?.windGain || 0.035, now);
       whiteNoise.connect(filter);
       filter.connect(windGain);
       windGain.connect(ctx.destination);
@@ -38501,7 +40436,7 @@ var SpaceWorld = class {
     const impactGain = context.createGain();
     source.buffer = buffer;
     filter.type = "lowpass";
-    filter.frequency.value = this.isMoon ? 420 : this.isMars ? 260 : 520;
+    filter.frequency.value = this.isMoon ? 420 : this.isMars ? 260 : this.siteProfile?.audio?.stepCutoff || 520;
     impactGain.gain.setValueAtTime(sprinting ? 0.13 : 0.09, now);
     impactGain.gain.exponentialRampToValueAtTime(1e-3, now + 0.055);
     source.connect(filter);
@@ -38511,7 +40446,7 @@ var SpaceWorld = class {
     const thud = context.createOscillator();
     const thudGain = context.createGain();
     thud.type = "sine";
-    thud.frequency.setValueAtTime(this.isMoon ? 82 : 64, now);
+    thud.frequency.setValueAtTime(this.isMoon ? 82 : this.siteProfile?.audio?.stepTone || 64, now);
     thudGain.gain.setValueAtTime(sprinting ? 0.04 : 0.026, now);
     thudGain.gain.exponentialRampToValueAtTime(1e-3, now + 0.085);
     thud.connect(thudGain);
@@ -38575,15 +40510,16 @@ var SpaceWorld = class {
   }
   createLighting() {
     const isEarthDay = !this.isMoon && !this.isMars;
-    const hemiSky = this.isMoon ? 14014688 : this.isMars ? 14846552 : 7912440;
-    const hemiGround = this.isMoon ? 1184792 : this.isMars ? 3019017 : 4741176;
+    const hemiSky = this.isMoon ? 14014688 : this.isMars ? 14846552 : this.siteProfile?.hemiSky || 7912440;
+    const hemiGround = this.isMoon ? 1184792 : this.isMars ? 3019017 : this.siteProfile?.hemiGround || 4741176;
     const hemiIntensity = this.isMoon ? 0.32 : this.isMars ? 0.72 : 1.35;
     const hemi = new HemisphereLight(hemiSky, hemiGround, hemiIntensity);
     this.scene.add(hemi);
     this.hemiLight = hemi;
     const sunColor = this.isMoon ? 16777215 : this.isMars ? 16768958 : 16775918;
-    const sunIntensity = isEarthDay ? 2.8 : this.look.sunIntensity;
-    const sun = new DirectionalLight(sunColor, sunIntensity);
+    const selectedSunColor = this.siteProfile?.sunColor || sunColor;
+    const sunIntensity = this.siteProfile?.sunIntensity || (isEarthDay ? 2.8 : this.look.sunIntensity);
+    const sun = new DirectionalLight(selectedSunColor, sunIntensity);
     sun.position.set(-42, 68, 30);
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
@@ -39308,20 +41244,32 @@ var SpaceWorld = class {
       base += microCrater + regolithRoughness;
     }
     if (this.siteProfile?.terrain === "lava") {
-      const coast = MathUtils.smoothstep(Math.hypot(x, z), 34, 57);
-      base += Math.sin(z * 0.17 + Math.sin(x * 0.08) * 2.2) * 1.1 + Math.cos(x * 0.12 + z * 0.07) * 0.65;
-      base += (1 - coast) * 2.5;
-      base = MathUtils.lerp(base, -2.65, coast);
+      const flowRidges = Math.abs(Math.sin(z * 0.13 + Math.sin(x * 0.055) * 1.8)) * 0.85;
+      base += Math.sin(z * 0.17 + Math.sin(x * 0.08) * 2.2) * 1.1 + Math.cos(x * 0.12 + z * 0.07) * 0.65 + flowRidges;
     } else if (this.siteProfile?.terrain === "alluvial") {
       const channel = z - Math.sin(x * 0.075) * 5;
-      base += Math.sin(x * 0.045) * 1.2 - Math.exp(-((channel / 2.2) ** 2)) * 1.25;
+      const desertRidge = Math.max(0, Math.abs(x) - 25) * 0.28;
+      base += Math.sin(x * 0.045) * 1.2 - Math.exp(-((channel / 2.2) ** 2)) * 1.25 + desertRidge;
+    } else if (this.siteProfile?.terrain === "basin") {
+      const basinRadius = Math.hypot(x * 0.82, z);
+      const basinFloor = Math.exp(-((basinRadius / 27) ** 4)) * 3.2;
+      const basinRange = Math.max(0, basinRadius - 30) * 0.48;
+      base += basinRange - basinFloor;
+    } else if (this.siteProfile?.terrain === "polar-valley") {
+      const valleyRidge = Math.max(0, Math.abs(x) - 21) * 0.58;
+      base += Math.min(26, valleyRidge) + Math.sin(z * 0.045) * 0.9;
+    }
+    if (this.stageSite?.id === "devon") {
+      base += Math.min(18, Math.max(0, Math.abs(x) - 29) * 0.42);
     }
     const craterX = x + 17;
     const craterZ = z + 9;
     const craterR = Math.hypot(craterX, craterZ);
     const hasCrater = !this.siteProfile || this.siteProfile.terrain === "impact";
-    const bowl = hasCrater ? -Math.exp(-((craterR / 8.6) ** 2)) * (this.isMoon ? 3.4 : 2.4) : 0;
-    const rim = hasCrater ? Math.exp(-(((craterR - 8.8) / 1.25) ** 2)) * 1.15 : 0;
+    const craterRadius = this.stageSite?.id === "meteor-crater" ? 17 : this.stageSite?.id === "devon" ? 13 : 8.6;
+    const craterDepth = this.stageSite?.id === "meteor-crater" ? 8.5 : this.stageSite?.id === "devon" ? 5.2 : this.isMoon ? 3.4 : 2.4;
+    const bowl = hasCrater ? -Math.exp(-((craterR / craterRadius) ** 2)) * craterDepth : 0;
+    const rim = hasCrater ? Math.exp(-(((craterR - craterRadius * 1.03) / (craterRadius > 10 ? 2.2 : 1.25)) ** 2)) * (craterRadius > 10 ? 2.1 : 1.15) : 0;
     return base + bowl + rim;
   }
   createWorld() {
@@ -39368,17 +41316,6 @@ var SpaceWorld = class {
     });
     const terrain = new Mesh(geometry, terrainMat);
     terrain.receiveShadow = true;
-    if (this.siteProfile?.terrain === "lava") {
-      const ocean = new Mesh(
-        new PlaneGeometry(420, 420),
-        new MeshPhysicalMaterial({ color: 1473949, roughness: 0.24, metalness: 0.12, transparent: true, opacity: 0.9, clearcoat: 0.65, clearcoatRoughness: 0.2 })
-      );
-      ocean.rotation.x = -Math.PI / 2;
-      ocean.position.y = -1.75;
-      ocean.receiveShadow = true;
-      this.scene.add(ocean);
-      this.ocean = ocean;
-    }
     this.scene.add(terrain);
     this.terrainMesh = terrain;
     const body = new Body({ mass: 0, material: this.terrainMaterial });
@@ -39405,6 +41342,16 @@ var SpaceWorld = class {
       wall.addShape(new Box(new Vec3(sx / 2, sy / 2, sz / 2)));
       this.physics.addBody(wall);
     });
+  }
+  addSiteCollider(shape, x, y, z) {
+    const body = new Body({
+      mass: 0,
+      material: this.terrainMaterial,
+      position: new Vec3(x, y, z)
+    });
+    body.addShape(shape);
+    this.physics.addBody(body);
+    this.siteBodies.push(body);
   }
   addTerrainDetails() {
     const terrainSeed = seedFromText(this.stageSite?.id || this.config.world);
@@ -39442,38 +41389,110 @@ var SpaceWorld = class {
         dummy.updateMatrix();
         batch.setMatrixAt(index, dummy.matrix);
         this.rockSurfaces.push({ x, z, radius: scale * 0.85, height });
+        if (this.siteProfile && index % 2 === 0) {
+          const collider = new Body({
+            mass: 0,
+            material: this.terrainMaterial,
+            position: new Vec3(x, height + scale * 0.58, z)
+          });
+          collider.addShape(new Sphere2(scale * 0.58));
+          this.physics.addBody(collider);
+          this.rockBodies.push(collider);
+        }
       }
       batch.instanceMatrix.needsUpdate = true;
     });
   }
+  addSiteSurfacePatch(x, z, radiusX, radiusZ, color, options = {}) {
+    const shape = new Shape();
+    const points = 14;
+    for (let index = 0; index < points; index += 1) {
+      const angle = index * TAU / points;
+      const irregularity = 0.82 + seededValue(options.seed || 17, index + 3) * 0.28;
+      const pointX = Math.cos(angle) * radiusX * irregularity;
+      const pointY = Math.sin(angle) * radiusZ * irregularity;
+      if (index === 0) shape.moveTo(pointX, pointY);
+      else shape.lineTo(pointX, pointY);
+    }
+    shape.closePath();
+    const patch = new Mesh(
+      new ShapeGeometry(shape, points),
+      new MeshStandardMaterial({
+        color,
+        roughness: options.roughness ?? 0.92,
+        metalness: 0.01,
+        transparent: Boolean(options.opacity),
+        opacity: options.opacity || 1,
+        side: DoubleSide
+      })
+    );
+    patch.rotation.x = -Math.PI / 2;
+    patch.position.set(x, this.terrainHeight(x, z) + (options.heightOffset || 0.07), z);
+    patch.receiveShadow = true;
+    this.scene.add(patch);
+    if (options.cracked) {
+      const vertices = [];
+      for (let index = 0; index < 8; index += 1) {
+        const angle = index * TAU / 8 + 0.12;
+        const startRadius = 0.2 + seededValue(options.seed || 17, index + 20) * 0.3;
+        const endRadius = 0.75 + seededValue(options.seed || 17, index + 40) * 0.2;
+        vertices.push(
+          x + Math.cos(angle) * radiusX * startRadius,
+          patch.position.y + 0.035,
+          z + Math.sin(angle) * radiusZ * startRadius,
+          x + Math.cos(angle + 0.09) * radiusX * endRadius,
+          patch.position.y + 0.035,
+          z + Math.sin(angle + 0.09) * radiusZ * endRadius
+        );
+      }
+      const crackGeometry = new BufferGeometry();
+      crackGeometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+      this.scene.add(new LineSegments(crackGeometry, new LineBasicMaterial({ color: 7498078, transparent: true, opacity: 0.55 })));
+    }
+    return patch;
+  }
   createSiteEnvironment() {
     if (this.siteProfile?.terrain === "lava") {
-      const trunkMaterial = new MeshStandardMaterial({ color: 7754042, roughness: 0.94 });
-      const leafMaterial = new MeshStandardMaterial({ color: 3437643, roughness: 0.88, side: DoubleSide });
-      for (let index = 0; index < 9; index += 1) {
-        const angle = index * 2.4;
-        const radius = 16 + seededValue(index + 41, 5) * 15;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-        const palm = new Group();
-        palm.position.set(x, this.terrainHeight(x, z), z);
-        const trunk = new Mesh(new CylinderGeometry(0.18, 0.3, 5.5, 8), trunkMaterial);
-        trunk.position.y = 2.75;
-        trunk.castShadow = true;
-        palm.add(trunk);
-        for (let frond = 0; frond < 8; frond += 1) {
-          const direction = frond * TAU / 8;
-          const leaf = new Mesh(new ConeGeometry(0.18, 4, 5), leafMaterial);
-          leaf.position.set(Math.cos(direction) * 1.15, 5.25, Math.sin(direction) * 1.15);
-          leaf.rotation.z = Math.PI / 2;
-          leaf.rotation.y = direction;
-          leaf.castShadow = true;
-          palm.add(leaf);
-        }
-        this.scene.add(palm);
+      const tubeX = 4;
+      const tubeZ = -17;
+      const tubeY = this.terrainHeight(tubeX, tubeZ);
+      const entrance = new Group();
+      entrance.position.set(tubeX, tubeY, tubeZ);
+      const darkOpening = new Mesh(new CircleGeometry(2.15, 24), new MeshBasicMaterial({ color: 526859 }));
+      darkOpening.position.set(0, 2.15, -0.5);
+      entrance.add(darkOpening);
+      const arch = new Mesh(new TorusGeometry(2.15, 0.42, 8, 24), new MeshStandardMaterial({ color: 3948091, roughness: 0.98 }));
+      arch.position.set(0, 2.15, -0.46);
+      entrance.add(arch);
+      const tube = new Mesh(new CylinderGeometry(2.05, 2.05, 11, 24, 1, true), new MeshStandardMaterial({ color: 2237475, side: BackSide, roughness: 1 }));
+      tube.rotation.x = Math.PI / 2;
+      tube.position.set(0, 2.15, -6);
+      entrance.add(tube);
+      this.scene.add(entrance);
+      this.lavaTube = entrance;
+      for (let segment = 0; segment < 8; segment += 1) {
+        const angle = segment * TAU / 8;
+        this.addSiteCollider(
+          new Box(new Vec3(0.58, 0.58, 5)),
+          tubeX + Math.cos(angle) * 1.8,
+          tubeY + 2.15 + Math.sin(angle) * 1.8,
+          tubeZ - 5.8
+        );
       }
+      const tubeLight = new PointLight(9615282, 0.45, 13, 2);
+      tubeLight.position.set(tubeX, tubeY + 2.4, tubeZ - 5.5);
+      this.scene.add(tubeLight);
+      const ventMaterial = new MeshStandardMaterial({ color: 3946804, roughness: 0.97, flatShading: true });
+      [[-20, -8], [19, -20], [-25, 22]].forEach(([x, z], index) => {
+        const height = 2.2 + index * 0.5;
+        const vent = new Mesh(new ConeGeometry(2.7 + index * 0.35, height, 7), ventMaterial);
+        vent.position.set(x, this.terrainHeight(x, z) + height / 2, z);
+        vent.castShadow = true;
+        this.scene.add(vent);
+        this.addSiteCollider(new Cylinder(0.1, 2.7 + index * 0.35, height, 7), x, vent.position.y, z);
+      });
     }
-    if (["death-valley", "atacama"].includes(this.stageSite?.id)) {
+    if (this.stageSite?.id === "death-valley") {
       this.desertAnimals = [];
       for (let index = 0; index < 3; index += 1) {
         const model = makeDesertAnimal(index);
@@ -39488,26 +41507,52 @@ var SpaceWorld = class {
         this.desertAnimals.push(animal);
       }
     }
-    if (this.stageSite?.id === "atacama") {
-      for (let i = 0; i < 7; i++) {
-        const angle = i * 0.9 + 0.4;
-        const r = 14 + seededValue(i + 77, 3) * 24;
-        const cx = Math.cos(angle) * r;
-        const cz = Math.sin(angle) * r;
-        const cactus = makeCactus(i);
-        cactus.position.set(cx, this.terrainHeight(cx, cz), cz);
-        this.scene.add(cactus);
+    if (["atacama", "death-valley"].includes(this.stageSite?.id)) {
+      const isAtacama = this.stageSite.id === "atacama";
+      const crustColor = isAtacama ? 11908005 : 13682867;
+      const patches = isAtacama ? [[14, -5, 8, 4], [-22, 18, 6, 4]] : [[-15, -7, 17, 10], [18, 6, 12, 8], [5, 27, 8, 5]];
+      patches.forEach(([x, z, width, depth], index) => {
+        this.addSiteSurfacePatch(x, z, width, depth, crustColor, { cracked: true, seed: index + 21, roughness: 0.96 });
+      });
+    }
+    if (["devon", "mcmurdo"].includes(this.stageSite?.id)) {
+      const isMcMurdo = this.stageSite.id === "mcmurdo";
+      const iceColor = isMcMurdo ? 10271944 : 11848656;
+      const glacier = isMcMurdo ? [-20, -17, 12, 4.5, 1.5] : [-25, -13, 9, 4, 1.2];
+      const glacierBody = new Mesh(
+        new SphereGeometry(1, 28, 14),
+        new MeshStandardMaterial({ color: iceColor, roughness: 0.66, metalness: 0.01 })
+      );
+      glacierBody.scale.set(glacier[2], glacier[4], glacier[3]);
+      glacierBody.rotation.y = -0.22;
+      glacierBody.position.set(glacier[0], this.terrainHeight(glacier[0], glacier[1]) + glacier[4] * 0.58, glacier[1]);
+      glacierBody.castShadow = true;
+      glacierBody.receiveShadow = true;
+      this.scene.add(glacierBody);
+      for (let segment = -1; segment <= 1; segment += 1) {
+        this.addSiteCollider(
+          new Box(new Vec3(glacier[2] * 0.34, glacier[4] * 0.48, glacier[3] * 0.52)),
+          glacier[0] + segment * glacier[2] * 0.56,
+          glacierBody.position.y,
+          glacier[1]
+        );
       }
-      this.atacamaWildlife = [
-        { kind: "fox", x: 18, z: -14 },
-        { kind: "fox", x: -22, z: 9 },
-        { kind: "cat", x: 7, z: 20 },
-        { kind: "cat", x: -10, z: -18 }
-      ].map((w, idx) => {
-        const model = makeArcticWildlife(w.kind);
-        model.position.set(w.x, this.terrainHeight(w.x, w.z), w.z);
-        this.scene.add(model);
-        return { ...w, model, phase: idx * 2.1, turnIn: 2 + idx * 0.8, fleeingUntil: 0 };
+      const lakes = isMcMurdo ? [[13, -5, 6, 4], [21, 14, 5, 3.5], [-4, 25, 4, 3]] : [[14, -13, 5, 3.5], [8, 16, 4, 3]];
+      lakes.forEach(([x, z, width, depth], index) => {
+        this.addSiteSurfacePatch(x, z, width, depth, isMcMurdo ? 6001061 : 7446186, {
+          opacity: 0.68,
+          roughness: 0.38,
+          heightOffset: 0.045,
+          seed: index + 51
+        });
+        const rim = new Mesh(
+          new TorusGeometry(1, 0.12, 5, 36),
+          new MeshStandardMaterial({ color: iceColor, roughness: 0.82, transparent: true, opacity: 0.76 })
+        );
+        rim.position.set(x, this.terrainHeight(x, z) + 0.16, z);
+        rim.rotation.x = Math.PI / 2;
+        rim.scale.set(width, depth, 1);
+        this.scene.add(rim);
       });
     }
     if (this.stageSite?.id === "devon") {
@@ -39524,12 +41569,12 @@ var SpaceWorld = class {
     }
   }
   updateSiteEnvironment(delta) {
-    const px = this.playerBody.position.x;
-    const pz = this.playerBody.position.z;
+    const px2 = this.playerBody.position.x;
+    const pz2 = this.playerBody.position.z;
     this.desertAnimals?.forEach((animal) => {
       const position = animal.model.position;
-      const dxP = position.x - px;
-      const dzP = position.z - pz;
+      const dxP = position.x - px2;
+      const dzP = position.z - pz2;
       const distP = Math.hypot(dxP, dzP);
       if (distP < 7.5) animal.fleeingUntil = this.elapsed + 3.8;
       const fleeing = this.elapsed < animal.fleeingUntil;
@@ -39557,8 +41602,8 @@ var SpaceWorld = class {
     const fleeWildlife = (list) => {
       list?.forEach((animal) => {
         const position = animal.model.position;
-        const dx = position.x - px;
-        const dz = position.z - pz;
+        const dx = position.x - px2;
+        const dz = position.z - pz2;
         const dist = Math.hypot(dx, dz);
         if (dist < 7.5) animal.fleeingUntil = this.elapsed + 3.8;
         const fleeing = this.elapsed < animal.fleeingUntil;
@@ -39597,8 +41642,10 @@ var SpaceWorld = class {
   }
   createSurfaceBaseCamp() {
     if (this.config.character === "alien") {
+      if (this.stageSite) return;
       const saucer = makeAlienFlyingSaucer();
-      const sX = -10, sZ = -12;
+      const sX = this.stageSite ? -42 : -10;
+      const sZ = this.stageSite ? -38 : -12;
       const sY = this.findLandingElevation(sX, sZ);
       saucer.position.set(sX, sY + 0.4, sZ);
       this.scene.add(saucer);
@@ -39699,11 +41746,13 @@ var SpaceWorld = class {
      Player (Astronaut / Alien) & Controls
      ----------------------------------------------------------------------- */
   createPlayer() {
-    const startY = this.terrainHeight(0, 0) + PLAYER_COLLIDER_HEIGHT + 0.08;
+    const startX = this.stageSite?.id === "meteor-crater" ? 1 : 0;
+    const startZ = this.stageSite?.id === "meteor-crater" ? -9 : 0;
+    const startY = this.terrainHeight(startX, startZ) + PLAYER_COLLIDER_HEIGHT + 0.08;
     this.playerBody = new Body({
       mass: 65,
       material: this.playerMaterial,
-      position: new Vec3(0, startY, 0),
+      position: new Vec3(startX, startY, startZ),
       linearDamping: 0.18,
       angularDamping: 1,
       allowSleep: false
@@ -39740,14 +41789,10 @@ var SpaceWorld = class {
         "assets/crew/crew-3.jpg",
         "assets/crew/crew-face-5.jpg"
       ] : [null, null, null, null];
-      const crewOffsets = [
-        { x: 0, z: 2.5 },
-        { x: -1.6, z: 4.5 },
-        { x: 1.6, z: 4.5 },
-        { x: 0, z: 6.5 }
-      ];
+      const crewOffsets = this.config.character === "alien" ? [{ x: -2.6, z: 4.2 }, { x: 2.6, z: 4.2 }, { x: -5.2, z: 7.6 }, { x: 5.2, z: 7.6 }] : [{ x: 0, z: 2.5 }, { x: -1.6, z: 4.5 }, { x: 1.6, z: 4.5 }, { x: 0, z: 6.5 }];
       crewFaces.forEach((faceUrl, idx) => {
         const crewModel = makeCharacter(this.config.character, 0, faceUrl);
+        if (this.config.character === "alien") crewModel.scale.setScalar(0.76);
         this.applySuitVisuals(crewModel);
         const initX = this.playerBody.position.x + crewOffsets[idx].x;
         const initZ = this.playerBody.position.z + crewOffsets[idx].z;
@@ -39963,6 +42008,23 @@ var SpaceWorld = class {
       this.samples.push(sample);
     });
   }
+  createScientificPoints() {
+    const records = this.stageSite?.science?.points || [];
+    const markerMaterial = new MeshStandardMaterial({ color: 8381147, emissive: 1400673, emissiveIntensity: 1.15, roughness: 0.4 });
+    records.forEach((record, index) => {
+      const marker = new Group();
+      const ring = new Mesh(new TorusGeometry(0.56, 0.09, 8, 24), markerMaterial);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.28;
+      marker.add(ring);
+      const beacon = new Mesh(new CylinderGeometry(0.035, 0.035, 1.7, 6), new MeshBasicMaterial({ color: 7660760, transparent: true, opacity: 0.45 }));
+      beacon.position.y = 1.1;
+      marker.add(beacon);
+      marker.position.set(record.x, this.terrainHeight(record.x, record.z), record.z);
+      this.scene.add(marker);
+      this.sciencePoints.push({ ...record, id: `${this.stageSite.id}-point-${index + 1}`, marker, visited: false });
+    });
+  }
   createRover() {
     const rover = makeDetailedRover(this.isMars);
     rover.position.set(3.8, this.terrainHeight(3.8, 2.2), 2.2);
@@ -39987,6 +42049,19 @@ var SpaceWorld = class {
       this.ensureAudio();
       this.toggleEarthNight();
     });
+    actions.prepend(button);
+  }
+  createFieldLogButton() {
+    if (!this.stageSite) return;
+    const actions = this.hud.querySelector(".game-hud-actions");
+    if (!actions) return;
+    const button = document.createElement("button");
+    button.className = "game-icon-control";
+    button.type = "button";
+    button.dataset.engineAction = "field-log";
+    button.setAttribute("aria-label", "\u0633\u062C\u0644 \u0627\u0644\u0645\u0644\u0627\u062D\u0638\u0627\u062A \u0627\u0644\u0639\u0644\u0645\u064A\u0629");
+    button.title = "\u0633\u062C\u0644 \u0627\u0644\u0645\u0644\u0627\u062D\u0638\u0627\u062A \u0627\u0644\u0639\u0644\u0645\u064A\u0629";
+    button.textContent = "\u25A4";
     actions.prepend(button);
   }
   createDust() {
@@ -40187,6 +42262,7 @@ var SpaceWorld = class {
       const button = event.target.closest("button");
       if (!button) return;
       this.ensureAudio();
+      if (button.dataset.sampleAnalysis) this.analyzeSample(button.dataset.sampleAnalysis);
       const engineAction = button.dataset.engineAction;
       const engineButton = button.dataset.engineButton;
       if (engineAction === "pause") this.togglePause();
@@ -40196,6 +42272,14 @@ var SpaceWorld = class {
       if (engineAction === "camera") this.toggleCameraMode();
       if (engineAction === "inventory") this.toggleInventory(true);
       if (engineAction === "inventory-close") this.toggleInventory(false);
+      if (engineAction === "field-log") {
+        const fieldLog = this.hud.querySelector("#game-field-log");
+        if (fieldLog) fieldLog.hidden = !fieldLog.hidden;
+      }
+      if (engineAction === "field-log-close") {
+        const fieldLog = this.hud.querySelector("#game-field-log");
+        if (fieldLog) fieldLog.hidden = true;
+      }
       if (engineAction === "equipment") this.toggleEquipmentPanel(true);
       if (engineAction === "equipment-close") this.toggleEquipmentPanel(false);
       if (button.dataset.equipmentUse) this.useEquipment(button.dataset.equipmentUse);
@@ -40366,11 +42450,11 @@ var SpaceWorld = class {
   nearestSample(maxDist = 12, collected = false) {
     let nearest = null;
     let minD = maxDist;
-    const px = this.playerBody.position.x;
-    const pz = this.playerBody.position.z;
+    const px2 = this.playerBody.position.x;
+    const pz2 = this.playerBody.position.z;
     this.samples.forEach((sample) => {
       if (Boolean(sample.collected) !== collected) return;
-      const d = Math.hypot(px - sample.x, pz - sample.z);
+      const d = Math.hypot(px2 - sample.x, pz2 - sample.z);
       if (d < minD) {
         minD = d;
         nearest = sample;
@@ -40616,11 +42700,19 @@ var SpaceWorld = class {
     list.innerHTML = collected.map((sample) => {
       const nameLabel = sample.name || sample.type;
       const sampleNumber = collectionOrder.get(sample.id) + 1;
-      if (this.isAlien) {
-        return `<div class="game-inventory-item"><span class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">\u0627\u0644\u0639\u064A\u0646\u0629 \u0631\u0642\u0645 ${sampleNumber} \xB7 ${sample.type || "\u0639\u064A\u0646\u0629 \u0627\u0641\u062A\u0631\u0627\u0636\u064A\u0629"}</small></span></div>`;
-      }
-      return `<div class="game-inventory-item"><span class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">\u0627\u0644\u0639\u064A\u0646\u0629 \u0631\u0642\u0645 ${sampleNumber} \xB7 ${sample.type || "\u0639\u064A\u0646\u0629 \u0627\u0641\u062A\u0631\u0627\u0636\u064A\u0629"}</small></span><span aria-hidden="true">\u2713</span></div>`;
+      const analyzed = this.progress.analyzedSamples.includes(sample.id);
+      return `<article class="game-inventory-item game-analyzer-item"><div class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">\u0627\u0644\u0639\u064A\u0646\u0629 \u0631\u0642\u0645 ${sampleNumber} \xB7 ${sample.type || "\u0639\u064A\u0646\u0629 \u0627\u0641\u062A\u0631\u0627\u0636\u064A\u0629"}</small></div><button type="button" class="game-analyze-button" data-sample-analysis="${sample.id}" ${analyzed ? "disabled" : ""}>${analyzed ? "\u062A\u0645 \u0627\u0644\u062A\u062D\u0644\u064A\u0644" : "\u062A\u062D\u0644\u064A\u0644 \u0627\u0644\u0639\u064A\u0646\u0629"}</button>${analyzed ? `<div class="game-analysis-result"><strong>\u0642\u0631\u0627\u0621\u0629 \u062A\u0639\u0644\u064A\u0645\u064A\u0629 \xB7 \u0644\u064A\u0633\u062A \u0646\u062A\u064A\u062C\u0629 \u0645\u062E\u062A\u0628\u0631\u064A\u0629</strong><p>${sample.analysis}</p><small>\u0645\u0648\u0627\u062F \u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u0645\u0631\u062C\u0639\u064A\u0629: ${this.stageSite?.science?.rocks || "\u0644\u0627 \u062A\u062A\u0648\u0641\u0631 \u0628\u064A\u0627\u0646\u0627\u062A \u062A\u0631\u0643\u064A\u0628 \u0645\u062D\u062F\u062F\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0648\u0642\u0639."}</small><small>${sample.limitations}</small><a href="${sample.source}" target="_blank" rel="noopener noreferrer">\u0641\u062A\u062D \u0627\u0644\u0645\u0631\u062C\u0639 \u2197</a></div>` : ""}</article>`;
     }).join("");
+  }
+  analyzeSample(sampleId) {
+    const sample = this.samples.find((item) => item.id === sampleId && item.collected);
+    if (!sample || this.progress.analyzedSamples.includes(sampleId)) return;
+    this.progress.analyzedSamples.push(sampleId);
+    this.progress.xp += 5;
+    this.syncProgress();
+    this._renderInventory();
+    this.toast(`\u0627\u0643\u062A\u0645\u0644 \u0627\u0644\u0641\u062D\u0635 \u0627\u0644\u062A\u0639\u0644\u064A\u0645\u064A: ${sample.name || sample.type}. \u0631\u0627\u062C\u0639 \u062D\u062F\u0648\u062F \u0627\u0644\u062A\u062D\u0644\u064A\u0644 \u0641\u064A \u0627\u0644\u062D\u0642\u064A\u0628\u0629.`);
+    this.playPing(860, 0.1);
   }
   resize() {
     if (!this.container.clientWidth || !this.container.clientHeight) return;
@@ -40814,7 +42906,8 @@ var SpaceWorld = class {
       this.camera.lookAt(player.x, player.y + 0.9, player.z);
       return;
     }
-    const distance = this.roverMode ? 8.2 : this.crewMembers?.length ? 9.4 : 5.8;
+    const crewDistance = this.siteProfile && this.config.character === "alien" ? 14 : 9.4;
+    const distance = this.roverMode ? 8.2 : this.crewMembers?.length ? crewDistance : this.siteProfile ? this.cameraDistance : 5.8;
     const targetHeight = this.roverMode ? 0.95 : 1.15;
     const pitchScale = Math.cos(this.cameraPitch);
     const target = new Vector3(player.x, player.y + targetHeight, player.z);
@@ -40856,7 +42949,7 @@ var SpaceWorld = class {
     const sprint = this.keys.has("ShiftLeft") || this.keys.has("ShiftRight");
     this.isRunning = inputLength > 0.08 || this.touchRun;
     const isSprint = (sprint || this.touchRun) && this.isRunning;
-    const speed = (isSprint ? this.look.run : this.look.walk) * (this.roverMode ? 1.85 : 1);
+    const speed = (isSprint ? this.look.run : this.look.walk) * (this.roverMode ? 1.85 : 1) * this.siteMovementFactor;
     const grounded = this.isGrounded();
     const acceleration = this.isRunning ? this.look.acceleration : this.look.braking;
     const control = grounded ? 1 : this.isEarth ? 0.95 : this.look.airControl;
@@ -40988,6 +43081,25 @@ var SpaceWorld = class {
       }
     });
     if (newlyDiscovered) this.syncProgress();
+    const nearestPoint = this.sciencePoints.map((point) => ({ point, distance: Math.hypot(this.playerBody.position.x - point.x, this.playerBody.position.z - point.z) })).filter((item) => item.distance < 7).sort((left, right) => left.distance - right.distance)[0]?.point;
+    const scienceCard = this.hud.querySelector("#game-science-point");
+    if (scienceCard && nearestPoint) {
+      scienceCard.hidden = false;
+      setText(this.hud, "#game-science-point-title", nearestPoint.title);
+      setText(this.hud, "#game-science-point-text", nearestPoint.text);
+      if (!nearestPoint.visited) {
+        nearestPoint.visited = true;
+        if (!this.progress.discoveredPoints.includes(nearestPoint.id)) {
+          this.progress.discoveredPoints.push(nearestPoint.id);
+        }
+        if (this.stageSite && !this.progress.readSites.includes(this.stageSite.id)) {
+          this.progress.readSites.push(this.stageSite.id);
+        }
+        this.syncProgress();
+      }
+    } else if (scienceCard) {
+      scienceCard.hidden = true;
+    }
     const uncollected = this.nearestSample(8);
     const collected = this.nearestSample(8, true);
     const nearest = uncollected || collected;
@@ -41120,6 +43232,8 @@ var SpaceWorld = class {
     if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
     clearTimeout(this.toastTimeout);
     this.baseCampBodies?.forEach((b2) => this.physics?.removeBody(b2));
+    this.rockBodies?.forEach((body) => this.physics?.removeBody(body));
+    this.siteBodies?.forEach((body) => this.physics?.removeBody(body));
     this.crewMembers?.forEach((c2) => this.scene?.remove(c2.model));
     this.audioContext?.close?.();
     this.planetStrip?.dispose();
@@ -41179,42 +43293,6 @@ function makeAlienFlyingSaucer() {
     if (o.isMesh) o.castShadow = true;
   });
   return ufo;
-}
-function makeCactus(seed) {
-  const cactus = new Group();
-  const green = new MeshStandardMaterial({ color: 3832376, roughness: 0.88 });
-  const spine = new MeshStandardMaterial({ color: 15259808, roughness: 0.9 });
-  const height = 1.8 + seededValue(seed, 2) * 2.2;
-  const trunk = new Mesh(new CylinderGeometry(0.18, 0.24, height, 8), green);
-  trunk.position.y = height / 2;
-  trunk.castShadow = true;
-  cactus.add(trunk);
-  const armCount = 2 + Math.floor(seededValue(seed, 5) * 2);
-  for (let a2 = 0; a2 < armCount; a2++) {
-    const armAngle = seededValue(seed + a2, 9) * TAU;
-    const armH = 0.55 + seededValue(seed + a2, 11) * 0.65;
-    const armLen = 0.7 + seededValue(seed + a2, 7) * 0.9;
-    const armGroup = new Group();
-    armGroup.position.set(Math.cos(armAngle) * 0.17, height * (0.35 + seededValue(seed + a2, 3) * 0.4), Math.sin(armAngle) * 0.17);
-    const horiz = new Mesh(new CylinderGeometry(0.1, 0.13, armLen, 7), green);
-    horiz.rotation.z = Math.PI / 2;
-    horiz.position.x = Math.cos(armAngle) * armLen * 0.5;
-    horiz.position.z = Math.sin(armAngle) * armLen * 0.5;
-    armGroup.add(horiz);
-    const vert = new Mesh(new CylinderGeometry(0.09, 0.11, armH, 7), green);
-    vert.position.set(Math.cos(armAngle) * armLen, armH / 2, Math.sin(armAngle) * armLen);
-    vert.castShadow = true;
-    armGroup.add(vert);
-    cactus.add(armGroup);
-  }
-  for (let s = 0; s < 6; s++) {
-    const sp = new Mesh(new CylinderGeometry(0.012, 0.012, 0.18, 4), spine);
-    const sa = seededValue(seed + s, 13) * TAU;
-    sp.position.set(Math.cos(sa) * 0.22, height * (0.2 + seededValue(seed + s, 17) * 0.7), Math.sin(sa) * 0.22);
-    sp.rotation.z = Math.PI / 2 + seededValue(seed + s, 19) * 0.8;
-    cactus.add(sp);
-  }
-  return cactus;
 }
 function makeSurfaceLandingPad(isMoon) {
   const pad = new Group();

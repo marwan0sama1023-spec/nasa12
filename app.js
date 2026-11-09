@@ -1804,7 +1804,6 @@ function render() {
   if (kind === "home") mountMap("home-map", sites, { zoom: 2, fitAll: true });
   if (site) mountMap("detail-map", [site], { zoom: 7, center: [site.lat, site.lon] });
   if (kind === "game") startSpaceGameScene();
-  if (kind === "home") startMarsGlobe();
   pageRoot.querySelectorAll('[data-action="speak-site"]').forEach(button => {
     button.hidden = !("speechSynthesis" in window) || typeof window.SpeechSynthesisUtterance !== "function";
   });
@@ -2485,6 +2484,7 @@ app.addEventListener("click", event => {
   if (!scene || scene.dataset.foreground === planet.dataset.planet) return;
   scene.dataset.foreground = planet.dataset.planet;
   scene.querySelectorAll("[data-planet]").forEach(button => button.setAttribute("aria-pressed", String(button === planet)));
+  if (planet.dataset.planet === "mars") startMarsGlobe();
 });
 document.getElementById("guide-form").addEventListener("submit", event => {
   event.preventDefault();

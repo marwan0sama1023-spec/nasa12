@@ -1202,11 +1202,14 @@ p {
   left: -50%;
   width: 200%;
   height: 100%;
-  background: url("assets/mars-global-marci.jpg") left center / 50% 100% repeat-x;
   opacity: 0.42;
   mix-blend-mode: screen;
   animation: mars-surface-rotation 60s linear infinite;
   pointer-events: none;
+}
+
+.hero-system-scene[data-foreground="mars"] .mars-global-texture {
+  background: url("assets/mars-global-marci.jpg") left center / 50% 100% repeat-x;
 }
 
 .mars-atmosphere {
@@ -4532,7 +4535,7 @@ body.team-view-active .team-project-panel {
 .promo-orbit-two { width: 420px; height: 188px; left: 18%; top: 6%; transform: rotate(15deg); border-color: rgba(255, 153, 117, 0.12); }
 .promo-planet { position: absolute; width: 70px; aspect-ratio: 1; top: 16%; left: 35%; border-radius: 50%; box-shadow: inset -13px -5px 16px rgba(0,0,0,0.65), 0 0 24px rgba(70,190,225,0.16); }
 .promo-moon { width: 32px; left: 22%; top: 56%; background: radial-gradient(circle at 35% 30%, #e7edf0, #a1abb6 60%, #505967); }
-.promo-mars { left: 55%; top: 63%; background: #b65138 url("assets/mars-global-marci.jpg") center / cover; box-shadow: inset -12px -5px 16px rgba(0,0,0,0.7), 0 0 24px rgba(255,108,71,0.2); }
+.promo-mars { left: 55%; top: 63%; background: radial-gradient(circle at 32% 28%, #e59a74, #b65138 46%, #54251f 82%); box-shadow: inset -12px -5px 16px rgba(0,0,0,0.7), 0 0 24px rgba(255,108,71,0.2); }
 .promo-comet { position: absolute; top: 20%; left: 65%; color: #e5fbff; font-size: 17px; animation: game-signal-pulse 2.8s ease-in-out infinite; }
 .space-game-promo-character { position: relative; z-index: 2; display: grid; justify-items: center; align-content: center; gap: 7px; }
 .space-game-promo-character span { font-size: 74px; line-height: 1; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35)); animation: game-character-float 4s ease-in-out infinite; }

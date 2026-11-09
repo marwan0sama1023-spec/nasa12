@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <defs>
+    <linearGradient id="radio" x1="56" y1="35" x2="108" y2="103" gradientUnits="userSpaceOnUse"><stop stop-color="#c6d8df"/><stop offset="1" stop-color="#536d79"/></linearGradient>
+  </defs>
+  <path d="m62 28 17-18" stroke="#e3f2f5" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="80" cy="10" r="5" fill="#55d9e5"/>
+  <rect x="46" y="29" width="69" height="76" rx="12" fill="url(#radio)" stroke="#eff8fa" stroke-width="3"/>
+  <rect x="58" y="41" width="44" height="24" rx="5" fill="#10212b" stroke="#72dce3" stroke-width="2"/>
+  <path d="M64 54h19m5 0h8" stroke="#70f0df" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="69" cy="82" r="9" fill="#152a36" stroke="#e4f0f3" stroke-width="3"/>
+  <path d="M69 82v-6" stroke="#ffcc7b" stroke-width="3" stroke-linecap="round"/>
+  <path d="M89 75h14m-14 9h14m-14 9h14" stroke="#243a45" stroke-width="3" stroke-linecap="round"/>
+  <path d="M117 49q14 10 0 20M124 42q24 17 0 34" stroke="#48d5dd" stroke-width="3" stroke-linecap="round"/>
+</svg>

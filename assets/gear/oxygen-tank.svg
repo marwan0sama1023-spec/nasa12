@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <defs>
+    <linearGradient id="tank" x1="45" y1="20" x2="104" y2="102" gradientUnits="userSpaceOnUse"><stop stop-color="#d9e8ef"/><stop offset=".48" stop-color="#718895"/><stop offset="1" stop-color="#354b59"/></linearGradient>
+    <linearGradient id="glass" x1="72" y1="38" x2="92" y2="70" gradientUnits="userSpaceOnUse"><stop stop-color="#7be7ee"/><stop offset="1" stop-color="#0889a5"/></linearGradient>
+  </defs>
+  <path d="M55 22h48a15 15 0 0 1 15 15v55a18 18 0 0 1-18 18H58a18 18 0 0 1-18-18V37a15 15 0 0 1 15-15Z" fill="url(#tank)" stroke="#e8f4f8" stroke-width="3"/>
+  <path d="M64 13h30v10H64zM70 5h18v9H70z" fill="#d9e8ef" stroke="#516571" stroke-width="2"/>
+  <path d="M47 42h64M47 87h64" stroke="#233744" stroke-width="5"/>
+  <circle cx="80" cy="63" r="17" fill="#10212b" stroke="#d6e5ea" stroke-width="3"/>
+  <path d="M80 63 91 53" stroke="#7be7ee" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="80" cy="63" r="3" fill="#f2fafb"/>
+  <path d="M42 43H30v41h12M118 43h12v41h-12" stroke="#c5d5db" stroke-width="5" stroke-linecap="round"/>
+  <path d="m63 99 17 10 17-10" stroke="#1c7487" stroke-width="4" stroke-linecap="round"/>
+</svg>

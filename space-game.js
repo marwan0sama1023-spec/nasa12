@@ -2,6 +2,7 @@ import * as THREE from "./node_modules/three/build/three.module.js";
 import * as CANNON from "./node_modules/cannon-es/dist/cannon-es.js";
 
 const TAU = Math.PI * 2;
+const OXYGEN_LIMIT_SECONDS = 120;
 const WORLD_RADIUS = 82;
 const SURFACE_PLANET_RADIUS = 460;
 const PLAYER_RADIUS = 0.46;
@@ -403,6 +404,14 @@ class SpaceWorld {
     this.suit = config.suit || null;
     this.spacecraft = config.spacecraft || null;
     this.equipment = Array.isArray(config.equipment) ? [...config.equipment] : [];
+    this.health = 100;
+    this.medKitUsed = false;
+    this.maxFallSpeed = 0;
+    this.thermalShieldUntil = 0;
+    this.dustFilterUntil = 0;
+    this.commsPulseUntil = 0;
+    this.lastHazardWindow = -1;
+    this.equipmentPanelWasPaused = false;
     this.sampleDefinitions = Array.isArray(config.samples) ? config.samples : [];
     this.sampleGoal = this.sampleDefinitions.length;
     this.sampleMissionId = this.stageSite ? `site-stage-${this.stageSite.id}` : `sample-trio-${config.missionKey || config.world}`;
@@ -459,7 +468,7 @@ class SpaceWorld {
     const resumeState = config.progress.resumeState;
     this.timeLimit = Number.isFinite(resumeState?.timeLimit) ? THREE.MathUtils.clamp(resumeState.timeLimit, 0, 180) : 180;
     this.timedOut = this.timeLimit <= 0;
-    this.oxygenLimit = 120; // 2 minutes oxygen
+    this.oxygenLimit = OXYGEN_LIMIT_SECONDS;
     this.oxygenDepleted = false;
     this.progress = {
       xp: Number(config.progress.xp) || 0,
@@ -2335,9 +2344,9 @@ class SpaceWorld {
     this.lastControlToggleAt = 0;
     this.onKeyDown = event => {
       if (event.target instanceof Element && event.target.matches("input, select, textarea, button, a, [contenteditable='true']")) return;
-      const handled = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight", "KeyE", "KeyR", "KeyV", "KeyC", "Escape", "ControlLeft", "ControlRight"];
+      const handled = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight", "KeyE", "KeyR", "KeyV", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"];
       if (handled.includes(event.code)) event.preventDefault();
-      if (event.repeat && ["KeyE", "KeyR", "KeyV", "KeyC", "Escape", "ControlLeft", "ControlRight"].includes(event.code)) return;
+      if (event.repeat && ["KeyE", "KeyR", "KeyV", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"].includes(event.code)) return;
       
       if (event.code === "ControlLeft" || event.code === "ControlRight") {
         const now = performance.now();
@@ -2353,6 +2362,7 @@ class SpaceWorld {
       if (event.code === "KeyR") this.toggleInventory();
       if (event.code === "KeyV") this.toggleRover();
       if (event.code === "KeyC") this.toggleCameraMode();
+      if (event.code === "KeyG") this.toggleEquipmentPanel();
       if (event.code === "Escape" && !document.pointerLockElement) this.togglePause();
     };
 
@@ -2524,11 +2534,15 @@ class SpaceWorld {
       if (engineAction === "camera") this.toggleCameraMode();
       if (engineAction === "inventory") this.toggleInventory(true);
       if (engineAction === "inventory-close") this.toggleInventory(false);
+      if (engineAction === "equipment") this.toggleEquipmentPanel(true);
+      if (engineAction === "equipment-close") this.toggleEquipmentPanel(false);
+      if (button.dataset.equipmentUse) this.useEquipment(button.dataset.equipmentUse);
       if (engineButton === "jump") this.jump();
       if (engineButton === "run") { this.touchRun = !this.touchRun; button.classList.toggle("is-active", this.touchRun); }
       if (engineButton === "interact") this.interact();
       if (engineButton === "camera") this.toggleCameraMode();
       if (engineButton === "inventory") this.toggleInventory(true);
+      if (engineButton === "equipment") this.toggleEquipmentPanel();
       if (engineButton === "rover") this.toggleRover();
     });
 
@@ -2760,6 +2774,111 @@ class SpaceWorld {
     }
   }
 
+  toggleEquipmentPanel(force) {
+    const panel = this.hud.querySelector("#game-equipment-panel");
+    if (!panel) return;
+    const open = typeof force === "boolean" ? force : panel.hidden;
+    panel.hidden = !open;
+    if (open) {
+      this.equipmentPanelWasPaused = !this.paused;
+      this.paused = true;
+      if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
+    } else if (this.equipmentPanelWasPaused) {
+      this.equipmentPanelWasPaused = false;
+      this.paused = false;
+    }
+  }
+
+  useEquipment(itemId) {
+    if (!this.equipment.includes(itemId)) {
+      this.toast("هذه القطعة غير موجودة في عتاد رحلتك.");
+      return;
+    }
+    if (itemId === "thermal-layer") {
+      this.thermalShieldUntil = this.elapsed + 15;
+      this.toast("تم تشغيل الحماية الحرارية لمدة 15 ثانية.");
+    } else if (itemId === "dust-filter") {
+      this.dustFilterUntil = this.elapsed + 15;
+      this.toast("تم تنشيط مرشح الغبار؛ الرؤية محمية لمدة 15 ثانية.");
+    } else if (itemId === "comms-unit") {
+      this.commsPulseUntil = this.elapsed + 8;
+      const target = this.nearestSample(500, this.worldCollectedCount() >= this.sampleGoal);
+      this.updateBeacon(1 / 60);
+      const distance = target ? Math.round(Math.hypot(target.x - this.playerBody.position.x, target.z - this.playerBody.position.z)) : null;
+      this.toast(distance === null ? "تم إرسال تقرير الموقع إلى مركز التحكم." : `تم إرسال الإشارة؛ اتبع المنارة إلى أقرب عينة على بعد ${distance} متر.`);
+      this.playPing(640, 0.18);
+    } else if (itemId === "med-kit") {
+      if (this.medKitUsed) {
+        this.toast("استخدمت حقيبة الإسعاف في هذه المهمة.");
+        return;
+      }
+      if (this.health >= 100) {
+        this.toast("سلامتك كاملة؛ احتفظ بحقيبة الإسعاف لحين الحاجة.");
+        return;
+      }
+      this.health = Math.min(100, this.health + 40);
+      this.medKitUsed = true;
+      this.updateHealthHud();
+      this.toast("تم تضميد الإصابة واستعادة 40 نقطة سلامة.");
+    }
+    this.updateHealthHud();
+  }
+
+  updateHealthHud() {
+    const fill = this.hud.querySelector("#game-health-fill");
+    if (fill) fill.style.width = `${Math.max(0, this.health)}%`;
+    setText(this.hud, "#game-health-value", `${Math.ceil(this.health)}%`);
+    const medKit = this.hud.querySelector('[data-equipment-use="med-kit"]');
+    if (medKit) {
+      medKit.disabled = this.medKitUsed || this.health >= 100;
+      medKit.textContent = this.medKitUsed ? "استُخدم" : this.health >= 100 ? "لا حاجة الآن" : "استخدام الإسعاف";
+    }
+  }
+
+  applyHealthDamage(amount, reason) {
+    if (this.config.character !== "astronaut" || amount <= 0 || this.health <= 0) return;
+    this.health = Math.max(0, this.health - amount);
+    this.updateHealthHud();
+    if (this.health <= 0) this.showGameOver("إصابة حرجة", reason);
+    else if (reason) this.toast(reason);
+  }
+
+  handleLandingImpact() {
+    const impactSpeed = this.maxFallSpeed;
+    this.maxFallSpeed = 0;
+    if (this.config.character !== "astronaut" || impactSpeed < 5) return;
+    const damage = Math.min(35, Math.ceil((impactSpeed - 4.5) * 8));
+    this.applyHealthDamage(damage, "هبوط قوي؛ استخدم حقيبة الإسعاف عند الحاجة.");
+  }
+
+  updateEquipmentHazards(delta) {
+    if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world)) return;
+    const phase = this.elapsed % 36;
+    const hazardStart = 24;
+    const hazardEnd = 32;
+    const inWarning = phase >= 20 && phase < hazardStart;
+    const inHazard = phase >= hazardStart && phase < hazardEnd;
+    const hazardWindow = Math.floor(this.elapsed / 36);
+    const isMoon = this.config.world === "moon";
+    const shielded = (isMoon ? this.thermalShieldUntil : this.dustFilterUntil) > this.elapsed;
+    const alert = this.hud.querySelector("#game-environment-alert");
+
+    if (inWarning && this.lastHazardWindow !== hazardWindow) {
+      this.lastHazardWindow = hazardWindow;
+      this.toast(isMoon ? "تحذير: موجة حرارية قادمة. جهّز الطبقة الحرارية." : "تحذير: عاصفة غبار قادمة. جهّز المرشح.");
+    }
+    if (alert) {
+      alert.hidden = !(inWarning || inHazard);
+      alert.textContent = isMoon
+        ? inHazard ? shielded ? "الحماية الحرارية تعمل" : "إجهاد حراري: فعّل الطبقة الحرارية" : "استعد لموجة حرارية"
+        : inHazard ? shielded ? "مرشح الغبار يعمل" : "غبار كثيف: فعّل المرشح" : "استعد لعاصفة غبار";
+      alert.classList.toggle("is-protected", shielded);
+    }
+    if (inHazard && !shielded && !this.paused) this.applyHealthDamage(delta * 1.5, null);
+    if (this.isMars && this.scene.fog?.isFogExp2) this.scene.fog.density = inHazard && !shielded ? 0.008 : 0.0035;
+    this.updateHealthHud();
+  }
+
   worldCollectedCount() {
     return this.samples.filter(s => s.collected).length;
   }
@@ -2810,9 +2929,10 @@ class SpaceWorld {
       if (this.config.character === "astronaut") {
         setText(this.hud, "#game-oxygen-time", `${String(Math.floor(this.oxygenLimit / 60)).padStart(2, "0")}:${String(Math.ceil(this.oxygenLimit) % 60).padStart(2, "0")}`);
         const fill = this.hud.querySelector("#game-oxygen-fill");
-        if (fill) fill.style.width = `${Math.max(0, (this.oxygenLimit / 120) * 100)}%`;
+        if (fill) fill.style.width = `${Math.max(0, (this.oxygenLimit / OXYGEN_LIMIT_SECONDS) * 100)}%`;
       }
     }
+    this.updateHealthHud();
 
     if (this.stageSite) {
       setText(this.hud, "#game-mission-title", complete ? "اكتملت العينات ✦ أحسنت!" : `اجمع ${this.sampleGoal} عينات علمية`);
@@ -2919,6 +3039,8 @@ class SpaceWorld {
 
     if (!this.paused) {
       this.elapsed += delta;
+      const wasGrounded = this.isGrounded();
+      if (!wasGrounded && this.playerBody.velocity.y < 0) this.maxFallSpeed = Math.max(this.maxFallSpeed, -this.playerBody.velocity.y);
       this.movePlayer(delta);
       this.physics.step(1 / 60, delta, 4);
 
@@ -2933,6 +3055,7 @@ class SpaceWorld {
           this.playerBody.velocity.y = 0;
         }
       }
+      if (!wasGrounded && this.isGrounded()) this.handleLandingImpact();
       const maxBound = WORLD_RADIUS - 3;
       this.playerBody.position.x = THREE.MathUtils.clamp(this.playerBody.position.x, -maxBound, maxBound);
       this.playerBody.position.z = THREE.MathUtils.clamp(this.playerBody.position.z, -maxBound, maxBound);
@@ -2959,6 +3082,7 @@ class SpaceWorld {
       this.updateFootprints();
       this.updateMissionClock(delta);
       this.updateOxygen(delta);
+      this.updateEquipmentHazards(delta);
       this.updateBeacon(delta);
       this.updateMeteors(delta);
     }
@@ -3371,21 +3495,19 @@ class SpaceWorld {
   }
 
   updateOxygen(delta) {
-    if (this.config.character !== "astronaut" || this.oxygenDepleted || this.paused) return;
+    if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world) || this.oxygenDepleted || this.paused) return;
     this.oxygenLimit -= delta;
     const seconds = Math.max(0, Math.ceil(this.oxygenLimit));
     const fill = this.hud.querySelector("#game-oxygen-fill");
     const timeText = this.hud.querySelector("#game-oxygen-time");
     const meter = this.hud.querySelector(".game-oxygen-meter");
-    if (fill) fill.style.width = `${Math.max(0, (seconds / 120) * 100)}%`;
+    if (fill) fill.style.width = `${Math.max(0, (seconds / OXYGEN_LIMIT_SECONDS) * 100)}%`;
     if (timeText) timeText.textContent = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
     if (meter) meter.classList.toggle("is-urgent", seconds < 30);
     if (seconds === 0) {
       this.oxygenDepleted = true;
       this.paused = true;
-      if (!this.isSampleMissionComplete()) {
-        this.showGameOver("نفد الأكسجين", "انتهت المهمة قبل جمع العينات الكافية.");
-      }
+      this.showGameOver("نفد الأكسجين", "انتهت المهمة لأن الأكسجين نفد بعد دقيقتين.");
     }
   }
 

@@ -111,6 +111,13 @@ const nasaSourcePages = {
   "death-valley": { id: "PIA26197", title: "Badwater, Death Valley", url: "https://images.nasa.gov/details/PIA26197" },
   mcmurdo: { id: "PIA12461", title: "Dry Valleys, Antarctica", url: "https://images.nasa.gov/details/PIA12461" }
 };
+const equipmentCatalog = {
+  "oxygen-tank": { name: "خزان أكسجين", image: "assets/gear/oxygen-tank.svg", effect: "إمداد أكسجين لرحلة مدتها دقيقتان؛ العداد يعمل تلقائيًا.", actionLabel: "يعمل تلقائيًا", action: null },
+  "thermal-layer": { name: "طبقة حرارية", image: "assets/gear/thermal-layer.svg", effect: "تحمي من موجات البرودة والحرارة على القمر عند تفعيلها.", actionLabel: "تشغيل الحماية", action: "thermal-layer" },
+  "dust-filter": { name: "مرشح الغبار", image: "assets/gear/dust-filter.svg", effect: "يقلل عتامة عاصفة الغبار وضررها على المريخ.", actionLabel: "تنشيط المرشح", action: "dust-filter" },
+  "comms-unit": { name: "وحدة اتصال", image: "assets/gear/comms-unit.svg", effect: "ترسل نداءً وتعرض اتجاه أقرب عينة والمسافة إليها.", actionLabel: "إرسال نداء", action: "comms-unit" },
+  "med-kit": { name: "حقيبة إسعاف", image: "assets/gear/med-kit.svg", effect: "تعالج إصابات الهبوط وتستعيد 40 نقطة سلامة مرة واحدة.", actionLabel: "استخدام الإسعاف", action: "med-kit" }
+};
 const teamMembers = [{ name: "Marwan Osama Mohamed", leader: true }, "Alaa Ramadan", "Martina mounir labib", "Menna Ahmed", "Haneen Khairy Ezzedine"];
 
 const siteDescriptions = {
@@ -223,7 +230,7 @@ function loadSpaceGame() {
     selectedSite: knownSites.has(saved.selectedSite) ? saved.selectedSite : null,
     suit: ["moon-suit", "mars-suit"].includes(saved.suit) ? saved.suit : null,
     spacecraft: ["lunar-lander", "mars-lander"].includes(saved.spacecraft) ? saved.spacecraft : null,
-    equipment: Array.isArray(saved.equipment) ? saved.equipment.filter(id => ["oxygen-tank", "tool-kit", "med-kit", "sample-bag", "comms-unit", "thermal-suit"].includes(id)) : [],
+    equipment: Array.isArray(saved.equipment) ? saved.equipment.filter(id => ["oxygen-tank", "thermal-layer", "dust-filter", "tool-kit", "med-kit", "sample-bag", "comms-unit", "thermal-suit"].includes(id)) : [],
     discovered: Array.isArray(saved.discovered) ? saved.discovered.filter(id => knownSites.has(id)) : [],
     readSites: Array.isArray(saved.readSites) ? saved.readSites.filter(id => knownSites.has(id)) : [],
     discoveredSamples: Array.isArray(saved.discoveredSamples) ? saved.discoveredSamples.filter(id => /^(earth|moon|mars):/.test(id)) : [],
@@ -791,8 +798,8 @@ function spaceGearSummaryScreen() {
     : `<div class="game-gear-visual-wrap"><div class="game-gear-visual craft-visual mars-land-visual"><div class="craft-capsule"></div><div class="craft-shield"></div><div class="craft-parachute"></div><div class="craft-glow"></div></div></div>`;
 
   const equipmentVisuals = gear.equipment.map(e => {
-    const visualClass = e.id === "oxygen-tank" ? "eq-oxygen" : e.id === "thermal-layer" ? "eq-thermal" : e.id === "dust-filter" ? "eq-dust" : e.id === "comms-unit" ? "eq-comms" : "eq-med";
-    return `<div class="game-gear-equip-item"><div class="game-gear-equip-visual ${visualClass}"></div><div class="game-gear-equip-label">${escapeHtml(e.name)}</div></div>`;
+    const equipment = equipmentCatalog[e.id];
+    return `<article class="game-gear-item"><img class="game-gear-item-image" src="${equipment.image}" alt="${escapeHtml(e.name)}" width="120" height="88"><div class="game-gear-item-copy"><strong>${escapeHtml(e.name)}</strong><p>${escapeHtml(e.desc)}</p><small>${escapeHtml(equipment.effect)}</small></div></article>`;
   }).join("");
 
   return `<div class="game-screen game-gear-screen">
@@ -818,17 +825,51 @@ function spaceGearSummaryScreen() {
       </div>
 
       <div class="game-gear-card game-gear-equipment">
-        <div class="game-gear-equipment-visuals">${equipmentVisuals}</div>
         <div class="game-gear-copy">
-          <strong>العتاد الإلزامي</strong>
-          <div class="game-gear-type">معدات داخلية وخارجية</div>
-          <ul class="game-gear-props">${gear.equipment.map(e => `<li><span class="game-gear-equip-icon">${e.icon}</span> <strong>${escapeHtml(e.name)}</strong> - ${escapeHtml(e.desc)}</li>`).join("")}</ul>
+          <strong>معدات المهمة</strong>
+          <div class="game-gear-type">كل قطعة مرتبطة بوظيفة داخل العالم</div>
         </div>
+        <div class="game-gear-equipment-grid">${equipmentVisuals}</div>
       </div>
     </div>
 
     <button class="button primary glow-btn" type="button" data-game-action="start-mission">ابدأ الاستكشاف الآن</button>
   </div>`;
+}
+function gameEquipmentPanelMarkup() {
+  const items = spaceGame.equipment.map(id => {
+    const equipment = equipmentCatalog[id];
+    if (!equipment) return "";
+    const button = equipment.action
+      ? `<button type="button" class="game-equipment-use" data-equipment-use="${id}">${equipment.actionLabel}</button>`
+      : `<span class="game-equipment-passive">${equipment.actionLabel}</span>`;
+    return `<article class="game-equipment-use-card" data-equipment-id="${id}"><img src="${equipment.image}" alt="" width="72" height="56"><div><strong>${equipment.name}</strong><small>${equipment.effect}</small></div>${button}</article>`;
+  }).join("");
+  return `<section class="game-equipment-panel" id="game-equipment-panel" aria-label="معدات الرحلة" hidden><header><div><span class="game-step">عتاد الرائد</span><h2>استخدام المعدات</h2></div><button type="button" class="game-settings-close" data-engine-action="equipment-close" aria-label="إغلاق المعدات">×</button></header><div class="game-equipment-use-grid">${items}</div><p class="game-equipment-status" id="game-equipment-status" aria-live="polite">اختر أداة لاستخدامها داخل المهمة.</p></section>`;
+}
+function gameCrewRosterMarkup() {
+  const members = teamMembers.map(member => {
+    const isLeader = typeof member === "object" && member.leader;
+    const name = isLeader ? member.name : member;
+    const initials = name.split(/\s+/).slice(0, 2).map(part => part[0]).join("");
+    return `<li class="game-crew-member${isLeader ? " is-leader" : ""}"><span class="game-crew-avatar">${escapeHtml(initials)}</span><span class="game-crew-name" lang="en" dir="ltr">${escapeHtml(name)}</span><span class="game-crew-mark" aria-label="${isLeader ? "قائد الفريق" : "عضو الطاقم"}">${isLeader ? "★" : "•"}</span></li>`;
+  }).join("");
+  return `<aside class="game-crew-roster" aria-label="طاقم المهمة"><header><span>طاقم المهمة</span><small>05 / 05</small></header><ol>${members}</ol></aside>`;
+}
+function mountGameEquipmentControls(container) {
+  if (spaceGame.character !== "astronaut") return;
+  const shell = container.closest(".game-world-shell");
+  if (!shell) return;
+  if (!shell.querySelector(".game-crew-roster")) {
+    shell.insertAdjacentHTML("beforeend", gameCrewRosterMarkup());
+    shell.classList.add("has-game-crew");
+  }
+  if (spaceGame.equipment.length && !shell.querySelector("#game-equipment-panel")) shell.insertAdjacentHTML("beforeend", gameEquipmentPanelMarkup());
+  if (!spaceGame.equipment.length) return;
+  if (!shell.querySelector(".game-health-meter")) shell.querySelector(".game-hud-bottom")?.insertAdjacentHTML("beforeend", `<div class="game-health-meter" aria-label="سلامة البدلة"><span aria-hidden="true">♥</span><div><small>سلامة البدلة</small><strong id="game-health-value">100%</strong><div class="game-health-bar"><span id="game-health-fill"></span></div></div></div>`);
+  if (!shell.querySelector("#game-environment-alert")) shell.insertAdjacentHTML("beforeend", `<div class="game-environment-alert" id="game-environment-alert" role="status" aria-live="polite" hidden></div>`);
+  if (!shell.querySelector('[data-engine-action="equipment"]')) shell.querySelector(".game-hud-actions")?.insertAdjacentHTML("beforeend", `<button class="game-icon-control" type="button" data-engine-action="equipment" aria-label="معدات الرحلة" title="استخدام معدات الرحلة">🧰</button>`);
+  if (!shell.querySelector('[data-engine-button="equipment"]')) shell.querySelector(".game-action-buttons")?.insertAdjacentHTML("beforeend", `<button type="button" data-engine-button="equipment" aria-label="معدات الرحلة">🧰<small>معدات</small></button>`);
 }
 function getActiveGameWorld() {
   if (!spaceGame.destination) return null;
@@ -975,6 +1016,7 @@ async function startSpaceGameScene() {
   if (!gamePresentation.active || !spaceGame.character || !spaceGame.destination || gamePresentation.resumeChoice) return;
   const container = document.getElementById("game-canvas-host");
   if (!container) return;
+  mountGameEquipmentControls(container);
   try {
     spaceGameEngine ||= await import("./vendor/space-game.js");
     if (!container.isConnected || route().split("/")[0] !== "game") return;
@@ -1275,10 +1317,16 @@ async function startGamePresentation(mode = "new") {
   const layer = document.createElement("div");
   layer.id = "game-launch-layer";
   layer.innerHTML = `<div class="game-launch-content"></div><div class="game-countdown" role="status" aria-live="assertive"><div class="game-countdown-orbit" aria-hidden="true"><i></i><i></i><i></i></div><p>جارٍ تجهيز مركبة الاستكشاف...</p><strong id="game-countdown-number">3</strong><small id="game-loading-status" hidden>جارٍ تجهيز العالم ثلاثي الأبعاد...</small></div><div class="game-orientation-gate" role="status" aria-live="polite"><div><span aria-hidden="true">▯</span><strong>أدر الهاتف أفقيًا</strong><p>لن يبدأ اللعب حتى تدوير الجهاز إلى الوضع الأفقي.</p><button class="game-menu-secondary" type="button" data-game-exit>إلغاء والعودة</button></div></div>`;
+  const orientationGate = layer.querySelector(".game-orientation-gate");
+  if (orientationGate) {
+    orientationGate.querySelector("strong").textContent = "جارٍ تدوير الشاشة تلقائيًا";
+    orientationGate.querySelector("p").textContent = "لن يبدأ اللعب قبل اكتمال الوضع الأفقي.";
+  }
   gamePresentation.layer = layer;
   gamePresentation.content = layer.querySelector(".game-launch-content");
   document.body.append(layer);
   gamePresentation.content.append(page);
+  gamePresentation.content.querySelector(".game-landscape-prompt")?.remove();
   document.body.classList.add("game-session-active");
 
   const isTouchDevice = navigator.maxTouchPoints > 0 || window.matchMedia("(any-pointer: coarse)").matches;

@@ -37932,6 +37932,7 @@ var endShapeContactEvent = {
 
 // space-game.js
 var TAU = Math.PI * 2;
+var OXYGEN_LIMIT_SECONDS = 120;
 var WORLD_RADIUS = 82;
 var PLAYER_RADIUS = 0.46;
 var PLAYER_HALF_HEIGHT = 0.55;
@@ -38292,6 +38293,14 @@ var SpaceWorld = class {
     this.suit = config.suit || null;
     this.spacecraft = config.spacecraft || null;
     this.equipment = Array.isArray(config.equipment) ? [...config.equipment] : [];
+    this.health = 100;
+    this.medKitUsed = false;
+    this.maxFallSpeed = 0;
+    this.thermalShieldUntil = 0;
+    this.dustFilterUntil = 0;
+    this.commsPulseUntil = 0;
+    this.lastHazardWindow = -1;
+    this.equipmentPanelWasPaused = false;
     this.sampleDefinitions = Array.isArray(config.samples) ? config.samples : [];
     this.sampleGoal = this.sampleDefinitions.length;
     this.sampleMissionId = this.stageSite ? `site-stage-${this.stageSite.id}` : `sample-trio-${config.missionKey || config.world}`;
@@ -38341,7 +38350,7 @@ var SpaceWorld = class {
     const resumeState = config.progress.resumeState;
     this.timeLimit = Number.isFinite(resumeState?.timeLimit) ? MathUtils.clamp(resumeState.timeLimit, 0, 180) : 180;
     this.timedOut = this.timeLimit <= 0;
-    this.oxygenLimit = 120;
+    this.oxygenLimit = OXYGEN_LIMIT_SECONDS;
     this.oxygenDepleted = false;
     this.progress = {
       xp: Number(config.progress.xp) || 0,
@@ -40009,9 +40018,9 @@ var SpaceWorld = class {
     this.lastControlToggleAt = 0;
     this.onKeyDown = (event) => {
       if (event.target instanceof Element && event.target.matches("input, select, textarea, button, a, [contenteditable='true']")) return;
-      const handled = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight", "KeyE", "KeyR", "KeyV", "KeyC", "Escape", "ControlLeft", "ControlRight"];
+      const handled = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight", "KeyE", "KeyR", "KeyV", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"];
       if (handled.includes(event.code)) event.preventDefault();
-      if (event.repeat && ["KeyE", "KeyR", "KeyV", "KeyC", "Escape", "ControlLeft", "ControlRight"].includes(event.code)) return;
+      if (event.repeat && ["KeyE", "KeyR", "KeyV", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"].includes(event.code)) return;
       if (event.code === "ControlLeft" || event.code === "ControlRight") {
         const now = performance.now();
         if (now - this.lastControlToggleAt < 180) return;
@@ -40026,6 +40035,7 @@ var SpaceWorld = class {
       if (event.code === "KeyR") this.toggleInventory();
       if (event.code === "KeyV") this.toggleRover();
       if (event.code === "KeyC") this.toggleCameraMode();
+      if (event.code === "KeyG") this.toggleEquipmentPanel();
       if (event.code === "Escape" && !document.pointerLockElement) this.togglePause();
     };
     this.onKeyUp = (event) => {
@@ -40186,6 +40196,9 @@ var SpaceWorld = class {
       if (engineAction === "camera") this.toggleCameraMode();
       if (engineAction === "inventory") this.toggleInventory(true);
       if (engineAction === "inventory-close") this.toggleInventory(false);
+      if (engineAction === "equipment") this.toggleEquipmentPanel(true);
+      if (engineAction === "equipment-close") this.toggleEquipmentPanel(false);
+      if (button.dataset.equipmentUse) this.useEquipment(button.dataset.equipmentUse);
       if (engineButton === "jump") this.jump();
       if (engineButton === "run") {
         this.touchRun = !this.touchRun;
@@ -40194,6 +40207,7 @@ var SpaceWorld = class {
       if (engineButton === "interact") this.interact();
       if (engineButton === "camera") this.toggleCameraMode();
       if (engineButton === "inventory") this.toggleInventory(true);
+      if (engineButton === "equipment") this.toggleEquipmentPanel();
       if (engineButton === "rover") this.toggleRover();
     });
     const soundToggle = this.hud.querySelector("#game-sound-toggle");
@@ -40392,6 +40406,102 @@ var SpaceWorld = class {
       this.playPing(480, 0.1);
     }
   }
+  toggleEquipmentPanel(force) {
+    const panel = this.hud.querySelector("#game-equipment-panel");
+    if (!panel) return;
+    const open = typeof force === "boolean" ? force : panel.hidden;
+    panel.hidden = !open;
+    if (open) {
+      this.equipmentPanelWasPaused = !this.paused;
+      this.paused = true;
+      if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
+    } else if (this.equipmentPanelWasPaused) {
+      this.equipmentPanelWasPaused = false;
+      this.paused = false;
+    }
+  }
+  useEquipment(itemId) {
+    if (!this.equipment.includes(itemId)) {
+      this.toast("\u0647\u0630\u0647 \u0627\u0644\u0642\u0637\u0639\u0629 \u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F\u0629 \u0641\u064A \u0639\u062A\u0627\u062F \u0631\u062D\u0644\u062A\u0643.");
+      return;
+    }
+    if (itemId === "thermal-layer") {
+      this.thermalShieldUntil = this.elapsed + 15;
+      this.toast("\u062A\u0645 \u062A\u0634\u063A\u064A\u0644 \u0627\u0644\u062D\u0645\u0627\u064A\u0629 \u0627\u0644\u062D\u0631\u0627\u0631\u064A\u0629 \u0644\u0645\u062F\u0629 15 \u062B\u0627\u0646\u064A\u0629.");
+    } else if (itemId === "dust-filter") {
+      this.dustFilterUntil = this.elapsed + 15;
+      this.toast("\u062A\u0645 \u062A\u0646\u0634\u064A\u0637 \u0645\u0631\u0634\u062D \u0627\u0644\u063A\u0628\u0627\u0631\u061B \u0627\u0644\u0631\u0624\u064A\u0629 \u0645\u062D\u0645\u064A\u0629 \u0644\u0645\u062F\u0629 15 \u062B\u0627\u0646\u064A\u0629.");
+    } else if (itemId === "comms-unit") {
+      this.commsPulseUntil = this.elapsed + 8;
+      const target = this.nearestSample(500, this.worldCollectedCount() >= this.sampleGoal);
+      this.updateBeacon(1 / 60);
+      const distance = target ? Math.round(Math.hypot(target.x - this.playerBody.position.x, target.z - this.playerBody.position.z)) : null;
+      this.toast(distance === null ? "\u062A\u0645 \u0625\u0631\u0633\u0627\u0644 \u062A\u0642\u0631\u064A\u0631 \u0627\u0644\u0645\u0648\u0642\u0639 \u0625\u0644\u0649 \u0645\u0631\u0643\u0632 \u0627\u0644\u062A\u062D\u0643\u0645." : `\u062A\u0645 \u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0625\u0634\u0627\u0631\u0629\u061B \u0627\u062A\u0628\u0639 \u0627\u0644\u0645\u0646\u0627\u0631\u0629 \u0625\u0644\u0649 \u0623\u0642\u0631\u0628 \u0639\u064A\u0646\u0629 \u0639\u0644\u0649 \u0628\u0639\u062F ${distance} \u0645\u062A\u0631.`);
+      this.playPing(640, 0.18);
+    } else if (itemId === "med-kit") {
+      if (this.medKitUsed) {
+        this.toast("\u0627\u0633\u062A\u062E\u062F\u0645\u062A \u062D\u0642\u064A\u0628\u0629 \u0627\u0644\u0625\u0633\u0639\u0627\u0641 \u0641\u064A \u0647\u0630\u0647 \u0627\u0644\u0645\u0647\u0645\u0629.");
+        return;
+      }
+      if (this.health >= 100) {
+        this.toast("\u0633\u0644\u0627\u0645\u062A\u0643 \u0643\u0627\u0645\u0644\u0629\u061B \u0627\u062D\u062A\u0641\u0638 \u0628\u062D\u0642\u064A\u0628\u0629 \u0627\u0644\u0625\u0633\u0639\u0627\u0641 \u0644\u062D\u064A\u0646 \u0627\u0644\u062D\u0627\u062C\u0629.");
+        return;
+      }
+      this.health = Math.min(100, this.health + 40);
+      this.medKitUsed = true;
+      this.updateHealthHud();
+      this.toast("\u062A\u0645 \u062A\u0636\u0645\u064A\u062F \u0627\u0644\u0625\u0635\u0627\u0628\u0629 \u0648\u0627\u0633\u062A\u0639\u0627\u062F\u0629 40 \u0646\u0642\u0637\u0629 \u0633\u0644\u0627\u0645\u0629.");
+    }
+    this.updateHealthHud();
+  }
+  updateHealthHud() {
+    const fill = this.hud.querySelector("#game-health-fill");
+    if (fill) fill.style.width = `${Math.max(0, this.health)}%`;
+    setText(this.hud, "#game-health-value", `${Math.ceil(this.health)}%`);
+    const medKit = this.hud.querySelector('[data-equipment-use="med-kit"]');
+    if (medKit) {
+      medKit.disabled = this.medKitUsed || this.health >= 100;
+      medKit.textContent = this.medKitUsed ? "\u0627\u0633\u062A\u064F\u062E\u062F\u0645" : this.health >= 100 ? "\u0644\u0627 \u062D\u0627\u062C\u0629 \u0627\u0644\u0622\u0646" : "\u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0627\u0644\u0625\u0633\u0639\u0627\u0641";
+    }
+  }
+  applyHealthDamage(amount, reason) {
+    if (this.config.character !== "astronaut" || amount <= 0 || this.health <= 0) return;
+    this.health = Math.max(0, this.health - amount);
+    this.updateHealthHud();
+    if (this.health <= 0) this.showGameOver("\u0625\u0635\u0627\u0628\u0629 \u062D\u0631\u062C\u0629", reason);
+    else if (reason) this.toast(reason);
+  }
+  handleLandingImpact() {
+    const impactSpeed = this.maxFallSpeed;
+    this.maxFallSpeed = 0;
+    if (this.config.character !== "astronaut" || impactSpeed < 5) return;
+    const damage = Math.min(35, Math.ceil((impactSpeed - 4.5) * 8));
+    this.applyHealthDamage(damage, "\u0647\u0628\u0648\u0637 \u0642\u0648\u064A\u061B \u0627\u0633\u062A\u062E\u062F\u0645 \u062D\u0642\u064A\u0628\u0629 \u0627\u0644\u0625\u0633\u0639\u0627\u0641 \u0639\u0646\u062F \u0627\u0644\u062D\u0627\u062C\u0629.");
+  }
+  updateEquipmentHazards(delta) {
+    if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world)) return;
+    const phase = this.elapsed % 36;
+    const hazardStart = 24;
+    const hazardEnd = 32;
+    const inWarning = phase >= 20 && phase < hazardStart;
+    const inHazard = phase >= hazardStart && phase < hazardEnd;
+    const hazardWindow = Math.floor(this.elapsed / 36);
+    const isMoon = this.config.world === "moon";
+    const shielded = (isMoon ? this.thermalShieldUntil : this.dustFilterUntil) > this.elapsed;
+    const alert = this.hud.querySelector("#game-environment-alert");
+    if (inWarning && this.lastHazardWindow !== hazardWindow) {
+      this.lastHazardWindow = hazardWindow;
+      this.toast(isMoon ? "\u062A\u062D\u0630\u064A\u0631: \u0645\u0648\u062C\u0629 \u062D\u0631\u0627\u0631\u064A\u0629 \u0642\u0627\u062F\u0645\u0629. \u062C\u0647\u0651\u0632 \u0627\u0644\u0637\u0628\u0642\u0629 \u0627\u0644\u062D\u0631\u0627\u0631\u064A\u0629." : "\u062A\u062D\u0630\u064A\u0631: \u0639\u0627\u0635\u0641\u0629 \u063A\u0628\u0627\u0631 \u0642\u0627\u062F\u0645\u0629. \u062C\u0647\u0651\u0632 \u0627\u0644\u0645\u0631\u0634\u062D.");
+    }
+    if (alert) {
+      alert.hidden = !(inWarning || inHazard);
+      alert.textContent = isMoon ? inHazard ? shielded ? "\u0627\u0644\u062D\u0645\u0627\u064A\u0629 \u0627\u0644\u062D\u0631\u0627\u0631\u064A\u0629 \u062A\u0639\u0645\u0644" : "\u0625\u062C\u0647\u0627\u062F \u062D\u0631\u0627\u0631\u064A: \u0641\u0639\u0651\u0644 \u0627\u0644\u0637\u0628\u0642\u0629 \u0627\u0644\u062D\u0631\u0627\u0631\u064A\u0629" : "\u0627\u0633\u062A\u0639\u062F \u0644\u0645\u0648\u062C\u0629 \u062D\u0631\u0627\u0631\u064A\u0629" : inHazard ? shielded ? "\u0645\u0631\u0634\u062D \u0627\u0644\u063A\u0628\u0627\u0631 \u064A\u0639\u0645\u0644" : "\u063A\u0628\u0627\u0631 \u0643\u062B\u064A\u0641: \u0641\u0639\u0651\u0644 \u0627\u0644\u0645\u0631\u0634\u062D" : "\u0627\u0633\u062A\u0639\u062F \u0644\u0639\u0627\u0635\u0641\u0629 \u063A\u0628\u0627\u0631";
+      alert.classList.toggle("is-protected", shielded);
+    }
+    if (inHazard && !shielded && !this.paused) this.applyHealthDamage(delta * 1.5, null);
+    if (this.isMars && this.scene.fog?.isFogExp2) this.scene.fog.density = inHazard && !shielded ? 8e-3 : 35e-4;
+    this.updateHealthHud();
+  }
   worldCollectedCount() {
     return this.samples.filter((s) => s.collected).length;
   }
@@ -40433,9 +40543,10 @@ var SpaceWorld = class {
       if (this.config.character === "astronaut") {
         setText(this.hud, "#game-oxygen-time", `${String(Math.floor(this.oxygenLimit / 60)).padStart(2, "0")}:${String(Math.ceil(this.oxygenLimit) % 60).padStart(2, "0")}`);
         const fill = this.hud.querySelector("#game-oxygen-fill");
-        if (fill) fill.style.width = `${Math.max(0, this.oxygenLimit / 120 * 100)}%`;
+        if (fill) fill.style.width = `${Math.max(0, this.oxygenLimit / OXYGEN_LIMIT_SECONDS * 100)}%`;
       }
     }
+    this.updateHealthHud();
     if (this.stageSite) {
       setText(this.hud, "#game-mission-title", complete ? "\u0627\u0643\u062A\u0645\u0644\u062A \u0627\u0644\u0639\u064A\u0646\u0627\u062A \u2726 \u0623\u062D\u0633\u0646\u062A!" : `\u0627\u062C\u0645\u0639 ${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A \u0639\u0644\u0645\u064A\u0629`);
       setText(this.hud, "#game-mission-count", `${this.worldCollectedCount()}/${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A`);
@@ -40531,6 +40642,8 @@ var SpaceWorld = class {
     this.lastFrame = now;
     if (!this.paused) {
       this.elapsed += delta;
+      const wasGrounded = this.isGrounded();
+      if (!wasGrounded && this.playerBody.velocity.y < 0) this.maxFallSpeed = Math.max(this.maxFallSpeed, -this.playerBody.velocity.y);
       this.movePlayer(delta);
       this.physics.step(1 / 60, delta, 4);
       const floorY = this.terrainHeight(this.playerBody.position.x, this.playerBody.position.z) + PLAYER_COLLIDER_HEIGHT;
@@ -40542,6 +40655,7 @@ var SpaceWorld = class {
           this.playerBody.velocity.y = 0;
         }
       }
+      if (!wasGrounded && this.isGrounded()) this.handleLandingImpact();
       const maxBound = WORLD_RADIUS - 3;
       this.playerBody.position.x = MathUtils.clamp(this.playerBody.position.x, -maxBound, maxBound);
       this.playerBody.position.z = MathUtils.clamp(this.playerBody.position.z, -maxBound, maxBound);
@@ -40566,6 +40680,7 @@ var SpaceWorld = class {
       this.updateFootprints();
       this.updateMissionClock(delta);
       this.updateOxygen(delta);
+      this.updateEquipmentHazards(delta);
       this.updateBeacon(delta);
       this.updateMeteors(delta);
     }
@@ -40909,21 +41024,19 @@ var SpaceWorld = class {
     }
   }
   updateOxygen(delta) {
-    if (this.config.character !== "astronaut" || this.oxygenDepleted || this.paused) return;
+    if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world) || this.oxygenDepleted || this.paused) return;
     this.oxygenLimit -= delta;
     const seconds = Math.max(0, Math.ceil(this.oxygenLimit));
     const fill = this.hud.querySelector("#game-oxygen-fill");
     const timeText = this.hud.querySelector("#game-oxygen-time");
     const meter = this.hud.querySelector(".game-oxygen-meter");
-    if (fill) fill.style.width = `${Math.max(0, seconds / 120 * 100)}%`;
+    if (fill) fill.style.width = `${Math.max(0, seconds / OXYGEN_LIMIT_SECONDS * 100)}%`;
     if (timeText) timeText.textContent = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
     if (meter) meter.classList.toggle("is-urgent", seconds < 30);
     if (seconds === 0) {
       this.oxygenDepleted = true;
       this.paused = true;
-      if (!this.isSampleMissionComplete()) {
-        this.showGameOver("\u0646\u0641\u062F \u0627\u0644\u0623\u0643\u0633\u062C\u064A\u0646", "\u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0647\u0645\u0629 \u0642\u0628\u0644 \u062C\u0645\u0639 \u0627\u0644\u0639\u064A\u0646\u0627\u062A \u0627\u0644\u0643\u0627\u0641\u064A\u0629.");
-      }
+      this.showGameOver("\u0646\u0641\u062F \u0627\u0644\u0623\u0643\u0633\u062C\u064A\u0646", "\u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0647\u0645\u0629 \u0644\u0623\u0646 \u0627\u0644\u0623\u0643\u0633\u062C\u064A\u0646 \u0646\u0641\u062F \u0628\u0639\u062F \u062F\u0642\u064A\u0642\u062A\u064A\u0646.");
     }
   }
   updateBeacon(delta = 1 / 60) {

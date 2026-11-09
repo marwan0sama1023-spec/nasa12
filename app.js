@@ -155,7 +155,7 @@ let mapResizeFrame = null;
 let marsGlobeFrame = null;
 let spaceGameEngine = null;
 let gameResumeSaveTimer = null;
-const gamePresentation = { active: false, content: null, layer: null, cancelled: false, resumeChoice: false };
+const gamePresentation = { active: false, content: null, layer: null, cancelled: false, resumeChoice: false, cancelOrientationWait: null, orientationPaused: false };
 const MARS_ROTATION_SECONDS = 60;
 let searchTerm = "";
 let scoreState = readStore(storageKeys.scores, {});
@@ -1209,6 +1209,51 @@ function waitForGamePresentation(ms) {
     gamePresentation.countdownTimer = setTimeout(resolve, ms);
   });
 }
+function isPortraitTouchDevice() {
+  const isTouchDevice = navigator.maxTouchPoints > 0 || window.matchMedia("(any-pointer: coarse)").matches;
+  const screenIsPortrait = screen.orientation?.type?.startsWith("portrait") === true;
+  const viewportIsPortrait = window.matchMedia("(orientation: portrait)").matches;
+  return isTouchDevice && (screenIsPortrait || viewportIsPortrait);
+}
+function waitForLandscapeOrientation(layer) {
+  if (!isPortraitTouchDevice()) return Promise.resolve();
+  layer.classList.add("is-portrait-blocked");
+  return new Promise(resolve => {
+    const finish = (cancelled = false) => {
+      if (!cancelled && isPortraitTouchDevice()) return;
+      window.removeEventListener("orientationchange", checkOrientation);
+      window.removeEventListener("resize", checkOrientation);
+      screen.orientation?.removeEventListener?.("change", checkOrientation);
+      layer.classList.remove("is-portrait-blocked");
+      gamePresentation.cancelOrientationWait = null;
+      resolve();
+    };
+    const checkOrientation = () => finish();
+    gamePresentation.cancelOrientationWait = () => finish(true);
+    window.addEventListener("orientationchange", checkOrientation);
+    window.addEventListener("resize", checkOrientation);
+    screen.orientation?.addEventListener?.("change", checkOrientation);
+    checkOrientation();
+  });
+}
+function updateGameOrientation() {
+  const layer = gamePresentation.layer;
+  if (!gamePresentation.active || !layer) return;
+  const portrait = isPortraitTouchDevice();
+  layer.classList.toggle("is-portrait-blocked", portrait);
+  const pauseOverlay = layer.querySelector("#game-pause-overlay");
+  if (!layer.classList.contains("is-playing") || !pauseOverlay) return;
+  if (portrait && pauseOverlay.hidden) {
+    layer.querySelector('[data-engine-action="pause"]')?.click();
+    gamePresentation.orientationPaused = true;
+  } else if (!portrait && gamePresentation.orientationPaused) {
+    layer.querySelector('[data-engine-action="resume"]')?.click();
+    gamePresentation.orientationPaused = false;
+  }
+}
+window.addEventListener("orientationchange", updateGameOrientation);
+window.addEventListener("resize", updateGameOrientation);
+screen.orientation?.addEventListener?.("change", updateGameOrientation);
 async function startGamePresentation(mode = "new") {
   if (gamePresentation.active) return;
   const page = app.querySelector(".space-game-page");
@@ -1223,26 +1268,32 @@ async function startGamePresentation(mode = "new") {
   gamePresentation.active = true;
   gamePresentation.cancelled = false;
   gamePresentation.resumeChoice = false;
+  gamePresentation.orientationPaused = false;
   clearInterval(gameResumeSaveTimer);
   gameResumeSaveTimer = window.setInterval(saveSpaceGameResumeState, 2000);
   stopSpaceGameScene();
   const layer = document.createElement("div");
   layer.id = "game-launch-layer";
-  layer.innerHTML = `<div class="game-launch-content"></div><div class="game-countdown" role="status" aria-live="assertive"><div class="game-countdown-orbit" aria-hidden="true"><i></i><i></i><i></i></div><p>جارٍ تجهيز مركبة الاستكشاف...</p><strong id="game-countdown-number">3</strong><small id="game-loading-status" hidden>جارٍ تجهيز العالم ثلاثي الأبعاد...</small></div>`;
+  layer.innerHTML = `<div class="game-launch-content"></div><div class="game-countdown" role="status" aria-live="assertive"><div class="game-countdown-orbit" aria-hidden="true"><i></i><i></i><i></i></div><p>جارٍ تجهيز مركبة الاستكشاف...</p><strong id="game-countdown-number">3</strong><small id="game-loading-status" hidden>جارٍ تجهيز العالم ثلاثي الأبعاد...</small></div><div class="game-orientation-gate" role="status" aria-live="polite"><div><span aria-hidden="true">▯</span><strong>أدر الهاتف أفقيًا</strong><p>لن يبدأ اللعب حتى تدوير الجهاز إلى الوضع الأفقي.</p><button class="game-menu-secondary" type="button" data-game-exit>إلغاء والعودة</button></div></div>`;
   gamePresentation.layer = layer;
   gamePresentation.content = layer.querySelector(".game-launch-content");
   document.body.append(layer);
   gamePresentation.content.append(page);
   document.body.classList.add("game-session-active");
 
-  const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+  const isTouchDevice = navigator.maxTouchPoints > 0 || window.matchMedia("(any-pointer: coarse)").matches;
   const fullscreenRequest = document.documentElement.requestFullscreen
     ? document.documentElement.requestFullscreen().then(() => true).catch(() => false)
     : Promise.resolve(false);
-  if (isTouchDevice && screen.orientation?.lock) {
-    void fullscreenRequest.then(enteredFullscreen => {
-      if (enteredFullscreen) return screen.orientation.lock("landscape").catch(() => {});
-    });
+  if (isTouchDevice) {
+    const enteredFullscreen = await fullscreenRequest;
+    if (enteredFullscreen && screen.orientation?.lock) {
+      try { await screen.orientation.lock("landscape"); } catch { /* The portrait gate remains active when locking is unavailable. */ }
+    }
+    await waitForLandscapeOrientation(layer);
+    if (gamePresentation.cancelled) return;
+  } else {
+    void fullscreenRequest;
   }
   const engineReady = import("./vendor/space-game.js").then(engine => {
     spaceGameEngine ||= engine;
@@ -1269,6 +1320,7 @@ async function startGamePresentation(mode = "new") {
 }
 function exitGamePresentation() {
   if (!gamePresentation.active) return;
+  gamePresentation.cancelOrientationWait?.();
   gamePresentation.cancelled = true;
   clearTimeout(gamePresentation.countdownTimer);
   clearInterval(gameResumeSaveTimer);
@@ -2178,9 +2230,17 @@ function speakSite(site) {
   window.speechSynthesis.speak(utterance);
 }
 function answerQuestion(question) {
+  const arithmetic = String(question).match(/(-?\d+(?:\.\d+)?)\s*([+\-*/×÷])\s*(-?\d+(?:\.\d+)?)/);
+  if (arithmetic) {
+    const first = Number(arithmetic[1]);
+    const second = Number(arithmetic[3]);
+    const result = { "+": () => first + second, "-": () => first - second, "*": () => first * second, "/": () => first / second, "×": () => first * second, "÷": () => first / second }[arithmetic[2]]();
+    return Number.isFinite(result) ? `الناتج هو **${result}**.` : "لا يمكن القسمة على صفر.";
+  }
   const normalize = value => value.toLowerCase().normalize("NFD").replace(/[\u064B-\u065F\u0670\u0640]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/[إ؟?!،؛,.]/g, " ").replace(/\s+/g, " ").trim();
   const normalized = normalize(question);
-  const mentionedSite = sites.find(site => [site.ar, site.ar.split(" ").at(-1), site.en, site.id.replaceAll("-", " ")].some(name => normalized.includes(normalize(name))));
+  const mentionedSites = sites.filter(site => [site.ar, site.ar.split(" ").at(-1), site.en, site.id.replaceAll("-", " ")].some(name => normalized.includes(normalize(name))));
+  const mentionedSite = mentionedSites[0];
   if (mentionedSite) {
     guideContext = { siteId: mentionedSite.id };
     writeStore("atlas-guide-context", guideContext);
@@ -2190,6 +2250,10 @@ function answerQuestion(question) {
   const site = mentionedSite || (contextualQuestion && guideContext ? sites.find(item => item.id === guideContext.siteId) : null);
   const hasAny = (...terms) => terms.some(term => normalized.includes(normalize(term)));
 
+  if (mentionedSites.length > 1 && hasAny("قارن", "مقارنه", "الفرق", "بين", "compare", "contrast", "versus", "vs")) {
+    return `مقارنة موجزة بين الموقعين المذكورين:\n${mentionedSites.map(item => `• **${item.ar}** (${item.target}): ${item.guide.similarity} وحدّ المقارنة: ${item.guide.difference}`).join("\n")}\nلا تكفي هذه الأوصاف لترتيب الموقعين؛ يلزم تحديد نوع الاختبار وبيانات قابلة للمقارنة.`;
+  }
+
   // Team questions
   if (hasAny("فريق", "تيم", "team", "اعضاء", "مين انتم", "مين صاحب", "ترينكسس", "trinexus", "analog trinexus", "مروان", "قائد")) {
     return "نحن فريق **Analog TriNexus**! 🚀\n✦ **قائد الفريق:** مروان أسامة محمد (Marwan Osama Mohamed)\n✦ **أعضاء الفريق:** آلاء رمضان، مارتينا منير لبيب، منة أحمد، حنين خيري عز الدين.\nمشروعنا يربط بين البيئات الأرضية التناظرية ومهمات استكشاف القمر والمريخ عبر محاكاة علمية تفاعلية دقيقة مبنية على بيانات وصور NASA.";
@@ -2198,7 +2262,16 @@ function answerQuestion(question) {
   // Site specific queries
   if (site) {
     if (hasAny("مصدر", "مصادر", "تاريخ", "متى", "امتى", "صورة", "صور")) {
-      return `بيانات موقع **${site.ar}** مستندة إلى سجلات وأرشيف وكالة NASA (مثل مهمات ASTER وLandsat وMars 2020) مع صور حقيقية عالية الدقة.`;
+      const source = nasaSourcePages[site.id];
+      return source
+        ? `مرجع NASA المرتبط بموقع **${site.ar}** هو "${source.title}" (NASA ID: ${source.id}): ${source.url}\nيوثق المرجع الصورة أو المشهد ومعلوماته؛ ولا يُعد تحليلًا ميدانيًا للتربة.`
+        : `لا يتوفر للموقع **${site.ar}** رابط مصدر مسجل في المشروع حتى الآن. لا أريد اختلاق مرجع؛ راجع صفحة المصادر للمواقع التي لها سجل موثق.`;
+    }
+    if (hasAny("اين", "فين", "مكان", "موقع جغرافي", "احداثيات", "location", "coordinates", "where")) {
+      return `📍 **${site.ar}** يقع في ${site.country}، والمنطقة الفرعية المعروضة هي ${site.subsite}. الإحداثيات التقريبية في المشروع: ${formatCoord(site.lat)}, ${formatCoord(site.lon)}. هذه نقطة مرجعية للعرض وليست محطة قياس أو حدود موقع معتمدة.`;
+    }
+    if (hasAny("نوع", "تضاريس", "جيولوجيا", "ارض", "مناخ", "طقس", "حراره", "بروده", "terrain", "geology", "climate", "weather")) {
+      return `**${site.ar}:** ${site.brief}\nنوع البيئة المسجل: ${site.type}. ${site.guide.difference} لا تتوفر في المشروع هنا قياسات ميدانية كافية لدرجات الحرارة أو كيمياء التربة.`;
     }
     if (hasAny("اختلاف", "عيب", "حدود", "مشابه", "تشابه", "زي", "شبه")) {
       return `🔍 **${site.ar} (${site.en}) — التحليل التناظري المقارن:**\n✦ **أوجه الشبه:** ${site.guide.similarity}\n✦ **أبرز أوجه الاختلاف:** ${site.guide.difference}\n⚠️ **ملاحظة علمية:** الموقع يمثل بيئة اختبار لأجهزة ومركبات وتضاريس محددة، ولا يطابق بيئة ${site.target} بنسبة 100%.`;
@@ -2213,23 +2286,39 @@ function answerQuestion(question) {
   }
 
   // General planetary and science queries
+  if (hasAny("جاذبيه", "جاذبية", "gravity", "وزن")) return "الجاذبية التقريبية: الأرض 1g، القمر 0.16g، والمريخ 0.38g. يتغير الوزن مع الجاذبية، بينما تبقى الكتلة نفسها. هذه الفروق لا يمكن إعادة إنتاجها بالكامل في موقع أرضي تناظري.";
+  if (hasAny("غلاف جوي", "ضغط", "هواء", "atmosphere", "pressure")) return "الأرض لها غلاف جوي كثيف، والقمر له إكسوسفير شديد الرقة، أما غلاف المريخ فرقيق ويتكون معظمه من ثاني أكسيد الكربون. ضغط الأرض الجوي لا يحاكي ظروف القمر أو المريخ؛ والأرقام العامة لا تصف محطة محلية بعينها.";
+  if (hasAny("حياه", "حياة", "كائنات", "فضائي", "فضائيين", "life", "aliens")) return "حتى الآن لا يوجد دليل مؤكد على اكتشاف حياة خارج الأرض. تبحث المهمات عن بيئات ملائمة أو مؤشرات حيوية محتملة، لكنها ليست إثباتًا للحياة. المواقع التناظرية تساعد على اختبار الأدوات وأساليب البحث فقط.";
+  if (hasAny("مصادر", "المصادر", "مراجع", "sources", "references")) {
+    return `مصادر NASA المسجلة للمواقع الحالية:\n${sites.map(site => { const source = nasaSourcePages[site.id]; return source ? `• ${site.ar}: ${source.url}` : ""; }).filter(Boolean).join("\n")}`;
+  }
+  if (hasAny("كم موقع", "عدد المواقع", "how many sites", "عدد المكان")) {
+    const lunarCount = sites.filter(item => item.target === "القمر").length;
+    const marsCount = sites.filter(item => item.target === "المريخ").length;
+    return `يعرض المشروع ${sites.length} مواقع أرضية: ${lunarCount} لمقارنة أسئلة مرتبطة بالقمر و${marsCount} للمريخ. هذا تصنيف لأهداف الاختبار، وليس ترتيبًا علميًا لجودة المواقع.`;
+  }
+  if (hasAny("منهج", "كيف تقارن", "معيار", "criteria", "methodology", "analog site", "موقع تناظري")) {
+    return `الموقع التناظري لا يُعد نسخة من كوكب آخر. نحدد أولًا هدف الاختبار، ثم ننظر إلى التضاريس والجيولوجيا والبيانات وإمكانية الوصول، ونذكر الفروق وحدود الأدلة. التقييمات داخل المشروع يحددها الفريق؛ لا تُحسب أفضلية علمية تلقائيًا.`;
+  }
   if (hasAny("القمر", "قمر", "lunar", "moon")) {
-    return "🌕 **استكشاف القمر والبيئات التناظرية:**\nتساعدنا مواقع أرضية مثل فوهة بارينجر وتدفقات بازلت هاواي وجزيرة ديفون على اختبار أجهزة الحفر وعجلات العربات القمرية ودراسة تكوين الريغوليث (Regolith) وتأثير الاصطدامات النيزكية القديمة في بحار القمر ومرتفعاته.\n✦ **المواقع الستة النظيرة للقمر والمريخ:** فوهة ميتيور (أريزونا)، جزر هاواي، جزيرة ديفون (نظائر للقمر) · صحراء أتاكاما، وادي الموت، الوديان الجافة في أنتاركتيكا (نظائر للمريخ).\n✦ **بدلة القمر:** حماية من الفراغ الكوني التام، نظام تحكم حراري (-130°C إلى +120°C)، مصممة للجاذبية المنخفضة.\n✦ **مركبة هبوط القمر:** أرجل هبوط ثابتة للفراغ، لا تحتاج مظلات، نظام دعم حياة مدمج.";
+    const lunarSites = sites.filter(item => item.target === "القمر").map(item => item.ar).join("، ");
+    return `🌕 **استكشاف القمر:** سطحه صخري ومليء بالفوهات، وجاذبيته نحو سدس جاذبية الأرض. لا يملك غلافًا جويًا كثيفًا؛ لذلك تختلف الحركة والحرارة والإشعاع كثيرًا عن الأرض.\n✦ **المواقع الأرضية التي يضمها المشروع:** ${lunarSites}.\nتساعد هذه المواقع على اختبار تضاريس أو معدات محددة فقط، ولا تحاكي القمر كاملًا.`;
   }
   if (hasAny("المريخ", "mars", "مريخي", "كوكب احمر")) {
-    return "🔴 **استكشاف المريخ والبيئات التناظرية:**\nصحراء أتاكاما ووادي الموت والوديان الجافة في القارة القطبية الجنوبية تمثل أفضل نظائر لدراسة الجفاف الشديد والترسبات الطينية القديمة، مما يساعد مركبات مثل Perseverance وCuriosity على البحث عن آثار المياه والمواد العضوية.\n✦ **المواقع الستة النظيرة للقمر والمريخ:** فوهة ميتيور (أريزونا)، جزر هاواي، جزيرة ديفون (نظائر للقمر) · صحراء أتاكاما، وادي الموت، الوديان الجافة في أنتاركتيكا (نظائر للمريخ).\n✦ **بدلة المريخ:** نظام ترشيح ثاني أكسيد الكربون، حماية من الغبار المريخي، مصممة لجاذبية 0.38g، ختم محكم للغلاف الجوي الرقيق.\n✦ **مركبة هبوط المريخ:** مظلات هبوط، درع حراري، نظام تبريد نشط، مصممة للغلاف الجوي الرقيق.";
+    const marsSites = sites.filter(item => item.target === "المريخ").map(item => item.ar).join("، ");
+    return `🔴 **استكشاف المريخ:** كوكب صخري ذو غلاف جوي رقيق يغلب عليه ثاني أكسيد الكربون، وجاذبيته نحو 38% من جاذبية الأرض. تدرس بعثات مثل Perseverance جيولوجيته وتاريخ الماء فيه.\n✦ **المواقع الأرضية التي يضمها المشروع:** ${marsSites}.\nلكل موقع شبه جزئي مفيد لاختبار معين واختلافات تمنع اعتباره نسخة من المريخ.`;
   }
   if (hasAny("لعبة", "اللعبه", "game", "ازاي العب", "طريقه اللعب", "تحكم", "space explorer")) {
-    return "🎮 **دليل مستكشف الفضاء (Space Explorer):**\n✦ **الحركة:** مفاتيح W, A, S, D أو الأسهم للتنقل، و Shift للجري.\n✦ **جمع العينات:** اضغط E عند الاقتراب من أي عينة لجمعها والاطلاع على تفاصيلها في الشنطة فورًا.\n✦ **المركبة:** رائد الفضاء يملك مركبة هبوط واقعية موحدة، بينما الفضائيون يملكون طبقًا طائرًا كرتونيًا كلاسيكيًا وآليًا ذكيًا يرافقهم!\n✦ **النهار والليل:** على كوكب الأرض يمكنك التبديل بين النهار المشمس والليل المرصع بالنجوم والقمر.";
+    return "🎮 **دليل Space Explorer:** على الكمبيوتر استخدم WASD للحركة، E للتفاعل، وShift للجري. على الهاتف تظهر أزرار لمس. يبدأ اللعب على الهاتف واللوحي بالوضع الأفقي؛ إذا لم يستطع المتصفح تدوير الشاشة، دوّر الجهاز يدويًا. اضغط E قرب العينة لجمعها، ثم افحصها من الحقيبة.";
   }
   if (hasAny("عينات", "العينات", "شنطة", "حقيبة")) {
-    return "🎒 **العينات العلمية في اللعبة:**\nالعينات التي تجمعها (سواء كرائد فضاء أو ككائن فضائي) مبنية على عينات حقيقية موثقة من NASA. فور جمع العينة تُفتح الشنطة لتتعرف على خصائصها، وعند اكتمال جمع العينات يُعرض لك التقرير الشامل لخصائص الموقع وعلاقته التناظرية بالقمر أو المريخ.";
+    return "🎒 **العينات في اللعبة:** عينات المواقع الأرضية نماذج تعليمية افتراضية وليست عينات حقيقية جُمعت من الميدان. أما مسار القمر والمريخ فيستند إلى سجلات ومراجع بعثات NASA، ولا يعني أن النموذج داخل اللعبة عينة حقيقية.";
   }
-  if (hasAny("gis", "الخريطة", "الموقع الجغرافي", "طبقات")) return "🗺️ **الخريطة التفاعلية:**\nتعرض الخريطة مواقع الاستكشاف التناظرية حول العالم مع طبقتين رئيسيتين: صور الأقمار الصناعية عالية الدقة من Esri، وطبقة NASA Blue Marble ذات التضاريس والظلال المرجعية، بالإضافة إلى أسماء الأماكن والمعالم الرسمية.";
+  if (hasAny("gis", "الخريطة", "الموقع الجغرافي", "طبقات", "map")) return "🗺️ **الخريطة التفاعلية:** تعرض مواقع المشروع على الأرض باستخدام طبقات صور مرجعية من NASA GIBS وBlue Marble. العلامات نقاط تقريبية وليست حدودًا ميدانية، ولا تُعرض فوق سطح القمر أو المريخ.";
   if (hasAny("درجة", "تقييم", "ترتيب", "اختيار", "افضل موقع")) return "📊 **منهجية التقييم:**\nتتيح المنصة لفريق العمل إدخال درجات التقييم (من 0 إلى 5) وتحديد أوزان المعايير مع إرفاق التبريرات والأدلة العلمية لاتخاذ قرارات مدروسة وموثقة.";
-  if (hasAny("مرحبا", "اهلا", "السلام", "ازيك", "عامل ايه", "صباح", "مساء", "الو")) return "أهلًا بك يا بطل! 👋 أنا مساعد الاستكشاف الذكي لفريق **Analog TriNexus**. كيف يمكنني مساعدتك اليوم في رحلتك لاستكشاف أسرار القمر والمريخ والبيئات التناظرية على الأرض؟";
+  if (hasAny("مرحبا", "اهلا", "السلام", "ازيك", "عامل ايه", "صباح", "مساء", "الو", "help", "ماذا تستطيع", "تقدر تعمل")) return "أهلًا بك! أجيب من بيانات المواقع وسجلات NASA ومحتوى المشروع، وأساعدك في المقارنة والجاذبية والبيئات واللعبة والحسابات البسيطة. أعمل محليًا بلا نموذج خارجي؛ إذا لم أجد معلومة موثقة سأوضح ذلك بدل اختلاق إجابة.";
   
-  return `أنا هنا لمساعدتك في استكشاف جميع جوانب المشروع والمواقع التناظرية الـ${sites.length}! يمكنك سؤالي عن أي موقع (مثل هاواي، أتاكاما، فوهة بارينجر، ديفون)، أو عن كوكبي القمر والمريخ، أو عن فريق Analog TriNexus وطريقة اللعب.`;
+  return `لم أجد في سجل المشروع جوابًا موثقًا لهذا السؤال بعد. أستطيع مساعدتك في المواقع ${sites.map(item => item.ar).join("، ")}، أو القمر والمريخ، أو NASA واللعبة والمقارنة. إذا كان سؤالك عن موضوع عام، حدّد الجزء الذي تريد معرفته وسأحاول الإجابة بما يتوفر لدي؛ لا أستخدم خدمة ذكاء اصطناعي خارجية.`;
 }
 function addMessage(text, kind = "assistant") {
   const box = document.getElementById("guide-messages");

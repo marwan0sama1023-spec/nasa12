@@ -4986,6 +4986,13 @@ body.game-session-active #guide-panel { display: none !important; }
 #game-launch-layer { position: fixed; z-index: 10000; inset: 0; width: 100%; height: 100%; height: 100dvh; overflow: hidden; color: #eef7fb; background: #050914; }
 .game-launch-content { width: 100%; height: 100%; overflow: auto; overscroll-behavior: contain; }
 #game-launch-layer .space-game-page { min-height: 100%; border: 0; border-radius: 0; }
+.game-orientation-gate { position: absolute; z-index: 40; inset: 0; display: none; place-items: center; padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom)); text-align: center; background: rgba(3, 8, 15, 0.97); }
+#game-launch-layer.is-portrait-blocked .game-orientation-gate { display: grid; }
+#game-launch-layer.is-portrait-blocked .game-touch-controls { display: none !important; }
+.game-orientation-gate > div { width: min(100%, 360px); display: grid; justify-items: center; gap: 12px; }
+.game-orientation-gate span { color: #f0c779; font-size: 46px; transform: rotate(90deg); }
+.game-orientation-gate strong { font-size: 21px; }
+.game-orientation-gate p { margin: 0; color: #afc1c3; font-size: 13px; line-height: 1.7; }
 .game-exit-button { position: static; z-index: 1; width: 100%; min-height: 40px; padding: 7px 11px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #f1f7f8; background: rgba(7, 15, 22, 0.82); border: 1px solid rgba(186, 218, 222, 0.34); border-radius: 5px; font: inherit; font-size: 11px; cursor: pointer; }
 .game-exit-button:hover { background: rgba(35, 63, 72, 0.92); }
 .game-exit-button:first-letter { font-size: 20px; line-height: 1; }

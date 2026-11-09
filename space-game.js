@@ -2170,13 +2170,10 @@ class SpaceWorld {
         "assets/crew/crew-3.jpg",
         "assets/crew/crew-face-5.jpg"
       ] : [null, null, null, null];
-      const crewOffsets = this.config.character === "alien"
-        ? [{ x: -2.6, z: 4.2 }, { x: 2.6, z: 4.2 }, { x: -5.2, z: 7.6 }, { x: 5.2, z: 7.6 }]
-        : [{ x: 0, z: 2.5 }, { x: -1.6, z: 4.5 }, { x: 1.6, z: 4.5 }, { x: 0, z: 6.5 }];
+      const crewOffsets = [{ x: 0, z: 2.5 }, { x: -1.6, z: 4.5 }, { x: 1.6, z: 4.5 }, { x: 0, z: 6.5 }];
 
       crewFaces.forEach((faceUrl, idx) => {
         const crewModel = makeCharacter(this.config.character, 0, faceUrl);
-        if (this.config.character === "alien") crewModel.scale.setScalar(0.76);
         this.applySuitVisuals(crewModel);
         const initX = this.playerBody.position.x + crewOffsets[idx].x;
         const initZ = this.playerBody.position.z + crewOffsets[idx].z;
@@ -2353,13 +2350,16 @@ class SpaceWorld {
     const count = this.sampleDefinitions.length;
     const worldSeed = seedFromText(this.stageSite?.id || this.config.world);
     const rotation = seededValue(worldSeed, 7) * TAU;
+    const anchors = this.stageSite?.science?.points || [];
 
     this.sampleDefinitions.forEach((definition, index) => {
       const progress = (index + 0.5) / count;
       const angle = index * 2.399963 + rotation + (seededValue(index + 19, 3) - 0.5) * 0.8;
       const distance = 11 + Math.sqrt(progress) * 31 + (seededValue(index + 7, 11) - 0.5) * 8;
-      const x = THREE.MathUtils.clamp(Math.cos(angle) * distance, -WORLD_RADIUS + 8, WORLD_RADIUS - 8);
-      const z = THREE.MathUtils.clamp(Math.sin(angle) * distance, -WORLD_RADIUS + 8, WORLD_RADIUS - 8);
+      const anchor = anchors.length ? anchors[index % anchors.length] : null;
+      const radius = 2.5 + seededValue(index + 31, 17) * 3.5;
+      const x = THREE.MathUtils.clamp(anchor ? anchor.x + Math.cos(angle) * radius : Math.cos(angle) * distance, -WORLD_RADIUS + 8, WORLD_RADIUS - 8);
+      const z = THREE.MathUtils.clamp(anchor ? anchor.z + Math.sin(angle) * radius : Math.sin(angle) * distance, -WORLD_RADIUS + 8, WORLD_RADIUS - 8);
       const size = definition.size || 0.75;
       const groundY = this.terrainHeight(x, z);
       const group = new THREE.Group();

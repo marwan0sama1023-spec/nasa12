@@ -1078,22 +1078,27 @@ function gameEquipmentPanelMarkup() {
   return `<section class="game-equipment-panel" id="game-equipment-panel" aria-label="معدات الرحلة" hidden><header><div><span class="game-step">عتاد الرائد</span><h2>استخدام المعدات</h2></div><button type="button" class="game-settings-close" data-engine-action="equipment-close" aria-label="إغلاق المعدات">×</button></header><div class="game-equipment-use-grid">${items}</div><p class="game-equipment-status" id="game-equipment-status" aria-live="polite">اختر أداة لاستخدامها داخل المهمة.</p></section>`;
 }
 function gameCrewRosterMarkup() {
-  const members = teamMembers.map(member => {
+  const isAlien = spaceGame.character === "alien";
+  const roster = isAlien
+    ? Array.from({ length: 5 }, (_, index) => ({ name: `ALIEN-${String(index + 1).padStart(2, "0")}`, leader: index === 0 }))
+    : teamMembers;
+  const members = roster.map(member => {
     const isLeader = typeof member === "object" && member.leader;
-    const name = isLeader ? member.name : member;
+    const name = typeof member === "object" ? member.name : member;
     const initials = name.split(/\s+/).slice(0, 2).map(part => part[0]).join("");
     return `<li class="game-crew-member${isLeader ? " is-leader" : ""}"><span class="game-crew-avatar">${escapeHtml(initials)}</span><span class="game-crew-name" lang="en" dir="ltr">${escapeHtml(name)}</span><span class="game-crew-mark" aria-label="${isLeader ? "قائد الفريق" : "عضو الطاقم"}">${isLeader ? "★" : "•"}</span></li>`;
   }).join("");
-  return `<aside class="game-crew-roster" aria-label="طاقم المهمة"><header><span>طاقم المهمة</span><small>05 / 05</small></header><ol>${members}</ol></aside>`;
+  return `<aside class="game-crew-roster" aria-label="${isAlien ? "فريق الفضائيين" : "طاقم المهمة"}"><header><span>${isAlien ? "فريق الفضائيين" : "طاقم المهمة"}</span><small>05 / 05</small></header><ol>${members}</ol></aside>`;
 }
 function mountGameEquipmentControls(container) {
-  if (spaceGame.character !== "astronaut") return;
+  if (!["astronaut", "alien"].includes(spaceGame.character)) return;
   const shell = container.closest(".game-world-shell");
   if (!shell) return;
   if (!shell.querySelector(".game-crew-roster")) {
     shell.insertAdjacentHTML("beforeend", gameCrewRosterMarkup());
     shell.classList.add("has-game-crew");
   }
+  if (spaceGame.character !== "astronaut") return;
   if (spaceGame.equipment.length && !shell.querySelector("#game-equipment-panel")) shell.insertAdjacentHTML("beforeend", gameEquipmentPanelMarkup());
   if (!spaceGame.equipment.length) return;
   if (!shell.querySelector(".game-health-meter")) shell.querySelector(".game-hud-bottom")?.insertAdjacentHTML("beforeend", `<div class="game-health-meter" aria-label="سلامة البدلة"><span aria-hidden="true">♥</span><div><small>سلامة البدلة</small><strong id="game-health-value">100%</strong><div class="game-health-bar"><span id="game-health-fill"></span></div></div></div>`);
@@ -1166,7 +1171,8 @@ function alienSiteCompleteMarkup(gameWorld) {
       <div class="game-stage-photos">${photos.map(photo => `<figure><img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" loading="eager"><figcaption><strong>${escapeHtml(photo.title)}</strong><span>${escapeHtml(photo.caption)}</span></figcaption></figure>`).join("")}</div>
       <p>${escapeHtml(stageSite.guide.summary)}</p>
       <div><strong>عن المكان</strong><p>${escapeHtml(stageSite.guide.similarity)}</p></div>
-      <div class="game-stage-actions"><button class="button primary" type="button" data-game-action="${lastStage ? "show-campaign-summary" : "next-site"}">${lastStage ? "عرض المسار" : "الانتقال إلى الموقع التالي"}</button></div>
+      <div class="game-stage-actions"><button class="game-menu-secondary" type="button" data-game-action="show-journey-log">عرض المسار</button><button class="button primary" type="button" data-game-action="${lastStage ? "show-campaign-summary" : "next-site"}">${lastStage ? "عرض ملخص الرحلة" : "الانتقال إلى الموقع التالي"}</button></div>
+      <div class="game-stage-journey-log" hidden>${journeyLogMarkup()}</div>
     </section>
   </div>`;
 }
@@ -1457,7 +1463,15 @@ function showAlienWarpScreen(onFinish) {
 
 function handleSpaceGameAction(button) {
   const { gameAction: action, character, destination, suit, spacecraft } = button.dataset;
-  if (action === "choose-character") {
+  if (action === "show-journey-log") {
+    const log = button.closest(".game-stage-card")?.querySelector(".game-stage-journey-log");
+    if (log) {
+      log.hidden = !log.hidden;
+      button.textContent = log.hidden ? "عرض المسار" : "إخفاء المسار";
+      if (!log.hidden) log.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+    return;
+  } else if (action === "choose-character") {
     spaceGame.character = character;
     spaceGame.destination = null;
     spaceGame.selectedSite = null;

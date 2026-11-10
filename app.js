@@ -334,7 +334,7 @@ function writeStore(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage may be disabled by the browser. */ }
 }
 function freshSpaceGame() {
-  return { sampleAnalysisVersion: 2, character: null, destination: null, selectedSite: null, suit: null, spacecraft: null, equipment: [], discovered: [], readSites: [], discoveredPoints: [], discoveredSamples: [], analyzedSamples: [], journeyLog: [], quizResults: {}, completedMissions: [], collectedSamples: [], analyzedSites: [], roverUnlocked: false, settings: { sound: true, soundVersion: 1, quality: "medium", mouseSensitivity: 1, cameraShake: true }, xp: 0, resumeState: null };
+  return { sampleAnalysisVersion: 2, character: null, destination: null, selectedSite: null, suit: null, spacecraft: null, equipment: [], discovered: [], readSites: [], discoveredPoints: [], discoveredSamples: [], analyzedSamples: [], journeyLog: [], routePoints: [], quizResults: {}, completedMissions: [], collectedSamples: [], analyzedSites: [], roverUnlocked: false, settings: { sound: true, soundVersion: 1, quality: "medium", mouseSensitivity: 1, cameraShake: true }, xp: 0, resumeState: null };
 }
 function loadSpaceGame() {
   const stored = readStore(spaceGameStorageKey, {});
@@ -402,7 +402,10 @@ function loadSpaceGame() {
       cameraShake: saved.settings?.cameraShake !== false
     },
     xp: Number.isFinite(saved.xp) ? Math.max(0, saved.xp) : 0,
-    resumeState: hasValidResumeState ? { x: resumeState.x, y: resumeState.y, z: resumeState.z, cameraYaw: resumeState.cameraYaw, cameraPitch: resumeState.cameraPitch, timeLimit: resumeState.timeLimit } : null
+    resumeState: hasValidResumeState ? { x: resumeState.x, y: resumeState.y, z: resumeState.z, cameraYaw: resumeState.cameraYaw, cameraPitch: resumeState.cameraPitch, timeLimit: resumeState.timeLimit } : null,
+    routePoints: Array.isArray(saved.routePoints)
+      ? saved.routePoints.filter(point => point && [point.x, point.y, point.z].every(Number.isFinite) && Math.abs(point.x) <= 52 && Math.abs(point.z) <= 52 && point.y >= -40 && point.y <= 60).slice(-180).map(point => ({ x: point.x, y: point.y, z: point.z }))
+      : []
   };
 }
 function saveSpaceGame() {
@@ -551,7 +554,7 @@ function homePage() {
         <span class="hero-badge-text">استكشاف علمي تفاعلي</span>
       </div>
       <h1>عوالم بعيدة <span class="hero-title-highlight">تبدأ من كوكب الأرض</span></h1>
-      <p class="hero-description">رحلة استكشاف تفاعلية ترصد البيئات الأرضية فائقة الشبه بتضاريس القمر والمريخ، لفهم كيفية تأهيل واختبار معدات ورواد الاستكشاف الفضائي قبل الانطلاق.</p>
+      <p class="hero-description">تستكشف المنصة ستة مواقع أرضية وتوضح أوجه المقارنة المحددة مع القمر والمريخ، من دون اعتبارها بدائل مطابقة في الجاذبية أو الغلاف الجوي أو الإشعاع.</p>
       <div class="hero-actions">
         <a class="button primary glow-btn" href="#lunar">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
@@ -599,6 +602,18 @@ function homePage() {
           <span class="planet-name">المريخ</span>
         </button>
       </div>
+    </div>
+  </section>
+
+  <section class="exploration-premise" aria-labelledby="exploration-premise-title">
+    <div class="exploration-premise-mark" aria-hidden="true"><span>NASA</span><strong>06</strong></div>
+    <div class="exploration-premise-copy">
+      <span class="exploration-premise-kicker">قاعدة الاستكشاف</span>
+      <p id="exploration-premise-title">اكتشف أوجه الشبه والاختلاف بين ستة مواقع أرضية وعوالم القمر والمريخ بمراجع NASA.</p>
+    </div>
+    <div class="exploration-premise-links">
+      <a href="#lunar">مواقع شبيهة بالقمر <span aria-hidden="true">←</span></a>
+      <a href="#mars-analogs">مواقع شبيهة بالمريخ <span aria-hidden="true">←</span></a>
     </div>
   </section>
 
@@ -656,9 +671,9 @@ function homePage() {
         <img src="assets/hawaii-mauna-loa.jpg" alt="بيئات شبيهة بالقمر">
         <div class="world-link-overlay"></div>
         <div class="world-link-content">
-          <span class="world-badge lunar-badge">Moon Analogues · 04 مواقع</span>
+          <span class="world-badge lunar-badge">Moon Analogues · 03 مواقع</span>
           <strong>بيئات شبيهة بالقمر</strong>
-          <p>تضاريس بازلتية وفوهات بركانية وأنفاق حمم تحاكي سطح القمر وبرامج أرتيميس.</p>
+          <p>تضاريس بازلتية وفوهات وأنفاق حمم لدراسة الجيولوجيا البركانية واختبار أدوات الاستكشاف القمري.</p>
           <span class="world-link-arrow">استكشف البيئات القمرية ←</span>
         </div>
       </a>
@@ -668,7 +683,7 @@ function homePage() {
         <div class="world-link-content">
           <span class="world-badge mars-badge">Mars Analogues · 03 مواقع</span>
           <strong>بيئات شبيهة بالمريخ</strong>
-          <p>صحاري قاحلة وتضاريس متطرفة تحاكي تربة وتاريخ المياه والمناخ على الكوكب الأحمر.</p>
+          <p>صحاري وتضاريس جافة تساعد على اختبار قراءة السطح وأدوات العمل الميداني، لا مناخ المريخ أو غلافه الجوي.</p>
           <span class="world-link-arrow">استكشف البيئات المريخية ←</span>
         </div>
       </a>
@@ -766,7 +781,7 @@ function sitesPage(target) {
     <div class="category-hero-card ${isLunar ? "lunar-hero" : "mars-hero"}">
       <div class="category-hero-text">
         <span class="eyebrow">${isLunar ? "البيئات القمرية النظيرة" : "البيئات المريخية النظيرة"}</span>
-        <h2>${isLunar ? "مواقع أرضية تحاكي تضاريس القمر" : "مواقع أرضية تحاكي تضاريس المريخ"}</h2>
+        <h2>${isLunar ? "مواقع أرضية لدراسة خصائص قمرية محددة" : "مواقع أرضية لدراسة خصائص مريخية محددة"}</h2>
         <p>${isLunar ? "مواقع أرضية جيولوجية وبركانية ذات صخور بازلتية وأنفاق حمم وفوهات صدمية، تساعد وكالات الفضاء على اختبار تقنيات الهبوط وتدريب رواد مهمات أرتيميس (Artemis)." : "بيئات صحراوية قاحلة شديدة الجفاف وأحواض مائية قديمة ومناطق قطبية متجمدة، تشكل مختبرات طبيعية لاختبار حركة الجوالات وأجهزة البحث عن مؤشرات الحياة."}</p>
       </div>
       <div class="category-hero-stats">
@@ -885,6 +900,10 @@ function nextCampaignSite(destination) {
 }
 function journeyLogMarkup() {
   const events = spaceGame.journeyLog || [];
+  const routePoints = spaceGame.routePoints || [];
+  const routeSummary = routePoints.length > 1
+    ? `من (${routePoints[0].x.toFixed(1)}, ${routePoints[0].z.toFixed(1)}) إلى (${routePoints.at(-1).x.toFixed(1)}, ${routePoints.at(-1).z.toFixed(1)}) داخل المحاكاة؛ هذه ليست إحداثيات جغرافية.`
+    : "لا توجد نقاط حركة مسجلة بعد.";
   const rows = events.length
     ? events.map(event => {
       const timestamp = new Date(event.at);
@@ -894,7 +913,7 @@ function journeyLogMarkup() {
       return `<li><time datetime="${escapeHtml(event.at)}">${escapeHtml(time)}</time><div><strong>${escapeHtml(event.title)}</strong><p>${escapeHtml(event.detail)}</p></div></li>`;
     }).join("")
     : `<li class="game-route-empty">لم تُسجل أحداث بعد؛ ابدأ رحلة واكتشف نقاط الاهتمام واجمع عينات لتحصل على سجل فعلي.</li>`;
-  return `<section class="game-journey-log" aria-label="سجل أحداث الرحلة"><header><span class="eyebrow">المسار الفعلي · ${events.length} أحداث</span><h2>ما أنجزته خلال الرحلة</h2></header><ol>${rows}</ol></section>`;
+  return `<section class="game-journey-log" aria-label="سجل أحداث الرحلة"><header><span class="eyebrow">المسار الفعلي · ${routePoints.length} نقطة · ${events.length} أحداث</span><h2>ما أنجزته خلال الرحلة</h2></header><p class="game-route-summary">${escapeHtml(routeSummary)}</p><ol>${rows}</ol></section>`;
 }
 function astronautCampaignCompleteScreen() {
   const destinations = ["moon", "mars"];
@@ -1079,14 +1098,17 @@ function gameEquipmentPanelMarkup() {
 }
 function gameCrewRosterMarkup() {
   const isAlien = spaceGame.character === "alien";
+  const astronautRoles = ["قائد المهمة", "الملاحة والاتصال", "الأنظمة والمعدات", "العينات والجيولوجيا", "الصحة والسلامة"];
+  const alienRoles = ["قائد الفريق", "الاستطلاع", "التضاريس", "العينات", "التوثيق"];
   const roster = isAlien
     ? Array.from({ length: 5 }, (_, index) => ({ name: `ALIEN-${String(index + 1).padStart(2, "0")}`, leader: index === 0 }))
     : teamMembers;
-  const members = roster.map(member => {
+  const members = roster.map((member, index) => {
     const isLeader = typeof member === "object" && member.leader;
     const name = typeof member === "object" ? member.name : member;
+    const role = (isAlien ? alienRoles : astronautRoles)[index] || (isAlien ? "عضو الاستطلاع" : "عضو الطاقم");
     const initials = name.split(/\s+/).slice(0, 2).map(part => part[0]).join("");
-    return `<li class="game-crew-member${isLeader ? " is-leader" : ""}"><span class="game-crew-avatar">${escapeHtml(initials)}</span><span class="game-crew-name" lang="en" dir="ltr">${escapeHtml(name)}</span><span class="game-crew-mark" aria-label="${isLeader ? "قائد الفريق" : "عضو الطاقم"}">${isLeader ? "★" : "•"}</span></li>`;
+    return `<li class="game-crew-member${isLeader ? " is-leader" : ""}"><span class="game-crew-avatar">${escapeHtml(initials)}</span><span class="game-crew-copy"><span class="game-crew-name" lang="en" dir="ltr">${escapeHtml(name)}</span><small class="game-crew-role">${escapeHtml(role)}</small></span><span class="game-crew-mark" aria-label="${escapeHtml(role)}">${isLeader ? "★" : "•"}</span></li>`;
   }).join("");
   return `<aside class="game-crew-roster" aria-label="${isAlien ? "فريق الفضائيين" : "طاقم المهمة"}"><header><span>${isAlien ? "فريق الفضائيين" : "طاقم المهمة"}</span><small>05 / 05</small></header><ol>${members}</ol></aside>`;
 }
@@ -1480,6 +1502,7 @@ function handleSpaceGameAction(button) {
     spaceGame.destination = destination;
     spaceGame.selectedSite = spaceGame.character === "alien" ? nextCampaignSite(destination)?.id || campaignSites(destination)[0]?.id || null : null;
     spaceGame.resumeState = null;
+    spaceGame.routePoints = [];
     const firstSite = campaignSites(destination).find(site => site.id === spaceGame.selectedSite);
     if (firstSite) recordJourneyEvent("site-arrival", `بدء الاستكشاف: ${firstSite.ar}`, firstSite.science.task, firstSite.id);
     else recordJourneyEvent("destination", `اختيار الوجهة: ${destination === "moon" ? "القمر" : "المريخ"}`, "بدأت رحلة استكشاف الوجهة.", null);
@@ -1503,6 +1526,7 @@ function handleSpaceGameAction(button) {
     const currentIndex = campaign.findIndex(site => site.id === spaceGame.selectedSite);
     spaceGame.selectedSite = campaign.slice(currentIndex + 1).find(site => !isSiteStageComplete(spaceGame.destination, site))?.id || null;
     spaceGame.resumeState = null;
+    spaceGame.routePoints = [];
     const nextSite = campaign.find(site => site.id === spaceGame.selectedSite);
     if (nextSite) recordJourneyEvent("site-arrival", `الانتقال إلى: ${nextSite.ar}`, nextSite.science.task, nextSite.id);
     if (isAlien) {
@@ -1515,6 +1539,7 @@ function handleSpaceGameAction(button) {
     spaceGame.destination = "mars";
     spaceGame.selectedSite = nextCampaignSite("mars")?.id || campaignSites("mars")[0]?.id || null;
     spaceGame.resumeState = null;
+    spaceGame.routePoints = [];
     const firstMarsSite = campaignSites("mars").find(site => site.id === spaceGame.selectedSite);
     if (firstMarsSite) recordJourneyEvent("site-arrival", `بدء مسار المريخ: ${firstMarsSite.ar}`, firstMarsSite.science.task, firstMarsSite.id);
     if (isAlien) {
@@ -1530,12 +1555,14 @@ function handleSpaceGameAction(button) {
     spaceGame.spacecraft = null;
     spaceGame.equipment = [];
     spaceGame.resumeState = null;
+    spaceGame.routePoints = [];
   } else if (action === "astronaut-switch-moon") {
     spaceGame.destination = "moon";
     spaceGame.suit = null;
     spaceGame.spacecraft = null;
     spaceGame.equipment = [];
     spaceGame.resumeState = null;
+    spaceGame.routePoints = [];
   } else if (action === "astronaut-show-summary") {
     spaceGame.resumeState = null;
   } else if (action === "return-home") {
@@ -1746,7 +1773,7 @@ function whyPage() {
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       </div>
       <h3>أجهزة الاستشعار وأخذ العينات</h3>
-      <p>معايرة كاميرات الأشعة تحت الحمراء، وأجهزة قياس الأطياف الصخرية، واختبار آليات الحفر وأخذ اللباب الصخري في بيئات جافة تحاكي تراب الكواكب.</p>
+      <p>معايرة كاميرات الأشعة تحت الحمراء وأجهزة قياس الأطياف الصخرية واختبار آليات الحفر وأخذ اللباب في مواقع جافة؛ لا تعيد هذه الاختبارات إنتاج جاذبية الكواكب أو غلافها الجوي.</p>
     </article>
     <article class="why-card">
       <span class="why-num">03</span>
@@ -1880,55 +1907,132 @@ function teamPage() {
 }
 function problemsPage() {
   const problems = [
-    { key: "moon", title: "سطح القمر", icon: "🌕", target: "القمر",
-      problem: "فراغ كوني تام وجاذبية تبلغ سدس جاذبية الأرض، مع تفاوت حراري شديد بين النهار (+120°C) والليل (-130°C) قد يسبب تحمُّلاً حراريًا وفقدانًا سريعًا للحرارة.",
-      solution: "ارتداء بدلة القمر المضغوطة مع نظام تحكم حراري نشط، واستخدام مركبة هبوط القمر المزودة بأرجل ثابتة لحماية الرواد أثناء الهبوط والتنقل." },
-    { key: "mars", title: "سطح المريخ", icon: "🔴", target: "المريخ",
-      problem: "غلاف جوي رقيق يتكون 대부분 من ثاني أكسيد الكربون وضغط منخفض جداً، مع غبار ناعم قد يتسرب إلى المعدات ويسبب مشاكل تنفسية.",
-      solution: "ارتداء بدلة المريخ مع نظام دعم حياة يغلق الغبار تمامًا، ومركبة هبوط المريخ المزودة بنظام ترشيح هواء ومظلات هبوط للغلاف الجوي الرقيق." },
-    { key: "meteor-crater", title: "فوهة ميتيور (أريزونا)", icon: "🕳️", target: "القمر",
-      problem: "تضاريس فوهة اصطدام حادة ومنحدرة قد تؤدي إلى انزلاق المعدات وتعقيد حركة الرواد داخل المركبة وحولها.",
-      solution: "استخدام عربة استكشاف مزودة بعجلات مقاومة للانزلاق، وحقيبة أدوات لإصلاح أي أعطال ميكانيكية داخل المركبة فور حدوثها." },
-    { key: "hawaii", title: "جزر هاواي (ماونا لوا)", icon: "🌋", target: "القمر",
-      problem: "صخور بركانية حادة وحرارة مرتفعة بالقرب من النشاط البركاني قد تلحق أضرارًا ببدلة الرواد وتسبب حروقًا أو تمزقات.",
-      solution: "طبقة حرارية إضافية في العتاد، وبدلة مزودة بأعذار تقوية ضد القطع، مع خطة إخلاء سريعة إلى المركبة عند رصد نشاط بركاني." },
-    { key: "devon", title: "جزيرة ديفون (كندا)", icon: "❄️", target: "القمر",
-      problem: "برودة قطبية شديدة ورياح قوية قد تسبب انخفاض حرارة الجسم (Hypothermia) وتجمد الأطراف داخل المركبة إذا تعطل التدفئة.",
-      solution: "حقيبة إسعاف أولي مع بطانيات حرارية، وخزان أكسجين يضمن تزويد مستمر بالهواء الدافئ داخل المركبة، وصيانة دورية لنظام التدفئة." },
-    { key: "atacama", title: "صحراء أتاكاما (تشيلي)", icon: "🏜️", target: "المريخ",
-      problem: "جفاف شديد وقلة رطوبة الهواء قد يسبب جفافًا سريعًا وجفاف الجلد والجفاف التنفسي للرواد خلال المهام الميدانية.",
-      solution: "خزان أكسجين مزود بمرطب للهواء، وحقيبة عينات مغلقة لحفظ العينات دون تلوث، مع جدول تعاقب للشرب والترطيب داخل المركبة." },
-    { key: "death-valley", title: "وادي الموت (كاليفورنيا)", icon: "☀️", target: "المريخ",
-      problem: "حرارة سطحية مرتفعة جدًا قد تؤدي إلى ارتفاع درجة حرارة بدلة الرواد وتعطل أجهزة الاتصال داخل المركبة.",
-      solution: "نظام تبريد نشط في بدلة المريخ/القمر، ووحدة اتصال مزودة بدرع حراري لحمايتها من أشعة الشمس المباشرة." },
-    { key: "mcmurdo", title: "الوديان الجافة (أنتاركتيكا)", icon: "🧊", target: "المريخ",
-      problem: "عزلة قطبية ممتدة وعدم إمدادات خارجية قد تزيد من التوتر النفسي ونقص المعدات الطبية داخل المركبة.",
-      solution: "حقيبة إسعاف أولي متكاملة مع أدوية الإسعاف، ونظام اتصال أقمار صناعية للتواصل المستمر مع مركز التحكم الأرضي." }
+    { key: "radiation", title: "الإشعاع الفضائي", icon: "☢", target: "الفضاء العميق",
+      problem: "خارج حماية الغلاف الجوي والمجال المغناطيسي للأرض يتعرض الطاقم للأشعة الكونية المجرية والجسيمات الشمسية. لا يمكن رؤية الإشعاع أو الإحساس به مباشرة.",
+      cause: "مصادر الجسيمات عالية الطاقة تختلف عن الإشعاع اليومي على سطح الأرض، كما أن العواصف الشمسية قد ترفع الجرعة خلال المهمة.",
+      effect: "تتراكم الجرعة مع الزمن؛ وترتبط المخاطر طويلة الأمد بزيادة احتمال السرطان وأضرار صحية أخرى. التدريع الشامل ضد الأشعة الكونية صعب.",
+      current: "تراقب NASA الجرعات والبيئة الإشعاعية، وتستخدم التدريع المتاح في المركبة وإجراءات تشغيلية، منها اختيار أماكن أكثر حماية عند الحاجة وتقليل التعرض غير الضروري.",
+      research: "تطوير كواشف ومواد تدريع وتحسين نماذج تقدير الجرعة والحماية من العواصف الشمسية؛ لا توجد مادة تلغي الخطر بالكامل.",
+      example: "تختلف رحلة إلى القمر أو المريخ عن الإقامة في مدار أرضي منخفض؛ لا ينبغي اعتبار المواقع الصحراوية الأرضية محاكاة للإشعاع الفضائي.",
+      sources: [{ label: "مخاطر الإشعاع، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-space-radiation/" }, { label: "مراقبة الإشعاع الفضائي، NASA", url: "https://www.nasa.gov/directorates/esdmd/hhp/space-radiation/" }, { label: "مخاطر صحة الإنسان، NASA HRP", url: "https://www.nasa.gov/hrp/risks/" }] },
+    { key: "gravity", title: "الجاذبية وتكيّف الجسم", icon: "↕", target: "المدار · القمر · المريخ",
+      problem: "انعدام الوزن أثناء الرحلة ثم الانتقال إلى جاذبية سطحية يغيّر الإحساس بالاتجاه والتوازن والتناسق الحركي. جاذبية القمر نحو 1.62 m/s² والمريخ نحو 3.71 m/s²؛ وكلاهما أقل من الأرض.",
+      cause: "عندما يقل الحمل الميكانيكي على الجسم تضعف العضلات والعظام، وتتحرك سوائل الجسم نحو الرأس. الانتقال المفاجئ بين حقول الجاذبية يربك الجهاز الدهليزي.",
+      effect: "قد تظهر دوخة أو صعوبة في المشي والعمل اليدوي، كما قد يفقد الجسم جزءًا من اللياقة العضلية والعظمية؛ وهذا يؤثر في مهام السطح والعودة.",
+      current: "يمارس رواد محطة الفضاء الدولية تمارين هوائية ومقاومة ويتلقون متابعة صحية. تُستخدم تدريبات وظيفية لمحاكاة العمل والاستعداد للعودة إلى الجاذبية.",
+      research: "تدرس NASA وسائل تسريع التكيف بعد الهبوط، وفعالية الجاذبية الاصطناعية والأدوية والتدابير المضادة للرحلات الطويلة؛ لا تُعد الجاذبية الاصطناعية إجراءً تشغيليًا روتينيًا على الرحلات الحالية.",
+      example: "تدريب ARGOS وبيئة الطفو المحايد يحاكيان جوانب من الحركة أو تخفيف الوزن على الأرض، لكنهما لا يعيدان إنتاج سطح القمر أو المريخ بالكامل.",
+      sources: [{ label: "حقول الجاذبية، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-gravity-fields/" }, { label: "الجسم البشري في الفضاء، NASA", url: "https://www.nasa.gov/humans-in-space/the-human-body-in-space/" }, { label: "مخاطر اللياقة والعظام، NASA HRP", url: "https://www.nasa.gov/hrp/risks/" }] },
+    { key: "dust", title: "الغبار القمري وغبار السطح", icon: "◌", target: "القمر · المريخ",
+      problem: "غبار الريغوليث القمري حاد ودقيق وقد يلتصق بالبدلات ويدخل إلى الوصلات والمقصورات. غبار المريخ يحد من الرؤية وقد يغطي الأسطح؛ خصائص الغبار ليست متطابقة بين العالمين.",
+      cause: "القمر بلا عوامل تجوية أرضية كالماء والرياح، وجسيماته تتكسر إلى حواف حادة. تحريك الرواد والعربات يرفع الغبار ويلوث المعدات والعينات.",
+      effect: "قد يسبب الغبار تآكلًا أو صعوبة في إحكام الوصلات والرؤية، واستنشاقه خطر صحي. وثّق رواد Apollo 17 تهيجًا بعد دخول الغبار إلى المقصورة.",
+      current: "تُستخدم إجراءات تنظيف واحتواء للحد من نقل الملوثات، وتصمم البدلات بمواد وطبقات واقية. يختبر المهندسون الأدوات في تربة قمرية محاكية قبل الطيران.",
+      research: "تدرس NASA وسائل إزالة الغبار وتقليل التصاقه وحماية المفاصل والعدسات والأنظمة الحرارية؛ بعض تقنيات التخفيف ما زالت قيد الاختبار وليست حلًا شاملًا معتمدًا.",
+      example: "أثار غبار القمر مشكلة في بعثات Apollo، ويستمر اختبار تفاعل الريغوليث المحاكي مع عتاد Artemis. مواقع هاواي أو أتاكاما لا تعيد إنتاج كهرباء الغبار القمري أو سلوكه.",
+      sources: [{ label: "غبار القمر، NASA Science", url: "https://science.nasa.gov/moon/moon-dust/" }, { label: "أساسيات بدلة السير الفضائي، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "اختبار تقنيات الغبار، NASA", url: "https://www.nasa.gov/centers-and-facilities/kennedy/nasa-technology-helps-guard-against-lunar-dust/" }] },
+    { key: "thermal", title: "الحرارة والبيئة المغلقة", icon: "◒", target: "السطح · المركبة",
+      problem: "في الفراغ لا ينقل الهواء الحرارة بالحمل، وتتغير الأحمال الحرارية بشدة بين الظل وأشعة الشمس. للمريخ غلاف جوي رقيق وطقس بارد؛ ولا يصح اختزال الحرارة في قيمة واحدة لكل موقع أو وقت.",
+      cause: "التعرض المباشر للشمس والظل، وخواص السطح، ومصادر الحرارة داخل البدلة والمركبة، كلها تؤثر في ميزان الحرارة.",
+      effect: "قد يؤدي خلل التحكم الحراري إلى إجهاد أو انخفاض حرارة الجسم أو ارتفاع حرارته، كما يضر بالمعدات والبطاريات والعينات.",
+      current: "تتحكم بدلات EVA الحالية في الحرارة بملابس تبريد تمر فيها المياه، وطبقات عزل وواقيات شمسية؛ وتضبط أنظمة دعم الحياة حرارة المركبة.",
+      research: "تُطوّر بدلات الاستكشاف القادمة لتلائم السير على السطح وتحمي من الغبار وتدعم العمل لفترات أطول. تصميم هذه البدلات للمهمات القمرية قيد التطوير وليس عتادًا مستخدمًا على القمر الآن.",
+      example: "توفر بدلة محطة الفضاء الدولية خبرة تشغيلية للسير الفضائي، لكنها ليست بذاتها بدلة سطح قمرية أو مريخية.",
+      sources: [{ label: "أساسيات بدلة السير الفضائي، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "ما هي بدلة الفضاء؟ NASA", url: "https://www.nasa.gov/humans-in-space/what-is-a-spacesuit/" }, { label: "البيئات المغلقة، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-hostile-closed-environments/" }] },
+    { key: "suit", title: "بدلة الفضاء والعمل خارج المركبة", icon: "⛑", target: "نشاط خارج المركبة EVA",
+      problem: "بدلة السير الفضائي مركبة دعم حياة مصغرة، لا ملابس عادية. الضغط الذي يحمي الجسم يجعل المفاصل والقفازات أقل مرونة، ويستهلك العمل فيها جهدًا ووقتًا.",
+      cause: "يجب أن تحافظ البدلة على الضغط وتوفر الأكسجين والطاقة والاتصال والتبريد، وتزيل ثاني أكسيد الكربون وتحمي من الفراغ والحرارة والغبار.",
+      effect: "تقل البراعة الحركية وقد يتعب الرائد أو يصاب. اختلاف الضغط بين المركبة والبدلة يخلق خطر مرض تخفيف الضغط، لذلك تخضع الاستعدادات لإجراءات محددة.",
+      current: "بدلات EMU مستخدمة في محطة الفضاء الدولية، مع تدريب وإجراءات ما قبل السير الفضائي وفحوص واتصالات ومراقبة للأنظمة.",
+      research: "تعمل NASA وشركاؤها على بدلات استكشاف أفضل حركة ومتانة للسطح القمري. لا توجد حاليًا بدلة مريخية عاملة أو بدلة Artemis استخدمت في مهمة مأهولة على السطح.",
+      example: "تستخدم بدلات Apollo تصميمًا تاريخيًا للمشي على القمر؛ أما أنظمة محطة الفضاء الدولية فمصممة لسياق مداري مختلف.",
+      sources: [{ label: "ما هي بدلة الفضاء؟ NASA", url: "https://www.nasa.gov/humans-in-space/what-is-a-spacesuit/" }, { label: "أساسيات بدلة السير الفضائي، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "مخاطر السير الفضائي، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-injury-and-compromised-performance-from-extravehicular-activity-eva/" }] },
+    { key: "isolation", title: "العزلة والنوم والصحة النفسية", icon: "◷", target: "المهمات طويلة الأمد",
+      problem: "العيش والعمل في مساحة محدودة مع طاقم صغير وبعيدًا عن الأسرة والدعم المباشر قد يسبب ضغطًا نفسيًا واضطراب النوم وتراجع الأداء.",
+      cause: "العزلة، وضيق الحيز، وجدول العمل، والإضاءة والضوضاء، والاتصال المحدود تتفاعل مع التعب والخلافات اليومية.",
+      effect: "قد تتأثر اليقظة واتخاذ القرار والتعاون؛ لذلك تعد صحة الفريق عامل سلامة وأداء، وليست رفاهية منفصلة عن المهمة.",
+      current: "تختار NASA الطواقم وتدربها وتدعمها نفسيًا وسلوكيًا، وتدير النوم والجدولة وتراقب الأداء في المهمات والمحاكاة.",
+      research: "تدرس NASA آثار الإقامة الطويلة ووسائل تحسين النوم والتوافق الجماعي في HERA وCHAPEA؛ هذه محاكاة أرضية ولا تثبت وحدها كيف ستكون مهمة مريخ حقيقية.",
+      example: "تستخدم CHAPEA موطنًا أرضيًا لمحاكاة إقامة طويلة على المريخ، بينما تقدم المهمات المدارية خبرة تشغيلية أقصر وباتصال أقرب بالأرض.",
+      sources: [{ label: "العزلة والحصر، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-isolation-and-confinement/" }, { label: "مخاطر النوم والعمل الجماعي، NASA HRP", url: "https://www.nasa.gov/hrp/risks/" }, { label: "برنامج CHAPEA، NASA", url: "https://www.nasa.gov/humans-in-space/chapea/" }] },
+    { key: "communication", title: "تأخر الاتصال والاستقلالية", icon: "⌁", target: "القمر · المريخ",
+      problem: "تزداد مدة الإشارة مع المسافة؛ وقد يصل تأخر الاتصال مع المريخ إلى نحو 20 دقيقة في اتجاه واحد. لا يستطيع الطاقم انتظار رد فوري لكل قرار.",
+      cause: "المسافة بين الكواكب وزمن انتقال موجات الراديو، إضافة إلى انقطاع خط الرؤية أو قيود الشبكة.",
+      effect: "قد يتعذر توجيه إصلاح أو مناورة لحظيًا، ويتطلب ذلك تخطيطًا مسبقًا وقدرة الطاقم على التصرف في الأعطال والحالات الطبية.",
+      current: "يخطط مراقبو الرحلة للاتصال وجدول البيانات ويعتمد رواد ISS حاليًا على دعم أرضي قريب نسبيًا؛ هذا النموذج لا يوفر دعمًا فوريًا لطاقم قرب المريخ.",
+      research: "تطوّر NASA إجراءات واستقلالية تشغيلية وتدريبًا ودعمًا لاتخاذ القرار للرحلات البعيدة. لا يعني ذلك أن الذكاء الاصطناعي أو نظامًا ذاتيًا بعينه معتمد لإنقاذ طاقم مريخي.",
+      example: "تتدرب أطقم HERA على سيناريوهات اتصال متأخر على الأرض؛ أما تأخر المريخ الفعلي فيتغير مع موضع الكوكبين.",
+      sources: [{ label: "المسافة عن الأرض، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-distance-from-earth/" }, { label: "مخاطر دعم التشغيل، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-inadequate-systems-operations-support/" }, { label: "الاتصال مع المهمات، NASA", url: "https://www.nasa.gov/communicating-with-missions/" }] },
+    { key: "resources", title: "الماء والغذاء والموارد", icon: "◍", target: "الرحلات الطويلة",
+      problem: "لا يمكن الاعتماد على إعادة الإمداد المنتظمة في رحلة إلى المريخ؛ يجب أن تكفي المياه والغذاء والأدوية وقطع الغيار الطاقم مع كتلة وحجم محدودين.",
+      cause: "المسافة والمدة وتكلفة الإطلاق تحد من الشحن، كما تتطلب إعادة تدوير الماء والطاقة والصيانة أنظمة موثوقة.",
+      effect: "فقد المورد أو تلف الغذاء أو ضعف التغذية قد يضر بالصحة والأداء ويهدد أهداف المهمة.",
+      current: "تعيد محطة الفضاء الدولية تدوير جزء كبير من الماء وتستقبل شحنات إمداد؛ هذه الإمدادات المنتظمة لا تتاح لمهمة مريخية.",
+      research: "تدرس NASA أنظمة دعم حياة أكثر تجديدًا، ووجبات طويلة الصلاحية ومقبولة غذائيًا، وتقليل الفاقد. لا يعني ذلك أن إنتاج الطعام أو الاكتفاء الذاتي الكامل تحقق بالفعل.",
+      example: "تجارب استعادة الماء على ISS وخطط نظام غذاء Mars توضح الفرق بين تقنية عاملة في المدار وتقنيات تحتاج إلى تكييف لمهمات بعيدة.",
+      sources: [{ label: "المسافة عن الأرض والموارد، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-distance-from-earth/" }, { label: "خطر التغذية غير الكافية، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-inadequate-food-and-nutrition/" }, { label: "استعادة الماء على ISS، NASA", url: "https://www.nasa.gov/missions/station/iss-research/nasa-achieves-water-recovery-milestone-on-international-space-station/" }, { label: "تصميم غذاء للفضاء العميق، NASA", url: "https://www.nasa.gov/humans-in-space/the-menu-for-mars-designing-a-deep-space-food-system/" }] },
+    { key: "emergencies", title: "الأعطال والطوارئ الطبية", icon: "⚠", target: "المركبة · السطح",
+      problem: "عطل في دعم الحياة أو الاتصال أو الطاقة، أو إصابة ومرض خلال السير، قد يتحول سريعًا إلى خطر لأن الإخلاء والمساعدة من الأرض غير فوريين.",
+      cause: "الأنظمة مترابطة، والبدلة والبيئة القاسية تحدان من وقت الإصلاح. في المهمات البعيدة تتأخر المشورة والإمدادات.",
+      effect: "قد يضطر الطاقم إلى إيقاف المهمة أو الاحتماء أو علاج زميله وإصلاح النظام بموارد محدودة.",
+      current: "يتدرب رواد الفضاء على إجراءات الطوارئ وصيانة الأنظمة والرعاية الطبية الأساسية، وتتوفر في ISS استشارة أرضية ومعدات طبية أكثر مما يمكن ضمانه قرب المريخ.",
+      research: "تدرس NASA مقدار التدريب والبيانات وأدوات القرار والرعاية المستقلة اللازمة للرحلات البعيدة؛ أدوات التشخيص الذاتي المتقدمة قيد التطوير وليست بديلًا مثبتًا عن الطاقم الطبي.",
+      example: "تدريب المحاكاة الأرضي وعمليات ISS يختبران الاستجابة، لكنهما لا يماثلان إخلاءً طبيًا من سطح المريخ.",
+      sources: [{ label: "مخاطر دعم التشغيل، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-inadequate-systems-operations-support/" }, { label: "المسافة والرعاية الطبية، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-distance-from-earth/" }, { label: "مخاطر البيئات المغلقة، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-hostile-closed-environments/" }] },
+    { key: "mobility", title: "التنقل والعمل وجمع العينات", icon: "⌖", target: "السطح الميداني",
+      problem: "المنحدرات والصخور والحفر والغبار تعقد الحركة. البدلة المضغوطة تقلل مرونة اليد والجذع، والتقاط عينة أو تخزينها يحتاج خطوات تمنع السقوط والتلوث.",
+      cause: "التضاريس غير المنتظمة، اختلاف الجاذبية عن التدريب الأرضي، مجال الرؤية والقفازات والأدوات، وحدود الوقت والأكسجين.",
+      effect: "يزداد احتمال التعثر أو إجهاد العضلات أو فقد الأداة أو تلويث العينة؛ وقد تقل كمية العينات أو تتأخر المهمة.",
+      current: "تستخدم مهمات EVA التخطيط والتدريب وقوائم الإجراءات والأدوات المربوطة وإدارة وقت المهمة، ويتدرب الطاقم على التقاط العينات وتوثيقها.",
+      research: "تعمل NASA على مفاصل وملاءمة وحركة أفضل لبدلات الاستكشاف وأدوات سطح القمر؛ وتُختبر مفاهيم المركبات والعينات في بيئات تناظرية، لا على أنها عمليات مريخية قائمة.",
+      example: "جمع رواد Apollo عينات قمرية، وتوفر المهمات السابقة خبرة تاريخية؛ أما تصميم بدلات Artemis وحركتها على السطح فما زال قيد التطوير.",
+      sources: [{ label: "مخاطر السير الفضائي، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-injury-and-compromised-performance-from-extravehicular-activity-eva/" }, { label: "أساسيات بدلة السير الفضائي، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "ما هي بدلة الفضاء؟ NASA", url: "https://www.nasa.gov/humans-in-space/what-is-a-spacesuit/" }] }
   ];
-  return `${heading("مشاكل وحلول رواد الفضاء", "تحديات الرواد والحلول المقترحة", "لكل موقع بيئته الخاصة، ولكل مشكلة حل. نستعرض هنا أهم المشكلات التي قد تواجه رواد الفضاء داخل المركبة وعلى سطح القمر والمريخ والمواقع النظيرة، مع الحل المقترح لكل موقع.")}
+  return `${heading("مخاطر الرحلات البشرية", "ماذا يواجه رواد الفضاء؟", "مراجعة علمية لعشرة مخاطر تشغيلية وصحية في الرحلات البشرية، مع فصل الإجراءات المستخدمة اليوم عن التقنيات التي ما زالت قيد البحث.")}
   <section class="panel problems-page-panel">
     <div class="problems-intro">
-      <p>تستعرض البطاقات أدناه أبرز المشاكل البيئية والتشغيلية التي قد تواجه رواد الفضاء خلال مهام الاستكشاف، مع الحل التقني والتجهيزي المقترح لكل موقع.</p>
+      <p>المواقع الأرضية الستة في المنصة تساعد على اختبار جوانب محددة من الجيولوجيا أو الحركة أو الأدوات فقط؛ لا تحاكي جاذبية القمر أو المريخ ولا إشعاع الفضاء أو ضغطه. ما زالت الرحلات البشرية إلى سطح المريخ مستقبلية، لذلك نميّز أدناه بين الخبرة التشغيلية على محطة الفضاء الدولية أو Apollo وبين البحث والتطوير للبعثات القادمة.</p>
     </div>
     <div class="problems-grid">
       ${problems.map(item => `
-        <article class="problem-card ${item.key}">
-          <div class="problem-icon" aria-hidden="true">${item.icon}</div>
+        <article class="problem-card risk-card ${item.key}">
+          <div class="problem-card-heading"><div class="problem-icon" aria-hidden="true">${item.icon}</div><span class="problem-target">${escapeHtml(item.target)}</span></div>
           <div class="problem-content">
-            <h3>${escapeHtml(item.title)} <span class="problem-target">${escapeHtml(item.target)}</span></h3>
+            <h2>${escapeHtml(item.title)}</h2>
             <div class="problem-pair">
               <div class="problem-box problem-box-problem">
-                <span class="problem-label">المشكلة</span>
+                <span class="problem-label">المشكلة وسببها</span>
                 <p>${escapeHtml(item.problem)}</p>
               </div>
-              <div class="problem-box problem-box-solution">
-                <span class="problem-label">الحل</span>
-                <p>${escapeHtml(item.solution)}</p>
+              <div class="problem-box risk-impact">
+                <span class="problem-label">الأثر على الطاقم والمهمة</span>
+                <p>${escapeHtml(item.effect)}</p>
+              </div>
+              <div class="problem-box risk-current">
+                <span class="problem-label">إجراءات مستخدمة حاليًا</span>
+                <p>${escapeHtml(item.current)}</p>
+              </div>
+              <div class="problem-box risk-research">
+                <span class="problem-label">قيد البحث أو التطوير</span>
+                <p>${escapeHtml(item.research)}</p>
               </div>
             </div>
+            <p class="problem-example"><strong>مثال وحدود المقارنة:</strong> ${escapeHtml(item.example)}</p>
+            <div class="problem-sources"><strong>مصادر NASA</strong>${item.sources.map(source => `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)} ↗</a>`).join("")}</div>
           </div>
         </article>
       `).join("")}
+    </div>
+  </section>
+  <section class="panel risk-reference-panel" aria-labelledby="risk-references-title">
+    <div><span class="eyebrow">المراجع العلمية</span><h2 id="risk-references-title">مصادر NASA المستخدمة</h2><p>روابط مباشرة إلى صفحات NASA ومراجعها الفنية؛ قد تتغير حالة برامج التطوير بمرور الوقت.</p></div>
+    <div class="risk-reference-links">
+      <a href="https://www.nasa.gov/hrp/hazards/" target="_blank" rel="noopener noreferrer">أخطار الرحلات البشرية <span>↗</span></a>
+      <a href="https://www.nasa.gov/hrp/risks/" target="_blank" rel="noopener noreferrer">مخاطر صحة الإنسان <span>↗</span></a>
+      <a href="https://www.nasa.gov/humans-in-space/what-is-a-spacesuit/" target="_blank" rel="noopener noreferrer">ما هي بدلة الفضاء؟ <span>↗</span></a>
+      <a href="https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" target="_blank" rel="noopener noreferrer">أساسيات بدلة السير الفضائي <span>↗</span></a>
+      <a href="https://science.nasa.gov/moon/moon-dust/" target="_blank" rel="noopener noreferrer">الغبار القمري <span>↗</span></a>
+      <a href="https://ntrs.nasa.gov/" target="_blank" rel="noopener noreferrer">مستودع الأبحاث الفنية NTRS <span>↗</span></a>
     </div>
   </section>
   <div class="page-actions" style="margin-top:24px;text-align:center;">

@@ -951,6 +951,34 @@ p {
   gap: 12px;
 }
 
+.exploration-premise {
+  margin: 18px 0 0;
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  color: #e8f4fa;
+  background: linear-gradient(100deg, rgba(14, 53, 78, 0.82), rgba(11, 25, 45, 0.88));
+  border: 1px solid rgba(81, 174, 218, 0.24);
+  border-inline-start: 3px solid #53bde6;
+  border-radius: 7px;
+}
+.exploration-premise-mark {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  color: #87cfe9;
+  font: 700 10px "Plus Jakarta Sans", sans-serif;
+}
+.exploration-premise-mark strong { color: #f0d48d; font-size: 24px; line-height: 1; }
+.exploration-premise-copy { min-width: 0; }
+.exploration-premise-kicker { color: #79c7e4; font-size: 11px; font-weight: 700; }
+.exploration-premise-copy p { margin: 3px 0 0; color: #f1f7fa; font-size: 15px; font-weight: 600; line-height: 1.8; }
+.exploration-premise-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.exploration-premise-links a { padding: 8px 10px; color: #d7eff8; border: 1px solid rgba(139, 203, 229, 0.24); border-radius: 5px; font-size: 11px; text-decoration: none; white-space: nowrap; }
+.exploration-premise-links a:hover { color: #fff; background: rgba(57, 153, 193, 0.16); border-color: rgba(139, 203, 229, 0.5); }
+
 /* 3D Planetary Orb Showcase */
 .hero-planet-wrapper {
   position: relative;
@@ -1825,6 +1853,19 @@ p {
 
 .map-toolbar select:focus {
   border-color: var(--cyan);
+}
+
+@media (max-width: 620px) {
+  .map-panel { padding: 16px; }
+  .map-panel .section-head { grid-template-columns: minmax(0, 1fr); }
+  .map-panel .section-head > * { min-width: 0; }
+  .map-panel .map-toolbar { width: 100%; min-width: 0; flex-direction: column; align-items: stretch; }
+  .map-panel .toolbar-group { min-width: 0; flex-wrap: wrap; align-items: stretch; }
+  .map-panel .map-toolbar select { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+  .map-panel .toolbar-toggles { flex-wrap: wrap; }
+  .map-panel .map-caption { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .problems-page-panel .problems-grid { grid-template-columns: minmax(0, 1fr); }
+  .problems-page-panel .problem-card { padding: 15px; }
 }
 
 .toolbar-toggles {
@@ -3845,6 +3886,8 @@ tr:hover td {
   .section-head h2 { font-size: 21px; }
   .section-head p { font-size: 13px; line-height: 1.7; }
   .hero-panel { grid-template-columns: 1fr; }
+  .exploration-premise { grid-template-columns: 48px minmax(0, 1fr); gap: 12px; }
+  .exploration-premise-links { grid-column: 2; }
   .hero-planet-wrapper { grid-row: 1; }
   .hero-system-scene { width: min(100%, 390px); }
   .mobile-menu {
@@ -3902,6 +3945,12 @@ tr:hover td {
   .warp-toggle-btn .warp-text { display: none; }
   .top-guide-btn,.mobile-menu { width: 34px; height: 34px; }
   .hero-panel { padding: 22px 16px 25px; }
+  .exploration-premise { padding: 15px; grid-template-columns: 1fr; gap: 9px; }
+  .exploration-premise-mark { display: flex; align-items: baseline; gap: 7px; }
+  .exploration-premise-mark strong { font-size: 18px; }
+  .exploration-premise-copy p { font-size: 14px; }
+  .exploration-premise-links { grid-column: 1; }
+  .exploration-premise-links a { flex: 1 1 120px; text-align: center; white-space: normal; }
   .page-heading { margin-bottom: 20px; gap: 12px; }
   .page-heading h1 { font-size: 22px; }
   .page-heading p { font-size: 13px; line-height: 1.7; }
@@ -4818,11 +4867,14 @@ body.team-view-active .team-project-panel {
 .game-crew-roster ol { display: grid; gap: 3px; margin: 6px 0 0; padding: 0; list-style: none; }
 .game-crew-member { min-width: 0; min-height: 23px; display: grid; grid-template-columns: 19px minmax(0, 1fr) 12px; align-items: center; gap: 6px; padding: 2px 3px; color: #d6e2e4; background: rgba(255,255,255,0.025); border-radius: 4px; }
 .game-crew-avatar { width: 18px; height: 18px; display: grid; place-items: center; color: #b7e7e2; background: #19333b; border: 1px solid rgba(142, 204, 207, 0.35); border-radius: 50%; font: 700 7px "Plus Jakarta Sans", sans-serif; direction: ltr; }
-.game-crew-name { overflow: hidden; color: #e4eeee; font: 500 9px "Plus Jakarta Sans", sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.game-crew-name { overflow: visible; overflow-wrap: anywhere; color: #e4eeee; font: 500 9px "Plus Jakarta Sans", sans-serif; text-overflow: clip; white-space: normal; }
 .game-crew-mark { color: #78baaa; text-align: center; font-size: 10px; }
 .game-crew-member.is-leader { background: rgba(224, 177, 92, 0.12); }
 .game-crew-member.is-leader .game-crew-mark { color: #f5cb70; font-size: 12px; }
 .game-world-shell.has-game-crew .game-companion-hint { top: 230px; left: 12px; }
+.game-world-shell .game-crew-member { min-height: 31px; }
+.game-crew-copy { min-width: 0; display: grid; gap: 1px; }
+.game-crew-role { overflow: hidden; color: #8fb0b5; font-size: 7px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
 
 .game-health-meter { position: absolute; top: 0; left: 50%; min-width: 116px; padding: 6px 9px; display: flex; align-items: center; gap: 7px; color: #f2f7f6; background: rgba(6, 13, 19, 0.82); border: 1px solid rgba(245, 112, 121, 0.28); border-radius: 6px; transform: translateX(-50%); }
 .game-health-meter > span { color: #f18787; font-size: 16px; }
@@ -4883,7 +4935,7 @@ body.team-view-active .team-project-panel {
 .game-crew-roster ol { display: grid; gap: 3px; margin: 6px 0 0; padding: 0; list-style: none; }
 .game-crew-member { min-width: 0; min-height: 23px; display: grid; grid-template-columns: 19px minmax(0, 1fr) 12px; align-items: center; gap: 6px; padding: 2px 3px; color: #d6e2e4; background: rgba(255,255,255,0.025); border-radius: 4px; }
 .game-crew-avatar { width: 18px; height: 18px; display: grid; place-items: center; color: #b7e7e2; background: #19333b; border: 1px solid rgba(142, 204, 207, 0.35); border-radius: 50%; font: 700 7px "Plus Jakarta Sans", sans-serif; direction: ltr; }
-.game-crew-name { overflow: hidden; color: #e4eeee; font: 500 9px "Plus Jakarta Sans", sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.game-crew-name { overflow: visible; overflow-wrap: anywhere; color: #e4eeee; font: 500 9px "Plus Jakarta Sans", sans-serif; text-overflow: clip; white-space: normal; }
 .game-crew-mark { color: #78baaa; text-align: center; font-size: 10px; }
 .game-crew-member.is-leader { background: rgba(224, 177, 92, 0.12); }
 .game-crew-member.is-leader .game-crew-mark { color: #f5cb70; font-size: 12px; }
@@ -5167,11 +5219,11 @@ body.team-view-active .team-project-panel {
   .game-touch-controls { overflow: hidden; }
   .game-joystick { bottom: 28px; left: 14px; width: 108px; height: 108px; }
   .game-joystick-knob { width: 43px; height: 43px; }
-  .game-crew-roster { top: 74px; left: 7px; width: min(184px, 42vw); padding: 5px; }
+  .game-crew-roster { top: 74px; left: 7px; width: min(184px, 48vw); padding: 5px; }
   .game-crew-roster header { font-size: 9px; }
   .game-crew-member { min-height: 19px; grid-template-columns: 16px minmax(0, 1fr) 11px; gap: 3px; padding-inline: 1px; }
   .game-crew-avatar { width: 15px; height: 15px; font-size: 6px; }
-  .game-crew-name { font-size: 7px; }
+  .game-crew-name { font-size: 8px; }
   .game-world-shell.has-game-crew .game-companion-hint { top: 188px; left: 7px; max-width: 40%; }
   .game-action-buttons { right: max(8px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); grid-template-columns: repeat(4, 40px); grid-template-rows: repeat(2, 40px); gap: 5px; }
   .game-action-buttons button { width: 39px; height: 39px; font-size: 11px; }
@@ -5481,16 +5533,16 @@ body.game-session-active #guide-panel { display: none !important; }
 }
 
 .game-planet-characteristics {
-  margin: 16px 0;
-  padding: 16px;
+  margin: 12px 0;
+  padding: 11px 12px;
   background: rgba(15, 23, 42, 0.85);
   border: 1px solid rgba(56, 189, 248, 0.35);
-  border-radius: 12px;
+  border-radius: 7px;
   text-align: right;
   direction: rtl;
 }
 .game-planet-characteristics h3 {
-  font-size: 15px;
+  font-size: 13px;
   color: #38bdf8;
   margin: 0 0 10px;
   font-weight: 700;
@@ -5501,10 +5553,10 @@ body.game-session-active #guide-panel { display: none !important; }
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .game-planet-characteristics li {
-  font-size: 12px;
+  font-size: 10.5px;
   color: #cbd5e1;
   line-height: 1.6;
   position: relative;
@@ -5753,6 +5805,28 @@ body.game-session-active #guide-panel { display: none !important; }
   margin: 0;
   line-height: 1.6;
 }
+.risk-card { min-width: 0; align-self: stretch; }
+.problem-card-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.risk-card .problem-icon { flex: 0 0 auto; }
+.risk-card .problem-content h2 { margin: 0 0 12px; color: var(--text-pure); font-size: 18px; line-height: 1.5; }
+.risk-card .problem-pair { min-width: 0; }
+.risk-card .problem-box { min-width: 0; border-inline-start: 3px solid var(--border-glass-bright); border-left: 0; }
+.risk-card .problem-box-problem { border-inline-start-color: var(--danger); }
+.risk-card .risk-impact { border-inline-start-color: #e6b45e; }
+.risk-card .risk-current { border-inline-start-color: #59b9dc; }
+.risk-card .risk-research { border-inline-start-color: #a89bea; }
+.risk-card .problem-box p, .risk-card .problem-example, .risk-card .problem-sources { overflow-wrap: anywhere; }
+.risk-card .problem-example { margin: 12px 0; color: var(--text-muted); font-size: 12px; line-height: 1.75; }
+.risk-card .problem-example strong { color: var(--text-main); }
+.risk-card .problem-sources { display: grid; justify-items: start; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+.risk-card .problem-sources > strong { color: var(--text-subtle); font-size: 10px; }
+.risk-card .problem-sources a { color: #83cdec; font-size: 11px; line-height: 1.6; text-decoration: underline; text-decoration-color: rgba(131, 205, 236, 0.3); text-underline-offset: 3px; }
+.risk-reference-panel { margin-top: 18px; padding: 18px; }
+.risk-reference-panel h2 { margin: 4px 0; color: var(--text-pure); font-size: 17px; }
+.risk-reference-panel p { margin: 0; color: var(--text-muted); font-size: 12px; line-height: 1.7; }
+.risk-reference-links { margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 7px; }
+.risk-reference-links a { min-width: 0; padding: 9px 10px; display: flex; justify-content: space-between; gap: 8px; color: #9bd9f1; background: rgba(76, 158, 194, 0.08); border: 1px solid rgba(112, 184, 212, 0.18); border-radius: 5px; font-size: 11px; line-height: 1.5; text-decoration: none; }
+.risk-reference-links a:hover { color: #e4f8ff; border-color: rgba(112, 184, 212, 0.48); }
 
 /* ==========================================================================
    GAME WORLD KIT / HEALTH PANELS
@@ -6307,7 +6381,7 @@ body.game-session-active #guide-panel { display: none !important; }
 /* ==========================================================================
    شريط المجموعة الشمسية داخل واجهة اللعبة (الगेम بلاي)
    ========================================================================== */
-.game-solar-strip { position: absolute; z-index: 5; top: 80px; left: 12px; right: auto; transform: none; display: flex; align-items: center; gap: 8px; padding: 4px 8px; max-width: 40%; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; overflow-x: auto; scrollbar-width: thin; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; scroll-behavior: smooth; }
+.game-solar-strip { position: absolute; z-index: 5; top: 80px; left: auto; right: 12px; transform: none; display: flex; align-items: center; gap: 6px; padding: 3px 6px; max-width: 27%; background: rgba(5, 12, 20, 0.72); border: 1px solid rgba(171, 204, 219, 0.2); border-radius: 999px; pointer-events: none; backdrop-filter: blur(6px); box-sizing: border-box; overflow-x: auto; scrollbar-width: thin; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; scroll-behavior: smooth; }
 .game-solar-strip::-webkit-scrollbar { height: 4px; }
 .game-solar-strip::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 2px; }
 .game-solar-strip::-webkit-scrollbar-thumb { background: rgba(0,210,255,0.35); border-radius: 2px; }
@@ -6316,8 +6390,8 @@ body.game-session-active #guide-panel { display: none !important; }
 
 .game-solar-body.active { transform: scale(1.1); filter: brightness(1.2); }
 .game-solar-body.current { transform: scale(1.15); filter: brightness(1.25); border: 1px solid rgba(0, 210, 255, 0.35); box-shadow: 0 0 16px rgba(0, 210, 255, 0.35); background: rgba(0, 40, 60, 0.35); border-radius: 50%; }
-.game-solar-body.current .game-solar-planet-img.current-img { width: 32px; height: 32px; }
-.game-solar-body.current .game-solar-label.current-label { font-size: 10px; color: #fff; font-weight: 700; text-shadow: 0 0 8px rgba(0, 210, 255, 0.8); }
+.game-solar-body.current .game-solar-planet-img.current-img { width: 24px; height: 24px; }
+.game-solar-body.current .game-solar-label.current-label { font-size: 9px; color: #fff; font-weight: 700; text-shadow: 0 0 8px rgba(0, 210, 255, 0.8); }
 
 .game-solar-glow { position: absolute; inset: 0; border-radius: 50%; opacity: 0; transition: opacity 0.35s ease; }
 
@@ -6372,13 +6446,14 @@ body.game-session-active #guide-panel { display: none !important; }
 
 .game-solar-body.active .game-solar-glow { animation: solar-pulse 2s ease-in-out infinite; }
 
-.game-location-bar { display: flex; align-items: center; gap: 10px; margin-top: 14px; margin-bottom: 10px; }
+.game-location-bar { min-width: 0; display: flex; align-items: center; gap: 10px; margin-top: 14px; margin-bottom: 10px; }
 .game-location-bar .game-location-icon { font-size: 16px; }
-.game-location-bar .game-location-text { font-size: 13px; color:#cfe8ff; font-weight:600; text-shadow:0 0 10px rgba(0,210,255,0.45); white-space:nowrap; opacity:0.95; }
+.game-location-bar .game-location-text { min-width: 0; font-size: 13px; color:#cfe8ff; font-weight:600; text-shadow:0 0 10px rgba(0,210,255,0.45); overflow-wrap: anywhere; opacity:0.95; }
 
 /* متجاوبية للشريط داخل اللعبة */
 @media (max-width: 1024px) {
-  .game-solar-strip { top: 70px; left: 10px; gap: 6px; padding: 3px 8px; max-width: 35%; }
+  .game-world-shell .game-crew-member { min-height: 28px; }
+  .game-solar-strip { top: 70px; left: auto; right: 10px; gap: 5px; padding: 3px 6px; max-width: 30%; }
   .game-solar-body { gap: 4px; }
   .game-solar-planet-img { width: 16px; height: 16px; }
   .game-solar-body.solar-jupiter .game-solar-planet-img { width: 20px; height: 20px; }
@@ -6389,7 +6464,9 @@ body.game-session-active #guide-panel { display: none !important; }
 }
 
 @media (max-width: 520px) {
-  .game-solar-strip { top: 60px; left: 8px; gap: 5px; padding: 3px 6px; max-width: 45%; }
+  .game-world-shell .game-crew-member { min-height: 27px; }
+  .game-crew-role { font-size: 8px; }
+  .game-solar-strip { top: 60px; left: auto; right: 8px; gap: 4px; padding: 3px 5px; max-width: 34%; }
   .game-solar-body { gap: 3px; }
   .game-solar-planet-img { width: 14px; height: 14px; }
   .game-solar-body.solar-jupiter .game-solar-planet-img { width: 18px; height: 18px; }

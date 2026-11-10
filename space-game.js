@@ -231,7 +231,7 @@ const worldLooks = {
     fog: 0x6e311f,
     ground: [0x541f14, 0xa24122, 0xd4683a],
     rock: [0x59281a, 0xb85732],
-    gravity: 3.72,
+    gravity: 3.71,
     walk: 5.4,
     run: 8.8,
     acceleration: 12,
@@ -292,6 +292,7 @@ export function stopSpaceExplorer() {
 
 export function getSpaceExplorerResumeState() {
   if (!(activeWorld instanceof SpaceWorld) || !activeWorld.playerBody) return null;
+  activeWorld.persistRouteTrace();
   const position = activeWorld.playerBody.position;
   return {
     x: position.x,
@@ -483,8 +484,12 @@ class SpaceWorld {
       readSites: Array.isArray(config.progress.readSites) ? [...config.progress.readSites] : [],
       analyzedSites: Array.isArray(config.progress.analyzedSites) ? [...config.progress.analyzedSites] : [],
       completedMissions: Array.isArray(config.progress.completedMissions) ? [...config.progress.completedMissions] : [],
+      routePoints: Array.isArray(config.progress.routePoints) ? config.progress.routePoints.slice(-180).map(point => ({ ...point })) : [],
       roverUnlocked: Boolean(config.progress.roverUnlocked)
     };
+    this.routePoints = this.progress.routePoints;
+    this.routeLine = null;
+    this.lastRoutePersistAt = 0;
     this.stageComplete = false;
     this.finalMissionComplete = false;
     this.paused = false;
@@ -507,6 +512,7 @@ class SpaceWorld {
     this.createLighting();
     this.createWorld();
     this.createPlayer();
+    this.createRouteTrail();
     this.createCompanion();
     this.createSamples();
     this.createScientificPoints();
@@ -1578,6 +1584,9 @@ class SpaceWorld {
     if (this.siteProfile?.terrain === "lava") {
       const flowRidges = Math.abs(Math.sin(z * 0.13 + Math.sin(x * 0.055) * 1.8)) * 0.85;
       base += Math.sin(z * 0.17 + Math.sin(x * 0.08) * 2.2) * 1.1 + Math.cos(x * 0.12 + z * 0.07) * 0.65 + flowRidges;
+      const tunnelWidth = 1 - THREE.MathUtils.smoothstep(Math.abs(x - 4), 2.0, 2.9);
+      const tunnelEntry = THREE.MathUtils.smoothstep(-z, 10, 17) * (1 - THREE.MathUtils.smoothstep(-z, 31, 33));
+      base -= 3.6 * tunnelWidth * tunnelEntry;
     } else if (this.siteProfile?.terrain === "alluvial") {
       const channel = z - Math.sin(x * 0.075) * 5;
       const desertRidge = Math.max(0, Math.abs(x) - 25) * 0.28;
@@ -1633,6 +1642,12 @@ class SpaceWorld {
 
     for (let row = 0; row < segments; row += 1) {
       for (let column = 0; column < segments; column += 1) {
+        const cellX = -WORLD_RADIUS + size * (column + 0.5) / segments;
+        const cellZ = -WORLD_RADIUS + size * (row + 0.5) / segments;
+        if (this.siteProfile?.terrain === "lava"
+          && Math.abs(cellX - 4) < 2.35
+          && cellZ < -17.2
+          && cellZ > -31.8) continue;
         const a = row * (segments + 1) + column;
         const b = a + 1;
         const c = a + segments + 1;
@@ -1697,6 +1712,56 @@ class SpaceWorld {
     body.addShape(shape);
     this.physics.addBody(body);
     this.siteBodies.push(body);
+  }
+
+  createRouteTrail() {
+    if (!this.routePoints.length) {
+      const position = this.playerBody.position;
+      this.routePoints.push({ x: position.x, y: this.terrainHeight(position.x, position.z) + 0.1, z: position.z });
+    }
+    this.refreshRouteTrail();
+  }
+
+  updateRouteTrace() {
+    const position = this.playerBody.position;
+    const last = this.routePoints.at(-1);
+    if (!last || Math.hypot(position.x - last.x, position.z - last.z) >= 1.8) {
+      this.routePoints.push({
+        x: Number(position.x.toFixed(2)),
+        y: Number((this.terrainHeight(position.x, position.z) + 0.1).toFixed(2)),
+        z: Number(position.z.toFixed(2))
+      });
+      if (this.routePoints.length > 180) this.routePoints.shift();
+      this.refreshRouteTrail();
+    }
+    if (this.routePoints.length > 1 && this.elapsed - this.lastRoutePersistAt >= 5) {
+      this.lastRoutePersistAt = this.elapsed;
+      this.persistRouteTrace();
+    }
+  }
+
+  refreshRouteTrail() {
+    if (this.routePoints.length < 2) return;
+    const geometry = new THREE.BufferGeometry().setFromPoints(
+      this.routePoints.map(point => new THREE.Vector3(point.x, point.y, point.z))
+    );
+    if (this.routeLine) {
+      this.routeLine.geometry.dispose();
+      this.routeLine.geometry = geometry;
+      return;
+    }
+    this.routeLine = new THREE.Line(
+      geometry,
+      new THREE.LineBasicMaterial({ color: 0x67d9cf, transparent: true, opacity: 0.82 })
+    );
+    this.routeLine.renderOrder = 3;
+    this.scene.add(this.routeLine);
+  }
+
+  persistRouteTrace() {
+    if (this.routePoints.length < 2) return;
+    this.progress.routePoints = this.routePoints.map(point => ({ ...point }));
+    this.config.onProgress?.({ ...this.progress });
   }
 
   addTerrainDetails() {
@@ -1802,34 +1867,60 @@ class SpaceWorld {
   createSiteEnvironment() {
     if (this.siteProfile?.terrain === "lava") {
       const tubeX = 4;
-      const tubeZ = -17;
+      const tubeZ = -17.5;
       const tubeY = this.terrainHeight(tubeX, tubeZ);
       const entrance = new THREE.Group();
       entrance.position.set(tubeX, tubeY, tubeZ);
-      const darkOpening = new THREE.Mesh(new THREE.CircleGeometry(2.15, 24), new THREE.MeshBasicMaterial({ color: 0x080a0b }));
-      darkOpening.position.set(0, 2.15, -0.5);
-      entrance.add(darkOpening);
-      const arch = new THREE.Mesh(new THREE.TorusGeometry(2.15, 0.42, 8, 24), new THREE.MeshStandardMaterial({ color: 0x3c3e3b, roughness: 0.98 }));
-      arch.position.set(0, 2.15, -0.46);
-      entrance.add(arch);
-      const tube = new THREE.Mesh(new THREE.CylinderGeometry(2.05, 2.05, 11, 24, 1, true), new THREE.MeshStandardMaterial({ color: 0x222423, side: THREE.BackSide, roughness: 1 }));
-      tube.rotation.x = Math.PI / 2;
-      tube.position.set(0, 2.15, -6);
-      entrance.add(tube);
+      const basaltMaterial = new THREE.MeshStandardMaterial({ color: 0x343936, roughness: 0.98, flatShading: true, side: THREE.DoubleSide });
+      const interior = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.9, 14, 32, 12, true), basaltMaterial);
+      interior.castShadow = true;
+      interior.receiveShadow = true;
+      interior.rotation.x = Math.PI / 2;
+      interior.position.set(0, 1.8, -7);
+      entrance.add(interior);
+      const floor = new THREE.Mesh(new THREE.BoxGeometry(3.55, 0.14, 14), new THREE.MeshStandardMaterial({ color: 0x242a28, roughness: 1, flatShading: true }));
+      floor.receiveShadow = true;
+      floor.position.set(0, -0.05, -7);
+      entrance.add(floor);
+      const darkEnd = new THREE.Mesh(new THREE.CircleGeometry(1.78, 32), new THREE.MeshStandardMaterial({ color: 0x111513, roughness: 1, side: THREE.DoubleSide }));
+      darkEnd.position.set(0, 1.8, -13.95);
+      entrance.add(darkEnd);
+      const entranceArch = new THREE.Mesh(new THREE.TorusGeometry(1.95, 0.34, 10, 28), new THREE.MeshStandardMaterial({ color: 0x4b504a, roughness: 0.96 }));
+      entranceArch.position.set(0, 1.8, 0.05);
+      entrance.add(entranceArch);
+
+      const entranceBoulderGeometry = new THREE.IcosahedronGeometry(1, 1);
+      const entranceBoulders = [
+        [-2.7, 0.8, 0.1, 1.35, 1.45, 1.1],
+        [2.8, 0.65, -0.4, 1.25, 1.2, 1.35],
+        [-2.65, 2.8, -0.7, 1.1, 0.9, 1.25],
+        [2.55, 3.1, -0.5, 1.25, 1.0, 1.05]
+      ];
+      entranceBoulders.forEach(([x, y, z, sx, sy, sz], index) => {
+        const boulder = new THREE.Mesh(entranceBoulderGeometry, basaltMaterial);
+        boulder.position.set(x, y, z);
+        boulder.scale.set(sx, sy, sz);
+        boulder.rotation.set(index * 0.19, index * 0.61, index * 0.13);
+        boulder.castShadow = true;
+        boulder.receiveShadow = true;
+        entrance.add(boulder);
+        this.addSiteCollider(new CANNON.Box(new CANNON.Vec3(sx * 0.46, sy * 0.46, sz * 0.46)), tubeX + x, tubeY + y, tubeZ + z);
+      });
       this.scene.add(entrance);
       this.lavaTube = entrance;
-      for (let segment = 0; segment < 8; segment += 1) {
-        const angle = segment * TAU / 8;
-        this.addSiteCollider(
-          new CANNON.Box(new CANNON.Vec3(0.58, 0.58, 5)),
-          tubeX + Math.cos(angle) * 1.8,
-          tubeY + 2.15 + Math.sin(angle) * 1.8,
-          tubeZ - 5.8
-        );
-      }
-      const tubeLight = new THREE.PointLight(0x92b7b2, 0.45, 13, 2);
-      tubeLight.position.set(tubeX, tubeY + 2.4, tubeZ - 5.5);
-      this.scene.add(tubeLight);
+      this.addSiteCollider(new CANNON.Box(new CANNON.Vec3(1.78, 0.12, 7)), tubeX, tubeY - 0.12, tubeZ - 7);
+      this.addSiteCollider(new CANNON.Box(new CANNON.Vec3(0.16, 1.68, 7)), tubeX - 1.86, tubeY + 1.8, tubeZ - 7);
+      this.addSiteCollider(new CANNON.Box(new CANNON.Vec3(0.16, 1.68, 7)), tubeX + 1.86, tubeY + 1.8, tubeZ - 7);
+      this.addSiteCollider(new CANNON.Box(new CANNON.Vec3(1.82, 0.12, 7)), tubeX, tubeY + 3.48, tubeZ - 7);
+      const tubeLights = [
+        new THREE.Vector3(tubeX, tubeY + 2.5, tubeZ - 3.2),
+        new THREE.Vector3(tubeX - 0.7, tubeY + 2.6, tubeZ - 9.5)
+      ];
+      tubeLights.forEach(position => {
+        const light = new THREE.PointLight(0x9abdb2, 0.55, 9, 2);
+        light.position.copy(position);
+        this.scene.add(light);
+      });
 
       const ventMaterial = new THREE.MeshStandardMaterial({ color: 0x3c3934, roughness: 0.97, flatShading: true });
       [[-20, -8], [19, -20], [-25, 22]].forEach(([x, z], index) => {
@@ -2160,7 +2251,7 @@ class SpaceWorld {
     this.scene.add(this.playerModel);
     this.playerPivots = this.playerModel.userData.pivots;
 
-    // Three companions follow the leader in the same arrowhead formation.
+    // Four crew members follow the player in staggered formation slots.
     this.crewMembers = [];
     if (["astronaut", "alien"].includes(this.config.character)) {
       const crewFaces = this.config.character === "astronaut" ? [
@@ -2357,8 +2448,9 @@ class SpaceWorld {
       const distance = 11 + Math.sqrt(progress) * 31 + (seededValue(index + 7, 11) - 0.5) * 8;
       const anchor = anchors.length ? anchors[index % anchors.length] : null;
       const radius = 2.5 + seededValue(index + 31, 17) * 3.5;
-      const x = THREE.MathUtils.clamp(anchor ? anchor.x + Math.cos(angle) * radius : Math.cos(angle) * distance, -WORLD_RADIUS + 8, WORLD_RADIUS - 8);
-      const z = THREE.MathUtils.clamp(anchor ? anchor.z + Math.sin(angle) * radius : Math.sin(angle) * distance, -WORLD_RADIUS + 8, WORLD_RADIUS - 8);
+      const tubeSample = this.stageSite?.id === "hawaii" && index === count - 1;
+      const x = tubeSample ? 4.2 : THREE.MathUtils.clamp(anchor ? anchor.x + Math.cos(angle) * radius : Math.cos(angle) * distance, -WORLD_RADIUS + 8, WORLD_RADIUS - 8);
+      const z = tubeSample ? -26 : THREE.MathUtils.clamp(anchor ? anchor.z + Math.sin(angle) * radius : Math.sin(angle) * distance, -WORLD_RADIUS + 8, WORLD_RADIUS - 8);
       const size = definition.size || 0.75;
       const groundY = this.terrainHeight(x, z);
       const group = new THREE.Group();
@@ -3260,6 +3352,8 @@ class SpaceWorld {
         }
       }
 
+      this.updateRouteTrace();
+
       if (this.isEarth || this.isGrounded()) {
         this.isJetpacking = false;
         if (this.thrusterFx) this.thrusterFx.visible = false;
@@ -3584,7 +3678,7 @@ class SpaceWorld {
       posAttr.needsUpdate = true;
     }
 
-    // 3 Female Astronaut Crew Companions smoothly following leader in formation
+    // Crew members use separate formation targets and steer around nearby rocks.
     if (this.crewMembers) {
       const pRot = this.playerModel.rotation.y;
       const pPos = this.playerModel.position;
@@ -3593,8 +3687,22 @@ class SpaceWorld {
 
       this.crewMembers.forEach(crew => {
         // Compute formation slot in world coordinates relative to leader's facing
-        const targetX = pPos.x + crew.offset.x * cosR + crew.offset.z * sinR;
-        const targetZ = pPos.z - crew.offset.x * sinR + crew.offset.z * cosR;
+        let targetX = pPos.x + crew.offset.x * cosR + crew.offset.z * sinR;
+        let targetZ = pPos.z - crew.offset.x * sinR + crew.offset.z * cosR;
+        for (const rock of this.rockSurfaces) {
+          const dx = targetX - rock.x;
+          const dz = targetZ - rock.z;
+          const clearance = rock.radius + 0.8;
+          if (Math.abs(dx) >= clearance || Math.abs(dz) >= clearance) continue;
+          const distance = Math.hypot(dx, dz);
+          if (distance < clearance) {
+            const push = (clearance - distance) / Math.max(distance, 0.01);
+            targetX += dx * push;
+            targetZ += dz * push;
+          }
+        }
+        targetX = THREE.MathUtils.clamp(targetX, -WORLD_RADIUS + 3, WORLD_RADIUS - 3);
+        targetZ = THREE.MathUtils.clamp(targetZ, -WORLD_RADIUS + 3, WORLD_RADIUS - 3);
 
         // Smoothly interpolate position towards target
         crew.currentPos.x = THREE.MathUtils.lerp(crew.currentPos.x, targetX, 1 - Math.exp(-6 * delta));
@@ -3810,6 +3918,10 @@ class SpaceWorld {
     this.renderer.domElement.removeEventListener("click", this.onCanvasClick);
     if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
     clearTimeout(this.toastTimeout);
+    if (this.routeLine) {
+      this.routeLine.geometry.dispose();
+      this.routeLine.material.dispose();
+    }
     this.baseCampBodies?.forEach(b => this.physics?.removeBody(b));
     this.rockBodies?.forEach(body => this.physics?.removeBody(body));
     this.siteBodies?.forEach(body => this.physics?.removeBody(body));

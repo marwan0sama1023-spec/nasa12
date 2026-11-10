@@ -40335,7 +40335,6 @@ var SpaceWorld = class {
     this.createAtmosphericDust();
     this.createSurfaceBaseCamp();
     this.createEarthDayNightButton();
-    this.createFieldLogButton();
     this.bindInputs();
     this.resizeObserver.observe(this.container);
     this.setQuality(this.quality);
@@ -42100,8 +42099,9 @@ var SpaceWorld = class {
   }
   createRover() {
     const rover = makeDetailedRover(this.isMars);
+    rover.scale.setScalar(0.55);
     rover.position.set(3.8, this.terrainHeight(3.8, 2.2), 2.2);
-    rover.visible = false;
+    rover.visible = Boolean(this.progress.roverUnlocked);
     this.scene.add(rover);
     this.rover = rover;
     this.roverWheels = rover.userData.wheels || [];
@@ -42412,6 +42412,7 @@ var SpaceWorld = class {
     if (engineAction === "inventory") this.toggleInventory(true);
     if (engineAction === "inventory-close") this.toggleInventory(false);
     if (engineAction === "field-log") {
+      this.togglePause(false);
       const fieldLog = this.hud.querySelector("#game-field-log");
       if (fieldLog) fieldLog.hidden = !fieldLog.hidden;
     }
@@ -42608,7 +42609,6 @@ var SpaceWorld = class {
     this.playerModel.visible = !this.roverMode;
     this.rover.position.set(this.playerBody.position.x, this.playerBody.position.y - PLAYER_COLLIDER_HEIGHT, this.playerBody.position.z);
     this.rover.rotation.y = this.cameraYaw;
-    this.hud.querySelector('[data-engine-button="rover"]')?.classList.toggle("is-active", this.roverMode);
     if (this.roverMode) {
       this.toast("\u0623\u0646\u062A \u062A\u0642\u0648\u062F \u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \xB7 \u0627\u0636\u063A\u0637 V \u0644\u0644\u062A\u0631\u062C\u0644.");
       this.playPing(380, 0.2, "sawtooth");
@@ -42745,12 +42745,7 @@ var SpaceWorld = class {
     setText(this.hud, "#game-xp-value", String(this.progress.xp));
     setText(this.hud, "#game-sample-count", `${this.worldCollectedCount()}/${this.sampleGoal}`);
     setText(this.hud, "#game-world-label", this.look.label);
-    const roverBtn = this.hud.querySelector('[data-engine-button="rover"]');
-    if (roverBtn) {
-      roverBtn.hidden = !this.progress.roverUnlocked;
-      roverBtn.classList.toggle("is-locked", !this.progress.roverUnlocked);
-      roverBtn.classList.toggle("is-active", this.roverMode);
-    }
+    if (this.rover) this.rover.visible = Boolean(this.progress.roverUnlocked);
     const complete = this.isSampleMissionComplete();
     const craterDone = this.progress.completedMissions.includes(this.craterMissionId);
     const oxygenMeter = this.hud.querySelector(".game-oxygen-meter");
@@ -42775,10 +42770,13 @@ var SpaceWorld = class {
     const overlay = this.hud.querySelector("#game-over-overlay");
     if (!overlay) return;
     overlay.hidden = false;
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
     const t = overlay.querySelector("#game-over-title");
     const r = overlay.querySelector("#game-over-reason");
     if (t) t.textContent = title;
     if (r) r.textContent = reason;
+    overlay.querySelector("button")?.focus({ preventScroll: true });
     this.paused = true;
     if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
   }
@@ -43145,12 +43143,20 @@ var SpaceWorld = class {
     const body = this.playerBody.interpolatedPosition;
     const feet = this.terrainHeight(body.x, body.z);
     this.playerModel.position.set(body.x, Math.max(feet, body.y - PLAYER_COLLIDER_HEIGHT), body.z);
-    if (this.roverMode) {
-      this.rover.position.set(body.x, this.playerModel.position.y, body.z);
-      this.rover.rotation.y = this.playerModel.rotation.y;
+    if (this.rover?.visible) {
       const roverSpeed = Math.hypot(this.playerBody.velocity.x, this.playerBody.velocity.z);
-      this.roverWheels.forEach((w) => {
-        w.rotation.x += roverSpeed * delta * 3.5;
+      const heading = this.playerModel.rotation.y;
+      if (this.roverMode) {
+        this.rover.position.set(body.x, this.playerModel.position.y, body.z);
+      } else {
+        const targetX = body.x + Math.sin(heading) * 1.8;
+        const targetZ = body.z + Math.cos(heading) * 1.8;
+        const target = new Vector3(targetX, this.terrainHeight(targetX, targetZ), targetZ);
+        this.rover.position.lerp(target, 1 - Math.exp(-4.5 * delta));
+      }
+      this.rover.rotation.y = heading;
+      this.roverWheels.forEach((wheel) => {
+        wheel.rotation.x += roverSpeed * delta * 3.5;
       });
     }
     const horizontalSpeed = Math.hypot(this.playerBody.velocity.x, this.playerBody.velocity.z);
@@ -43272,7 +43278,7 @@ var SpaceWorld = class {
     }
   }
   updateMissionClock(delta) {
-    if (this.isSampleMissionComplete() || this.timedOut) return;
+    if (this.config.character === "astronaut" || this.isSampleMissionComplete() || this.timedOut) return;
     this.timeLimit -= delta;
     const seconds = Math.max(0, Math.ceil(this.timeLimit));
     setText(this.hud, "#game-timer", `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`);

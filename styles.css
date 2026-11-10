@@ -4983,6 +4983,11 @@ body.team-view-active .team-project-panel {
 .game-action-buttons button.is-active { color: #c1f5df; border-color: #85dab6; }
 .game-pause-overlay,.game-settings-panel,.game-inventory-panel { position: absolute; z-index: 10; inset: 0; padding: 18px; display: grid; place-items: center; background: rgba(4, 9, 15, 0.72); backdrop-filter: blur(5px); }
 .game-pause-overlay[hidden],.game-settings-panel[hidden],.game-inventory-panel[hidden] { display: none; }
+.game-over-overlay { position: absolute; z-index: 40; inset: 0; display: grid; place-items: center; overflow-y: auto; overscroll-behavior: contain; padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)); background: rgba(3, 8, 15, 0.92); backdrop-filter: blur(8px); -webkit-overflow-scrolling: touch; pointer-events: auto; touch-action: pan-y; }
+.game-over-overlay[hidden] { display: none !important; }
+.game-over-overlay .game-menu-panel { width: min(100%, 520px); max-height: calc(100% - 12px); overflow-y: auto; overscroll-behavior: contain; align-content: start; touch-action: pan-y; }
+.game-over-overlay .game-stage-actions { display: grid; grid-template-columns: 1fr; gap: 9px; }
+.game-over-overlay button { min-height: 48px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .game-menu-panel,.game-settings-card,.game-inventory-card { position: relative; width: min(100%, 480px); padding: 25px; display: grid; gap: 11px; background: linear-gradient(145deg, rgba(18, 33, 39, 0.98), rgba(11, 18, 28, 0.99)); border: 1px solid rgba(141, 192, 196, 0.3); border-radius: 8px; box-shadow: 0 22px 60px rgba(0,0,0,0.45); }
 .game-inventory-card { max-height: min(88vh, 600px); display: flex; flex-direction: column; overflow: hidden; }
 .game-inventory-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(148, 187, 191, 0.2); padding-bottom: 12px; margin-bottom: 6px; }
@@ -6501,4 +6506,36 @@ body.game-session-active #guide-panel { display: none !important; }
   .game-crew-copy { min-width: 0; }
   .game-crew-name { overflow: hidden; font-size: 7px; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
   .game-crew-role { font-size: 6px; line-height: 1.1; white-space: nowrap; }
+}
+
+/* Keep the world image, location details, and mission objective in separate rows. */
+.game-hud-top { top: 12px; right: 12px; left: 12px; display: block; z-index: 8; pointer-events: none; }
+.game-objective-status { position: absolute; top: 0; right: 0; left: auto; width: min(360px, 42%); min-width: 0; max-width: none; }
+.game-solar-strip { top: 12px; right: auto; left: 12px; width: auto; max-width: min(36%, 380px); }
+.game-location-bar { position: absolute; z-index: 5; top: 72px; left: 12px; width: min(42%, 460px); min-width: 0; margin: 0; padding: 8px 10px; align-items: flex-start; color: #e9f4f3; background: rgba(6, 13, 19, 0.84); border: 1px solid rgba(196, 218, 217, 0.19); border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.16); backdrop-filter: blur(9px); }
+.game-location-bar .game-location-text { font-size: 11px; line-height: 1.45; text-shadow: none; }
+.game-hud-actions { position: absolute; z-index: 9; top: 120px; right: 12px; left: auto; max-width: min(48%, 420px); pointer-events: auto; }
+.game-hud-top .game-oxygen-meter { position: absolute; top: 180px; right: 12px; left: auto; width: min(220px, 32vw); min-width: 0; max-width: 220px; margin: 0; flex: none; }
+.game-crew-roster { top: 180px; }
+.game-action-buttons { grid-template-columns: repeat(3, clamp(42px, min(6vw, 8vh), 54px)); grid-template-rows: repeat(2, clamp(42px, min(6vw, 8vh), 54px)); }
+.game-action-buttons button[data-engine-button="inventory"] { grid-column: 1; grid-row: 1; }
+.game-action-buttons button[data-engine-button="camera"] { grid-column: 2; grid-row: 1; }
+.game-action-buttons button[data-engine-button="interact"] { grid-column: 3; grid-row: 1; }
+.game-action-buttons button[data-engine-button="run"] { grid-column: 2; grid-row: 2; }
+.game-action-buttons button[data-engine-button="jump"] { grid-column: 3; grid-row: 2; }
+.game-action-buttons button[data-engine-button="equipment"],.game-action-buttons button[data-engine-button="rover"] { display: none !important; }
+.game-beacon-solo { top: 140px; }
+
+@media (max-width: 1024px) {
+  .game-hud-top { top: max(8px, env(safe-area-inset-top)); right: 8px; left: 8px; }
+  .game-objective-status { width: min(360px, 45%); }
+  .game-solar-strip { top: 8px; right: auto; left: 8px; max-width: min(42%, 300px); }
+  .game-location-bar { top: 84px; left: 8px; width: min(42%, 400px); padding: 6px 8px; gap: 6px; }
+  .game-location-bar .game-location-text { font-size: 9px; }
+  .game-hud-actions { top: 112px; right: 8px; }
+  .game-hud-top .game-oxygen-meter { top: 176px; right: 8px; width: min(190px, 28vw); padding: 7px 9px; }
+  .game-crew-roster { top: 132px; left: 8px; }
+  .game-beacon-solo { top: 164px; }
+  .game-over-overlay { padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)); }
+  .game-over-overlay .game-menu-panel { padding: 18px; }
 }

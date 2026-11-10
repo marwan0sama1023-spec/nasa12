@@ -1116,17 +1116,24 @@ function mountGameEquipmentControls(container) {
   if (!["astronaut", "alien"].includes(spaceGame.character)) return;
   const shell = container.closest(".game-world-shell");
   if (!shell) return;
+  shell.querySelector('[data-engine-button="equipment"]')?.remove();
+  shell.querySelector('[data-engine-button="rover"]')?.remove();
   if (!shell.querySelector(".game-crew-roster")) {
     shell.insertAdjacentHTML("beforeend", gameCrewRosterMarkup());
     shell.classList.add("has-game-crew");
+  }
+  const pauseMenu = shell.querySelector(".game-pause-overlay .game-menu-panel");
+  if (pauseMenu && spaceGame.character === "astronaut" && spaceGame.equipment.length && !pauseMenu.querySelector('[data-engine-action="equipment"]')) {
+    pauseMenu.insertAdjacentHTML("afterbegin", `<button class="game-menu-secondary" type="button" data-engine-action="equipment">فتح العتاد</button>`);
+  }
+  if (pauseMenu && spaceGame.character === "alien" && spaceGame.selectedSite && !pauseMenu.querySelector('[data-engine-action="field-log"]')) {
+    pauseMenu.insertAdjacentHTML("afterbegin", `<button class="game-menu-secondary" type="button" data-engine-action="field-log">ملاحظات الموقع</button>`);
   }
   if (spaceGame.character !== "astronaut") return;
   if (spaceGame.equipment.length && !shell.querySelector("#game-equipment-panel")) shell.insertAdjacentHTML("beforeend", gameEquipmentPanelMarkup());
   if (!spaceGame.equipment.length) return;
   if (!shell.querySelector(".game-health-meter")) shell.querySelector(".game-hud-bottom")?.insertAdjacentHTML("beforeend", `<div class="game-health-meter" aria-label="سلامة البدلة"><span aria-hidden="true">♥</span><div><small>سلامة البدلة</small><strong id="game-health-value">100%</strong><div class="game-health-bar"><span id="game-health-fill"></span></div></div></div>`);
   if (!shell.querySelector("#game-environment-alert")) shell.insertAdjacentHTML("beforeend", `<div class="game-environment-alert" id="game-environment-alert" role="status" aria-live="polite" hidden></div>`);
-  if (!shell.querySelector('[data-engine-action="equipment"]')) shell.querySelector(".game-hud-actions")?.insertAdjacentHTML("beforeend", `<button class="game-icon-control" type="button" data-engine-action="equipment" aria-label="معدات الرحلة" title="استخدام معدات الرحلة">🧰</button>`);
-  if (!shell.querySelector('[data-engine-button="equipment"]')) shell.querySelector(".game-action-buttons")?.insertAdjacentHTML("beforeend", `<button type="button" data-engine-button="equipment" aria-label="معدات الرحلة">🧰<small>معدات</small></button>`);
 }
 function getActiveGameWorld() {
   if (!spaceGame.destination) return null;
@@ -1578,6 +1585,17 @@ function handleSpaceGameAction(button) {
     spaceGame.destination = null;
     spaceGame.selectedSite = null;
     spaceGame.resumeState = null;
+  } else if (action === "restart-mission") {
+    const previousMission = spaceGame;
+    spaceGame = freshSpaceGame();
+    spaceGame.character = previousMission.character;
+    spaceGame.destination = previousMission.destination;
+    spaceGame.selectedSite = previousMission.selectedSite;
+    spaceGame.suit = previousMission.suit;
+    spaceGame.spacecraft = previousMission.spacecraft;
+    spaceGame.equipment = [...previousMission.equipment];
+    spaceGame.settings = { ...previousMission.settings };
+    gamePresentation.resumeChoice = false;
   } else if (action === "review-site") {
     spaceGameEngine?.reviewCompletedStage?.();
     return;
@@ -1736,8 +1754,7 @@ function exitGamePresentation() {
   gamePresentation.layer = null;
   gamePresentation.resumeChoice = false;
   document.body.classList.remove("game-session-active");
-  render();
-  document.getElementById("game")?.scrollIntoView({ block: "start" });
+  window.location.assign("https://marwan0sama1023-spec.github.io/nasa12/");
 }
 function galleryPage() {
   return `${heading("صور المواقع", "معرض الصور الفضائية", `صور ميدانية أصلية للمواقع الستة · ${sites.reduce((count, site) => count + site.gallery.length, 0)} صورة.`)}
@@ -2430,6 +2447,16 @@ function render() {
   else if (kind === "game") pageRoot.innerHTML = gamePresentation.active ? spaceGameSessionPage() : spaceGamePage();
   else if (kind === "team") pageRoot.innerHTML = teamPage();
   else pageRoot.innerHTML = homePage();
+  if (kind === "game" && gamePresentation.active && spaceGame.character === "astronaut") {
+    pageRoot.querySelector(".game-world-shell")?.classList.add("astronaut-game");
+    pageRoot.querySelector(".game-mission-clock")?.remove();
+    const missionLabel = pageRoot.querySelector(".game-mission-index");
+    if (missionLabel) missionLabel.textContent = "المهمة 01";
+  }
+  const retryButton = kind === "game" && gamePresentation.active
+    ? pageRoot.querySelector('#game-over-overlay [data-game-action="reset"]')
+    : null;
+  if (retryButton) retryButton.dataset.gameAction = "restart-mission";
   if (kind === "map") mountMap("world-map", sites, { zoom: 2, fitAll: true });
   if (kind === "home") mountMap("home-map", sites, { zoom: 2, fitAll: true });
   if (site) mountMap("detail-map", [site], { zoom: 7, center: [site.lat, site.lon] });

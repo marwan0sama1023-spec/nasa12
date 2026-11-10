@@ -1249,7 +1249,7 @@ function spaceGameMapScreen() {
       ${gamePlanetStripMarkup(world)}
       <div class="game-arrival-title" id="game-arrival-title"><span>بدء المسح الميداني</span><strong>${worldName}</strong>${stageSite ? `<small>${escapeHtml(stageSite.science.task)}</small>` : ""}</div>
       ${spaceGame.character === "astronaut" ? `<div class="game-mission-kit"><div class="game-kit-item"><span class="game-kit-label">البدلة</span><strong>${spaceGame.suit === "moon-suit" ? "بدلة القمر" : spaceGame.suit === "mars-suit" ? "بدلة المريخ" : "بدلة قياسية"}</strong></div><div class="game-kit-item"><span class="game-kit-label">المركبة</span><strong>${spaceGame.spacecraft === "lunar-lander" ? "مركبة هبوط القمر" : spaceGame.spacecraft === "mars-lander" ? "مركبة هبوط المريخ" : "مركبة قياسية"}</strong></div><div class="game-kit-item"><span class="game-kit-label">العتاد</span><strong>${spaceGame.equipment.length ? spaceGame.equipment.map(id => ({ "oxygen-tank": "خزان أكسجين", "tool-kit": "حقيبة أدوات", "med-kit": "حقيبة إسعاف", "sample-bag": "حقيبة عينات", "comms-unit": "وحدة اتصال", "thermal-suit": "طبقة حرارية" }[id] || id)).join("، ") : "غير محدد"}</strong></div></div>` : ""}
-      <div class="game-hud game-hud-top"><div class="game-objective-status"><span class="game-mission-index">${stageSite ? "مهمة الموقع · جمع العينات" : "المهمة 01 · تحدي 03:00"}</span><strong id="game-mission-title">${stageSite ? missionComplete ? "اكتملت العينات" : `اجمع ${sampleGoal} عينات` : missionComplete ? "اتبع المنارة إلى فوهة الاصطدام" : `اجمع ${sampleGoal} عينات افتراضية`}</strong><small id="game-mission-count">${stageSite ? `${collected}/${sampleGoal} عينات` : missionComplete ? "المركبة متاحة" : `${collected}/${sampleGoal} عينات مجمعة`}</small><span class="game-mission-clock" id="game-timer">03:00</span></div>${spaceGame.character === "astronaut" ? `<div class="game-oxygen-meter"><span class="game-oxygen-icon">🫁</span><div><small>الأكسجين</small><strong id="game-oxygen-time">02:00</strong></div><div class="game-oxygen-bar"><div id="game-oxygen-fill" style="width:100%"></div></div></div>` : ""}<div class="game-hud-actions"><button class="game-icon-control" type="button" data-engine-action="inventory" aria-label="حقيبة العينات" title="حقيبة العينات الميدانية (R)">🎒</button><button class="game-icon-control" type="button" data-engine-action="solar-system" aria-label="رؤية المجموعة الشمسية" title="رصد المجموعة الشمسية والنجوم">🪐</button><button class="game-icon-control" type="button" data-engine-action="camera" aria-label="تبديل زاوية الكاميرا" title="تبديل الكاميرا (شخص ثالث / قناع الخوذة / طائرة استطلاع)">📷</button><button class="game-icon-control" type="button" data-engine-action="settings" aria-label="إعدادات اللعبة" title="الإعدادات">⚙</button><button class="game-icon-control" type="button" data-engine-action="pause" aria-label="إيقاف مؤقت" title="إيقاف مؤقت">Ⅱ</button></div></div>${locationBar}
+      <div class="game-hud game-hud-top"><div class="game-objective-status"><span class="game-mission-index">${stageSite ? "مهمة الموقع · جمع العينات" : "المهمة 01 · تحدي 03:00"}</span><strong id="game-mission-title">${stageSite ? missionComplete ? "اكتملت العينات" : `اجمع ${sampleGoal} عينات` : missionComplete ? "اتبع المنارة إلى فوهة الاصطدام" : `اجمع ${sampleGoal} عينات افتراضية`}</strong><small id="game-mission-count">${stageSite ? `${collected}/${sampleGoal} عينات` : missionComplete ? "المركبة متاحة" : `${collected}/${sampleGoal} عينات مجمعة`}</small><span class="game-mission-clock" id="game-timer">03:00</span></div>${spaceGame.character === "astronaut" ? `<div class="game-oxygen-meter"><span class="game-oxygen-icon">🫁</span><div><small>الأكسجين</small><strong id="game-oxygen-time">02:00</strong></div><div class="game-oxygen-bar"><div id="game-oxygen-fill" style="width:100%"></div></div></div>` : ""}<div class="game-hud-actions"><button class="game-icon-control" type="button" data-engine-action="inventory" aria-label="حقيبة العينات" title="حقيبة العينات الميدانية (R)">🎒</button><button class="game-icon-control" type="button" data-engine-action="solar-system" aria-label="رؤية المجموعة الشمسية" title="رصد المجموعة الشمسية والنجوم">🪐</button><button class="game-icon-control" type="button" data-engine-action="camera" aria-label="تبديل زاوية الكاميرا" title="تبديل الكاميرا (شخص ثالث / قناع الخوذة / طائرة استطلاع)">📷</button><button class="game-icon-control" type="button" data-engine-action="settings" aria-label="إعدادات اللعبة" title="الإعدادات">⚙</button><button class="game-icon-control" type="button" data-engine-action="pause" aria-label="إيقاف مؤقت" title="إيقاف مؤقت">Ⅱ</button><button class="game-icon-control" type="button" data-game-exit aria-label="الخروج من اللعبة" title="الخروج من اللعبة">×</button></div></div>${locationBar}
       <div class="game-beacon-solo" id="game-beacon-solo">${missionComplete ? '' : `<span class="game-beacon-solo-shell" aria-hidden="true"><svg id="game-beacon-arrow" viewBox="0 0 24 24" fill="none"><path d="M12 2.5L4.5 20.5L12 16.5L19.5 20.5L12 2.5Z" fill="#ffcf56" stroke="#fff1b8" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="game-beacon-solo-label">إشارة العينة</span><strong id="game-beacon-distance-solo" class="game-beacon-solo-dist">-- م</strong>`}</div>
       <div class="game-helmet-visor" id="game-helmet-visor" hidden aria-hidden="true"><div class="visor-reflection"></div><div class="visor-hud-reticle"></div></div>
       <div class="game-crosshair" aria-hidden="true"><i></i></div>
@@ -1261,7 +1261,7 @@ function spaceGameMapScreen() {
       ${stageSite ? gameFieldLogMarkup(stageSite) : ""}
       <div class="game-companion-hint" id="game-companion-hint" hidden></div>
       <div class="game-toast" id="game-toast" role="status" aria-live="polite"></div>
-      <div class="game-touch-controls" aria-label="عناصر تحكم اللمس"><div class="game-look-zone" aria-hidden="true"></div><div class="game-joystick" aria-label="عصا الحركة"><span class="game-joystick-knob"></span></div><div class="game-action-buttons"><button type="button" data-engine-button="inventory" aria-label="حقيبة العينات">🎒<small>عينات</small></button><button type="button" data-engine-button="camera" aria-label="تبديل زاوية الكاميرا">◉<small>كاميرا</small></button><button type="button" data-engine-button="interact" aria-label="تفاعل">E<small>تفاعل</small></button><button type="button" data-engine-button="rover" class="is-locked" aria-label="قيادة عربة الاستكشاف" hidden>◈<small>عربة</small></button><button type="button" data-engine-button="run" aria-label="جري">»<small>جري</small></button><button type="button" data-engine-button="jump" aria-label="قفز / دفع نفاث">↟<small>دفع</small></button></div></div>
+      <div class="game-touch-controls" aria-label="عناصر تحكم اللمس"><div class="game-look-zone" aria-hidden="true"></div><div class="game-joystick" aria-label="عصا الحركة"><span class="game-joystick-knob"></span></div><div class="game-action-buttons"><button type="button" data-engine-button="inventory" aria-label="حقيبة العينات">🎒<small>عينات</small></button><button type="button" data-engine-button="camera" aria-label="تبديل زاوية الكاميرا">◉<small>كاميرا</small></button><button type="button" data-engine-button="equipment" aria-label="استخدام المعدات">⚒<small>معدات</small></button><button type="button" data-engine-button="interact" aria-label="تفاعل">E<small>تفاعل</small></button><button type="button" data-engine-button="rover" class="is-locked" aria-label="قيادة عربة الاستكشاف" hidden>◈<small>عربة</small></button><button type="button" data-engine-button="run" aria-label="جري">»<small>جري</small></button><button type="button" data-engine-button="jump" aria-label="قفز / دفع نفاث">↟<small>دفع</small></button></div></div>
       <div class="game-pause-overlay" id="game-pause-overlay" hidden><div class="game-menu-panel"><span class="game-step">توقفت المهمة مؤقتًا</span><h2>خذ وقتك أيها المستكشف</h2><button class="button primary" type="button" data-engine-action="resume">متابعة الاستكشاف</button><button class="game-menu-secondary" type="button" data-game-action="change-destination">تغيير الوجهة</button><button class="game-menu-secondary" type="button" data-game-action="change-character">تغيير الشخصية</button><button class="game-menu-secondary" type="button" data-game-action="reset">بدء مغامرة جديدة</button><button class="game-exit-button" type="button" data-game-exit>× <span>خروج من اللعبة</span></button></div></div>
       <div class="game-over-overlay" id="game-over-overlay" hidden><div class="game-menu-panel"><span class="game-step">جيم أوفر</span><h2 id="game-over-title">انتهت المهمة</h2><p id="game-over-reason">لم تتمكن من جمع العينات قبل انتهاء الوقت.</p><div class="game-stage-actions"><button class="button primary" type="button" data-game-action="reset">محاولة مرة أخرى</button><button class="game-exit-button" type="button" data-game-exit>الخروج من اللعبة</button></div></div></div>
       <div class="game-settings-panel" id="game-settings-panel" hidden><div class="game-settings-card"><button class="game-settings-close" type="button" data-engine-action="settings-close" aria-label="إغلاق الإعدادات">×</button><span class="game-step">تخصيص الرحلة</span><h2>إعدادات اللعبة</h2><label class="game-setting-row"><span>الأصوات المحيطية</span><input id="game-sound-toggle" type="checkbox" ${spaceGame.settings.sound ? "checked" : ""}></label><label class="game-setting-row"><span>اهتزاز الكاميرا الخفيف</span><input id="game-camera-shake-toggle" type="checkbox" ${spaceGame.settings.cameraShake ? "checked" : ""}></label><label class="game-setting-row"><span>حساسية الماوس</span><input id="game-mouse-sensitivity" type="range" min="0.5" max="2" step="0.1" value="${spaceGame.settings.mouseSensitivity}"><output id="game-mouse-sensitivity-value">${spaceGame.settings.mouseSensitivity.toFixed(1)}×</output></label><label class="game-setting-row"><span>جودة العرض</span><select id="game-quality-select"><option value="low" ${spaceGame.settings.quality === "low" ? "selected" : ""}>اقتصادية</option><option value="medium" ${spaceGame.settings.quality === "medium" ? "selected" : ""}>متوازنة</option><option value="high" ${spaceGame.settings.quality === "high" ? "selected" : ""}>عالية</option></select></label><button class="button primary" type="button" data-engine-action="settings-close">تم</button></div></div>
@@ -3062,6 +3062,7 @@ document.getElementById("guide-close").addEventListener("click", () => { documen
 document.addEventListener("pointerdown", unlockGuideAudio, { once: true, capture: true });
 document.addEventListener("keydown", unlockGuideAudio, { once: true, capture: true });
 document.addEventListener("visibilitychange", () => {
+  document.body.classList.toggle("page-hidden", document.hidden);
   if (!document.hidden) return;
   saveSpaceGameResumeState();
   resumePendingGuideResponse();
@@ -3189,6 +3190,19 @@ function initSpaceViewport() {
   if (!canvas || !context) return;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const lowPower = (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) || window.innerWidth < 700;
+  const deviceMemory = navigator.deviceMemory || 4;
+  const processorCount = navigator.hardwareConcurrency || 4;
+  const estimateDeviceTier = () => {
+    if (deviceMemory <= 4 || processorCount <= 4 || window.innerWidth < 520) return 0;
+    return deviceMemory >= 8 && processorCount >= 8 && window.innerWidth >= 1280 ? 2 : 1;
+  };
+  const visualProfiles = [
+    { stars: 42, dust: 20, pixelRatio: 0.8 },
+    { stars: 78, dust: 42, pixelRatio: 1 },
+    { stars: 132, dust: 72, pixelRatio: 1.25 }
+  ];
+  let maxPerformanceTier = estimateDeviceTier();
+  let performanceTier = maxPerformanceTier;
   const stars = [];
   const galaxyDust = [];
   let width = 0;
@@ -3199,15 +3213,19 @@ function initSpaceViewport() {
   let pointerY = 0;
   let galaxyRotation = 0;
 
-  const starCount = lowPower ? 75 : 175;
-  const dustCount = lowPower ? 60 : 150;
+  let starCount = visualProfiles[performanceTier].stars;
+  let dustCount = visualProfiles[performanceTier].dust;
   const isInactive = () => document.hidden
     || !canvas.getClientRects().length
     || document.body.classList.contains("game-session-active")
     || document.body.dataset.page !== "home";
 
   function resize() {
-    const ratio = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.35);
+    maxPerformanceTier = estimateDeviceTier();
+    performanceTier = Math.min(performanceTier, maxPerformanceTier);
+    starCount = visualProfiles[performanceTier].stars;
+    dustCount = visualProfiles[performanceTier].dust;
+    const ratio = Math.min(window.devicePixelRatio || 1, visualProfiles[performanceTier].pixelRatio);
     width = window.innerWidth;
     height = window.innerHeight;
     canvas.width = Math.round(width * ratio);
@@ -3219,22 +3237,23 @@ function initSpaceViewport() {
     // 1. Moving Stars & Silver Glitter (from Moodboard)
     stars.length = 0;
     for (let index = 0; index < starCount; index++) {
-      const isGlitter = Math.random() > 0.72;
+      const isGlitter = Math.random() > (performanceTier === 0 ? 0.97 : 0.93);
       stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: isGlitter ? 0.8 + Math.random() * 1.4 : 0.35 + Math.random() * (lowPower ? 0.9 : 1.4),
-        alpha: 0.25 + Math.random() * 0.7,
-        speed: 0.02 + Math.random() * 0.08,
+        radius: isGlitter ? 0.9 + Math.random() * 0.7 : 0.35 + Math.random() * 0.9,
+        alpha: 0.16 + Math.random() * 0.44,
+        speedX: (Math.random() - 0.5) * 0.018,
+        speedY: 0.004 + Math.random() * 0.018,
         phase: Math.random() * Math.PI * 2,
         depth: 0.15 + Math.random() * 0.85,
+        twinkleAmount: Math.random() > 0.36 ? 0.08 + Math.random() * 0.2 : 0,
         isGlitter,
-        // Colors from moodboard: Star White (#F5F3F0) or Galaxy Silver (#BCC6CC)
-        color: isGlitter ? "220, 226, 235" : (Math.random() > 0.5 ? "245, 243, 240" : "188, 198, 204")
+        color: isGlitter ? "222, 237, 247" : ["179, 205, 222", "136, 170, 192", "225, 237, 245"][Math.floor(Math.random() * 3)]
       });
     }
 
-    // 2. Milky Way Galaxy Swirl Particles (Cosmic Purple #5D3A82 & Nebula Pink #D98CA8)
+    // 2. Low-contrast blue galactic dust layers
     galaxyDust.length = 0;
     const arms = 2;
     for (let i = 0; i < dustCount; i++) {
@@ -3244,14 +3263,13 @@ function initSpaceViewport() {
       const maxR = Math.min(width, height) * 0.46;
       const r = 24 + distRatio * maxR;
       const theta = armOffset + distRatio * 3.8 + (Math.random() - 0.5) * 0.7;
-      const isPink = Math.random() > 0.52;
       galaxyDust.push({
         r,
         theta,
-        size: 1.8 + Math.random() * 3.5,
-        baseAlpha: 0.12 + Math.random() * 0.28,
+        size: 0.6 + Math.random() * 1.6,
+        baseAlpha: 0.035 + Math.random() * 0.085,
         speed: 0.00012 + Math.random() * 0.0002,
-        color: isPink ? "217, 140, 168" : "93, 58, 130" // Nebula Pink & Cosmic Purple
+        color: Math.random() > 0.5 ? "93, 145, 178" : "130, 176, 202"
       });
     }
 
@@ -3279,10 +3297,10 @@ function initSpaceViewport() {
 
     // Glowing Galaxy Core Gradient
     const coreGrad = context.createRadialGradient(gCenterX, gCenterY, 4, gCenterX, gCenterY, Math.min(width, height) * 0.36);
-    coreGrad.addColorStop(0, "rgba(245, 243, 240, 0.22)"); // Star White core
-    coreGrad.addColorStop(0.2, "rgba(217, 140, 168, 0.16)"); // Nebula Pink
-    coreGrad.addColorStop(0.55, "rgba(93, 58, 130, 0.12)"); // Cosmic Purple
-    coreGrad.addColorStop(1, "rgba(25, 26, 58, 0)"); // Midnight Blue edge
+    coreGrad.addColorStop(0, "rgba(205, 225, 238, 0.12)");
+    coreGrad.addColorStop(0.24, "rgba(90, 146, 178, 0.075)");
+    coreGrad.addColorStop(0.58, "rgba(35, 83, 119, 0.055)");
+    coreGrad.addColorStop(1, "rgba(7, 17, 31, 0)");
     context.fillStyle = coreGrad;
     context.beginPath();
     context.arc(gCenterX, gCenterY, Math.min(width, height) * 0.36, 0, Math.PI * 2);
@@ -3302,10 +3320,14 @@ function initSpaceViewport() {
     // --- Draw Moving Stars & Silver Glitter ---
     stars.forEach(star => {
       if (!reducedMotion.matches) {
-        star.y += star.speed * elapsed;
-        if (star.y > height + 4) { star.y = -4; star.x = Math.random() * width; }
+        star.x += star.speedX * elapsed;
+        star.y += star.speedY * elapsed;
+        if (star.y > height + 4) star.y = -4;
+        if (star.y < -4) star.y = height + 4;
+        if (star.x > width + 4) star.x = -4;
+        if (star.x < -4) star.x = width + 4;
       }
-      const twinkle = reducedMotion.matches ? 1 : 0.7 + Math.sin(timestamp * 0.0016 + star.phase) * 0.3;
+      const twinkle = reducedMotion.matches ? 1 : 1 - star.twinkleAmount / 2 + Math.sin(timestamp * 0.0008 + star.phase) * star.twinkleAmount / 2;
       const x = star.x + pointerX * star.depth * 8;
       const y = star.y + pointerY * star.depth * 6;
       const alpha = Math.max(0.08, star.alpha * twinkle);
@@ -3315,8 +3337,8 @@ function initSpaceViewport() {
 
       if (star.isGlitter && twinkle > 0.82) {
         // Shimmering 4-point glitter cross
-        context.shadowBlur = 10;
-        context.shadowColor = "rgba(220, 226, 235, 0.85)";
+        context.shadowBlur = 3;
+        context.shadowColor = "rgba(190, 220, 238, 0.45)";
         const s = star.radius * 1.8;
         context.moveTo(x - s, y);
         context.lineTo(x + s, y);

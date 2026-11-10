@@ -40136,6 +40136,9 @@ var SpacePreview = class {
     this.frame = 0;
     this.elapsed = 0;
     this.lastFrame = 0;
+    this.performanceSampleStart = 0;
+    this.performanceSampleFrames = 0;
+    this.adaptiveRenderScale = 1;
     this.scene = new Scene();
     this.scene.background = new Color(396312);
     this.camera = new PerspectiveCamera(42, 1, 0.1, 300);
@@ -42289,96 +42292,95 @@ var SpaceWorld = class {
     const knob = this.hud.querySelector(".game-joystick-knob");
     const lookZone = this.hud.querySelector(".game-look-zone");
     if (stick && knob) {
-      let activeTouch = null;
-      const start = (event) => {
-        const touch = Array.from(event.changedTouches)[0];
-        if (!touch) return;
-        activeTouch = touch.identifier;
-        move(event);
-      };
-      const move = (event) => {
-        const touch = Array.from(event.touches).find((t) => t.identifier === activeTouch);
-        if (!touch) return;
+      let joystickPointerId = null;
+      const moveJoystick = (event) => {
+        if (event.pointerId !== joystickPointerId) return;
         const rect = stick.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        const dx = (touch.clientX - centerX) / (rect.width / 2);
-        const dy = (touch.clientY - centerY) / (rect.height / 2);
+        const range = Math.max(1, rect.width * 0.34);
+        const dx = (event.clientX - centerX) / range;
+        const dy = (event.clientY - centerY) / range;
         const length = Math.hypot(dx, dy);
         const normalizer = length > 1 ? 1 / length : 1;
         this.touchMove.x = MathUtils.clamp(dx * normalizer, -1, 1);
         this.touchMove.y = MathUtils.clamp(dy * normalizer, -1, 1);
-        knob.style.transform = `translate(${this.touchMove.x * 24}px, ${this.touchMove.y * 24}px)`;
+        knob.style.transform = `translate(${this.touchMove.x * range}px, ${this.touchMove.y * range}px)`;
       };
-      const end = (event) => {
-        if (!Array.from(event.changedTouches).some((t) => t.identifier === activeTouch)) return;
-        activeTouch = null;
+      const endJoystick = (event) => {
+        if (event.pointerId !== joystickPointerId) return;
+        joystickPointerId = null;
         this.touchMove.x = 0;
         this.touchMove.y = 0;
         knob.style.transform = "translate(0, 0)";
       };
-      stick.addEventListener("touchstart", start, { passive: true });
-      window.addEventListener("touchmove", move, { passive: true });
-      window.addEventListener("touchend", end, { passive: true });
-      window.addEventListener("touchcancel", end, { passive: true });
+      stick.addEventListener("pointerdown", (event) => {
+        if (joystickPointerId !== null || event.button > 0) return;
+        event.preventDefault();
+        joystickPointerId = event.pointerId;
+        try {
+          stick.setPointerCapture(event.pointerId);
+        } catch {
+        }
+        moveJoystick(event);
+      });
+      stick.addEventListener("pointermove", moveJoystick);
+      stick.addEventListener("pointerup", endJoystick);
+      stick.addEventListener("pointercancel", endJoystick);
+      stick.addEventListener("lostpointercapture", endJoystick);
     }
     if (lookZone) {
-      let lastX = 0;
-      let lastY = 0;
-      lookZone.addEventListener("touchstart", (event) => {
-        const touch = event.touches[0];
-        if (!touch) return;
-        lastX = touch.clientX;
-        lastY = touch.clientY;
-      }, { passive: true });
-      lookZone.addEventListener("touchmove", (event) => {
-        const touch = event.touches[0];
-        if (!touch) return;
-        const dx = touch.clientX - lastX;
-        const dy = touch.clientY - lastY;
-        lastX = touch.clientX;
-        lastY = touch.clientY;
+      const lookPointers = /* @__PURE__ */ new Map();
+      lookZone.addEventListener("pointerdown", (event) => {
+        if (event.button > 0) return;
+        event.preventDefault();
+        lookPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        try {
+          lookZone.setPointerCapture(event.pointerId);
+        } catch {
+        }
+      });
+      lookZone.addEventListener("pointermove", (event) => {
+        const previous = lookPointers.get(event.pointerId);
+        if (!previous) return;
+        event.preventDefault();
+        const dx = event.clientX - previous.x;
+        const dy = event.clientY - previous.y;
+        lookPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
         this.cameraYaw -= dx * 55e-4 * this.mouseSensitivity;
         this.cameraPitch -= dy * 35e-4 * this.mouseSensitivity;
-      }, { passive: true });
+      });
+      const endLook = (event) => lookPointers.delete(event.pointerId);
+      lookZone.addEventListener("pointerup", endLook);
+      lookZone.addEventListener("pointercancel", endLook);
+      lookZone.addEventListener("lostpointercapture", endLook);
+    }
+    const actionButtons = this.hud.querySelector(".game-action-buttons");
+    if (actionButtons) {
+      const actionPointers = /* @__PURE__ */ new Map();
+      actionButtons.addEventListener("pointerdown", (event) => {
+        const button = event.target.closest("button");
+        if (!button || event.button > 0) return;
+        event.preventDefault();
+        actionPointers.set(event.pointerId, button);
+        try {
+          button.setPointerCapture(event.pointerId);
+        } catch {
+        }
+        this.activateHudButton(button);
+      });
+      const endAction = (event) => actionPointers.delete(event.pointerId);
+      actionButtons.addEventListener("pointerup", endAction);
+      actionButtons.addEventListener("pointercancel", endAction);
+      actionButtons.addEventListener("lostpointercapture", endAction);
     }
   }
   bindHudControls() {
     this.hud.addEventListener("click", (event) => {
       const button = event.target.closest("button");
       if (!button) return;
-      this.ensureAudio();
-      if (button.dataset.sampleAnalysis) this.analyzeSample(button.dataset.sampleAnalysis);
-      const engineAction = button.dataset.engineAction;
-      const engineButton = button.dataset.engineButton;
-      if (engineAction === "pause") this.togglePause();
-      if (engineAction === "resume") this.togglePause(false);
-      if (engineAction === "settings") this.toggleSettings();
-      if (engineAction === "settings-close") this.toggleSettings(false);
-      if (engineAction === "camera") this.toggleCameraMode();
-      if (engineAction === "inventory") this.toggleInventory(true);
-      if (engineAction === "inventory-close") this.toggleInventory(false);
-      if (engineAction === "field-log") {
-        const fieldLog = this.hud.querySelector("#game-field-log");
-        if (fieldLog) fieldLog.hidden = !fieldLog.hidden;
-      }
-      if (engineAction === "field-log-close") {
-        const fieldLog = this.hud.querySelector("#game-field-log");
-        if (fieldLog) fieldLog.hidden = true;
-      }
-      if (engineAction === "equipment") this.toggleEquipmentPanel(true);
-      if (engineAction === "equipment-close") this.toggleEquipmentPanel(false);
-      if (button.dataset.equipmentUse) this.useEquipment(button.dataset.equipmentUse);
-      if (engineButton === "jump") this.jump();
-      if (engineButton === "run") {
-        this.touchRun = !this.touchRun;
-        button.classList.toggle("is-active", this.touchRun);
-      }
-      if (engineButton === "interact") this.interact();
-      if (engineButton === "camera") this.toggleCameraMode();
-      if (engineButton === "inventory") this.toggleInventory(true);
-      if (engineButton === "equipment") this.toggleEquipmentPanel();
-      if (engineButton === "rover") this.toggleRover();
+      if (button.closest(".game-action-buttons") && event.detail !== 0) return;
+      this.activateHudButton(button);
     });
     const soundToggle = this.hud.querySelector("#game-sound-toggle");
     if (soundToggle) {
@@ -42412,11 +42414,62 @@ var SpaceWorld = class {
       });
     }
   }
+  activateHudButton(button) {
+    this.ensureAudio();
+    if (button.dataset.sampleAnalysis) this.analyzeSample(button.dataset.sampleAnalysis);
+    const engineAction = button.dataset.engineAction;
+    const engineButton = button.dataset.engineButton;
+    if (engineAction === "pause") this.togglePause();
+    if (engineAction === "resume") this.togglePause(false);
+    if (engineAction === "settings") this.toggleSettings();
+    if (engineAction === "settings-close") this.toggleSettings(false);
+    if (engineAction === "camera") this.toggleCameraMode();
+    if (engineAction === "solar-system") this.focusOnSolarSystem();
+    if (engineAction === "inventory") this.toggleInventory(true);
+    if (engineAction === "inventory-close") this.toggleInventory(false);
+    if (engineAction === "field-log") {
+      const fieldLog = this.hud.querySelector("#game-field-log");
+      if (fieldLog) fieldLog.hidden = !fieldLog.hidden;
+    }
+    if (engineAction === "field-log-close") {
+      const fieldLog = this.hud.querySelector("#game-field-log");
+      if (fieldLog) fieldLog.hidden = true;
+    }
+    if (engineAction === "equipment") this.toggleEquipmentPanel(true);
+    if (engineAction === "equipment-close") this.toggleEquipmentPanel(false);
+    if (button.dataset.equipmentUse) this.useEquipment(button.dataset.equipmentUse);
+    if (engineButton === "jump") this.jump();
+    if (engineButton === "run") {
+      this.touchRun = !this.touchRun;
+      button.classList.toggle("is-active", this.touchRun);
+    }
+    if (engineButton === "interact") this.interact();
+    if (engineButton === "camera") this.toggleCameraMode();
+    if (engineButton === "inventory") this.toggleInventory(true);
+    if (engineButton === "equipment") this.toggleEquipmentPanel();
+    if (engineButton === "rover") this.toggleRover();
+  }
   setQuality(level) {
     this.quality = level;
-    const pixelRatio = level === "high" ? 1.3 : level === "medium" ? 1 : 0.8;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatio));
-    this.renderer.shadowMap.enabled = level === "high" && matchMedia("(pointer: fine)").matches;
+    this.applyRenderQuality();
+  }
+  applyRenderQuality() {
+    const pixelRatio = this.quality === "high" ? 1.3 : this.quality === "medium" ? 1 : 0.8;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatio * this.adaptiveRenderScale));
+    this.renderer.shadowMap.enabled = this.quality === "high" && this.adaptiveRenderScale >= 0.85 && matchMedia("(pointer: fine)").matches;
+  }
+  updateAdaptiveRenderScale(now) {
+    this.performanceSampleFrames += 1;
+    if (!this.performanceSampleStart) this.performanceSampleStart = now;
+    const sampleDuration = now - this.performanceSampleStart;
+    if (sampleDuration < 2e3) return;
+    const framesPerSecond = this.performanceSampleFrames * 1e3 / sampleDuration;
+    const nextScale = framesPerSecond < 38 ? Math.max(0.65, this.adaptiveRenderScale - 0.15) : framesPerSecond > 52 ? Math.min(1, this.adaptiveRenderScale + 0.05) : this.adaptiveRenderScale;
+    this.performanceSampleStart = now;
+    this.performanceSampleFrames = 0;
+    if (nextScale === this.adaptiveRenderScale) return;
+    this.adaptiveRenderScale = nextScale;
+    this.applyRenderQuality();
   }
   updateEnvironmentalTelemetry() {
     const badge = this.hud.querySelector("#game-telemetry-text");
@@ -42827,6 +42880,12 @@ var SpaceWorld = class {
     const now = performance.now();
     const delta = Math.min((now - this.lastFrame) / 1e3, 0.05);
     this.lastFrame = now;
+    if (document.hidden) {
+      this.performanceSampleStart = now;
+      this.performanceSampleFrames = 0;
+    } else {
+      this.updateAdaptiveRenderScale(now);
+    }
     if (!this.paused) {
       this.elapsed += delta;
       const wasGrounded = this.isGrounded();
@@ -42874,7 +42933,7 @@ var SpaceWorld = class {
     }
     this.updateCelestialScene(delta);
     this.updateCamera(delta);
-    this.renderer.render(this.scene, this.camera);
+    if (!document.hidden) this.renderer.render(this.scene, this.camera);
   }
   /* -----------------------------------------------------------------------
      Celestial Dynamics: Star Movement Physics, Rotating Earth, Orbiting Moon

@@ -1305,7 +1305,7 @@ async function startSpaceGameScene() {
   if (!container) return;
   mountGameEquipmentControls(container);
   try {
-    spaceGameEngine ||= await import("./vendor/space-game.js");
+    spaceGameEngine ||= await import("./vendor/space-game.js?v=game-render-fix-20261110");
     if (!container.isConnected || route().split("/")[0] !== "game") return;
     const world = spaceGame.character === "alien" ? "earth" : spaceGame.destination;
     const target = spaceGame.destination === "moon" ? "القمر" : "المريخ";
@@ -1696,7 +1696,7 @@ async function startGamePresentation(mode = "new") {
   } else {
     void fullscreenRequest;
   }
-  const engineReady = import("./vendor/space-game.js").then(engine => {
+  const engineReady = import("./vendor/space-game.js?v=game-render-fix-20261110").then(engine => {
     spaceGameEngine ||= engine;
     return true;
   }).catch(error => {

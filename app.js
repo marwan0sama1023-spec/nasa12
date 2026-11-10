@@ -663,7 +663,7 @@ function homePage() {
         </div>
       </a>
       <a class="world-link mars-link" href="#mars-analogs">
-        <img src="mars-perseverance.jpg" alt="بيئات شبيهة بالمريخ">
+        <img src="assets/mars-perseverance.jpg" alt="بيئات شبيهة بالمريخ">
         <div class="world-link-overlay"></div>
         <div class="world-link-content">
           <span class="world-badge mars-badge">Mars Analogues · 03 مواقع</span>
@@ -1185,6 +1185,7 @@ function spaceGameMapScreen() {
       : "فوبوس وديموس يظهران كنماذج مدارية تقريبية، لا محاكاة فلكية عالية الدقة.";
   const astronautMissionComplete = spaceGame.character === "astronaut" && (missionComplete || (sampleGoal > 0 && collected >= sampleGoal));
   const otherDestination = spaceGame.destination === "moon" ? "mars" : "moon";
+  const otherDestinationName = otherDestination === "moon" ? "القمر" : "المريخ";
   const otherDestinationComplete = spaceGame.character === "astronaut" && isAstronautDestinationComplete(otherDestination);
   const nextAstronautAction = otherDestinationComplete ? "astronaut-show-summary" : `astronaut-switch-${otherDestination}`;
   const nextAstronautLabel = otherDestinationComplete
@@ -1214,7 +1215,7 @@ function spaceGameMapScreen() {
         <li><strong>البيئة التناظرية:</strong> غلاف جوي رقيق جداً (95% CO2، ضغط 0.6% من الأرض)، جاذبية 38% من الأرض، طقس جاف فائق البرودة وعواصف ترابية كوكبية.</li>
       </ul>
     </div>`;
-  const astronautCompletionMarkup = spaceGame.character === "astronaut" ? `<div class="game-stage-complete" id="game-final-mission" ${astronautMissionComplete ? "" : "hidden"}><section class="game-stage-card"><span class="game-step">اكتمل استكشاف الوجهة ✦</span><h2>${spaceGame.destination === "moon" ? "اكتمل استكشاف سطح القمر!" : "اكتمل استكشاف سطح المريخ!"}</h2><figure class="game-planet-summary-image"><img src="${destinationImage.src}" alt="${destinationImage.alt}" loading="eager"><figcaption>${destinationImage.credit}</figcaption></figure><div class="game-stage-stats"><span><strong>${collected}/${sampleGoal}</strong> عينات تم جمعها</span><span><strong>100%</strong> اكتمال الجمع</span><span><strong>${spaceGame.xp}</strong> XP رحلة</span></div>${spaceGame.destination === "moon" ? moonCharacteristicsMarkup : marsCharacteristicsMarkup}<p>اكتمل جمع العينات الافتراضية من هذه الوجهة.</p><div class="game-stage-actions"><button class="button primary glow-btn" type="button" data-game-action="${nextAstronautAction}">${nextAstronautLabel}</button></div></section></div>` : "";
+  const astronautCompletionMarkup = spaceGame.character === "astronaut" ? `<div class="game-stage-complete" id="game-final-mission" ${astronautMissionComplete ? "" : "hidden"}><section class="game-stage-card"><span class="game-step">انتهت المهمة بنجاح ✦</span><h2>${spaceGame.destination === "moon" ? "اكتمل استكشاف سطح القمر!" : "اكتمل استكشاف سطح المريخ!"}</h2><figure class="game-planet-summary-image"><img src="${destinationImage.src}" alt="${destinationImage.alt}" loading="eager"><figcaption>${destinationImage.credit}</figcaption></figure><div class="game-stage-stats"><span><strong>${collected}/${sampleGoal}</strong> عينات تم جمعها</span><span><strong>100%</strong> اكتمال الجمع</span><span><strong>${spaceGame.xp}</strong> XP رحلة</span></div>${spaceGame.destination === "moon" ? moonCharacteristicsMarkup : marsCharacteristicsMarkup}<p>انتهت اللعبة بعد جمع العينات من ${spaceGame.destination === "moon" ? "سطح القمر" : "سطح المريخ"}. هل ترغب في الانتقال لاستكشاف ${otherDestinationName}؟</p><div class="game-stage-actions"><button class="button primary glow-btn" type="button" data-game-action="${nextAstronautAction}">${nextAstronautLabel}</button></div></section></div>` : "";
   const locKey = spaceGame.character === "astronaut" ? spaceGame.destination : world;
   const locInfo = { moon:{name:"القمر",gravity:"0.16g",note:"فراغ كوني تام"}, mars:{name:"المريخ",gravity:"0.38g",note:"ضغط 6.1 hPa · 95% CO₂"}, earth:{name:"الأرض",gravity:"1.0g",note:"غلاف جوي طبيعي"} }[locKey] || {name:"الأرض",gravity:"1.0g",note:"غلاف جوي طبيعي"};
   const locationBar = stageSite
@@ -1525,9 +1526,15 @@ function handleSpaceGameAction(button) {
     spaceGame.resumeState = null;
   } else if (action === "astronaut-switch-mars") {
     spaceGame.destination = "mars";
+    spaceGame.suit = null;
+    spaceGame.spacecraft = null;
+    spaceGame.equipment = [];
     spaceGame.resumeState = null;
   } else if (action === "astronaut-switch-moon") {
     spaceGame.destination = "moon";
+    spaceGame.suit = null;
+    spaceGame.spacecraft = null;
+    spaceGame.equipment = [];
     spaceGame.resumeState = null;
   } else if (action === "astronaut-show-summary") {
     spaceGame.resumeState = null;
@@ -1793,7 +1800,7 @@ function sourcesPage() {
 }
 function teamPage() {
   return `<div class="team-page-container">
-    <img src="صوره عن الفريق.jpeg" alt="" aria-hidden="true" class="team-page-background">
+    <img src="assets/team-photo.jpeg" alt="" aria-hidden="true" class="team-page-background">
     <div class="team-artwork-banner">
       <div class="artwork-content-overlay">
         <div class="artwork-logo-badge">

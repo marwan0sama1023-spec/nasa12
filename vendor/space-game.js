@@ -40316,7 +40316,7 @@ var SpaceWorld = class {
     this.createScientificPoints();
     const savedMissionComplete = this.progress.completedMissions.includes(this.sampleMissionId);
     this.stageComplete = Boolean(this.stageSite && savedMissionComplete && this.worldCollectedCount() >= this.sampleGoal);
-    this.finalMissionComplete = Boolean(!this.stageSite && config.character === "astronaut" && savedMissionComplete && this.worldCollectedCount() >= this.sampleGoal && this.progress.completedMissions.includes(this.craterMissionId));
+    this.finalMissionComplete = Boolean(!this.stageSite && config.character === "astronaut" && savedMissionComplete && this.worldCollectedCount() >= this.sampleGoal);
     this.paused = this.stageComplete || this.finalMissionComplete;
     this.createRover();
     this.createDust();
@@ -42417,6 +42417,15 @@ var SpaceWorld = class {
         this.syncProgress();
         this.playCollectChime();
         this.toast("\u2705 \u0627\u0643\u062A\u0645\u0644\u062A \u0627\u0644\u0639\u064A\u0646\u0627\u062A! \u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \u0645\u062A\u0627\u062D\u0629.");
+      }
+      if (done && this.config.character === "astronaut") {
+        this.finalMissionComplete = true;
+        this.paused = true;
+        const finalOverlay = this.hud.querySelector("#game-final-mission");
+        if (finalOverlay) finalOverlay.hidden = false;
+        const beacon = this.hud.querySelector("#game-beacon-solo");
+        if (beacon) beacon.hidden = true;
+        if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
       }
       return;
     }

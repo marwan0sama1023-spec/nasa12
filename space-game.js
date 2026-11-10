@@ -515,8 +515,7 @@ class SpaceWorld {
     this.stageComplete = Boolean(this.stageSite && savedMissionComplete
       && this.worldCollectedCount() >= this.sampleGoal);
     this.finalMissionComplete = Boolean(!this.stageSite && config.character === "astronaut"
-      && savedMissionComplete && this.worldCollectedCount() >= this.sampleGoal
-      && this.progress.completedMissions.includes(this.craterMissionId));
+      && savedMissionComplete && this.worldCollectedCount() >= this.sampleGoal);
     this.paused = this.stageComplete || this.finalMissionComplete;
     
     this.createRover();
@@ -2861,6 +2860,15 @@ class SpaceWorld {
         this.syncProgress();
         this.playCollectChime();
         this.toast("✅ اكتملت العينات! عربة الاستكشاف متاحة.");
+      }
+      if (done && this.config.character === "astronaut") {
+        this.finalMissionComplete = true;
+        this.paused = true;
+        const finalOverlay = this.hud.querySelector("#game-final-mission");
+        if (finalOverlay) finalOverlay.hidden = false;
+        const beacon = this.hud.querySelector("#game-beacon-solo");
+        if (beacon) beacon.hidden = true;
+        if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
       }
       return;
     }

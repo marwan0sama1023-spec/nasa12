@@ -419,6 +419,9 @@ class SpaceWorld {
     this.equipmentPanelWasPaused = false;
     this.sampleDefinitions = Array.isArray(config.samples) ? config.samples : [];
     this.sampleGoal = this.sampleDefinitions.length;
+    this.performanceSampleStart = 0;
+    this.performanceSampleFrames = 0;
+    this.adaptiveRenderScale = 1;
     this.sampleMissionId = this.stageSite ? `site-stage-${this.stageSite.id}` : `sample-trio-${config.missionKey || config.world}`;
     this.craterMissionId = `crater-reached-${config.missionKey || config.world}`;
     this.lastFrame = 0;
@@ -515,7 +518,7 @@ class SpaceWorld {
     this.createLighting();
     this.createWorld();
     this.createPlayer();
-    this.createRouteTrail();
+    this.initializeRouteTrace();
     this.createCompanion();
     this.createSamples();
     this.createScientificPoints();
@@ -1717,12 +1720,11 @@ class SpaceWorld {
     this.siteBodies.push(body);
   }
 
-  createRouteTrail() {
+  initializeRouteTrace() {
     if (!this.routePoints.length) {
       const position = this.playerBody.position;
       this.routePoints.push({ x: position.x, y: this.terrainHeight(position.x, position.z) + 0.1, z: position.z });
     }
-    this.refreshRouteTrail();
   }
 
   updateRouteTrace() {
@@ -1735,30 +1737,11 @@ class SpaceWorld {
         z: Number(position.z.toFixed(2))
       });
       if (this.routePoints.length > 180) this.routePoints.shift();
-      this.refreshRouteTrail();
     }
     if (this.routePoints.length > 1 && this.elapsed - this.lastRoutePersistAt >= 5) {
       this.lastRoutePersistAt = this.elapsed;
       this.persistRouteTrace();
     }
-  }
-
-  refreshRouteTrail() {
-    if (this.routePoints.length < 2) return;
-    const geometry = new THREE.BufferGeometry().setFromPoints(
-      this.routePoints.map(point => new THREE.Vector3(point.x, point.y, point.z))
-    );
-    if (this.routeLine) {
-      this.routeLine.geometry.dispose();
-      this.routeLine.geometry = geometry;
-      return;
-    }
-    this.routeLine = new THREE.Line(
-      geometry,
-      new THREE.LineBasicMaterial({ color: 0x67d9cf, transparent: true, opacity: 0.82 })
-    );
-    this.routeLine.renderOrder = 3;
-    this.scene.add(this.routeLine);
   }
 
   persistRouteTrace() {
@@ -3222,7 +3205,7 @@ class SpaceWorld {
   toast(msg) {
     const el = this.hud.querySelector("#game-toast");
     if (!el) return;
-    el.textContent = msg;
+    el.textContent = window.siteI18n?.language === "en" ? window.siteI18n.translateValue(msg) : msg;
     el.classList.add("is-visible");
     clearTimeout(this.toastTimeout);
     this.toastTimeout = window.setTimeout(() => el.classList.remove("is-visible"), 2600);
@@ -4976,7 +4959,7 @@ function disposeScene(scene) {
 
 function setText(root, selector, text) {
   const element = root.querySelector(selector);
-  if (element) element.textContent = text;
+  if (element) element.textContent = window.siteI18n?.language === "en" ? window.siteI18n.translateValue(text) : text;
 }
 
 window.SpaceExplorer3D = { start: startSpaceExplorer, preview: startSpacePreview, stop: stopSpaceExplorer };

@@ -1271,7 +1271,7 @@ function spaceGameMapScreen() {
     </div>
       <footer class="game-world-footer"><div class="game-achievement-list" id="game-achievement-list">${gameBadgesMarkup()}</div><div class="game-astronaut-health" ${spaceGame.character !== "astronaut" ? "hidden" : ""}><div class="game-health-header"><span class="game-health-icon">🏥</span><strong>الصحة والسلامة داخل المركبة</strong></div><div class="game-health-list">${[
   { title: "فقدان كثافة العظام", desc: "جاذبية منخفضة تضعف العظام مع مرور الوقت داخل المركبة." },
-  { title: "تضخم사와 جفاف الجلد", desc: "التعرض المتكرر للإشعاع الكوني وجفاف الهواء يؤثر على المظهر والبشرة." },
+  { title: "جفاف وتهيّج الجلد", desc: "التعرض المتكرر للإشعاع الكوني وجفاف الهواء يؤثر على المظهر والبشرة." },
   { title: "ضغط النفس والعزلة", desc: "البقاء طويلاً داخل المركبة بعيداً عن الأرض يسبب توتراً نفسياً." },
   { title: "تقلب الضغط الداخلي", desc: "التنقل بين كبسولة المركبة وسطح الكوكب يتطلب توازن ضغط دقيق." }
 ].map(h => `<div class="game-health-item"><strong>${escapeHtml(h.title)}</strong><span>${escapeHtml(h.desc)}</span></div>`).join("")}</div></div><div><span class="game-world-scientific-note">${spaceGame.character === "alien" ? `البيئة مستوحاة من تضاريس أرضية؛ وجهة المقارنة: ${target}.` : `المشهد يصوّر ${target} بصريًا. ${celestialNote}`} العينات داخل اللعبة رموز تعليمية افتراضية وليست عينات أو قياسات ميدانية.</span><a href="#home" class="game-return-inline">العودة إلى Planetary Exploration</a></div></footer>
@@ -1795,6 +1795,7 @@ function sourcesPage() {
     siteId: site.id,
     topics: guideChatTopics(`${site.brief} ${site.science?.geology || ""} ${site.science?.rocks || ""} ${site.science?.water || ""}`),
     ar: `${site.ar} (${site.en}) · ${site.guide.summary}`,
+    en: [GUIDE_SITE_ENGLISH[site.id]?.summary, GUIDE_SITE_ENGLISH[site.id]?.geology, GUIDE_SITE_ENGLISH[site.id]?.limit].filter(Boolean).join(" "),
     sources: [
       ...(site.science?.sources || []),
       ...(site.image?.source ? [{ label: site.image.credit || `NASA image: ${site.image.title}`, url: site.image.source }] : []),
@@ -1804,20 +1805,24 @@ function sourcesPage() {
   const problemDocuments = getGuideCorpus().filter(document => document.kind === "problem");
   const collect = documents => documents.flatMap(document => (document.sources || []).map(source => {
     const item = typeof source === "string" ? { label: "NASA", url: source } : source;
-    return { ...item, description: document.ar || document.fieldsAr?.problem || document.title || "مرجع علمي مرتبط باستكشاف القمر والمريخ." };
+    return {
+      ...item,
+      description: document.ar || document.fieldsAr?.problem || document.title || "مرجع علمي مرتبط باستكشاف القمر والمريخ.",
+      descriptionEn: document.en || document.fieldsEn?.problem || "A reference related to lunar and Mars exploration."
+    };
   }));
   const nonReports = entries => entries.filter(source => !/ntrs\.nasa\.gov/i.test(source.url));
   const excludeSourcePaths = (entries, paths) => entries.filter(source => !paths.some(path => source.url.includes(path)));
   const documentsById = ids => allDocuments.filter(document => ids.includes(document.id));
   const siteAnalogProblems = siteProblemCards.filter(problem => !["moon-surface", "mars-surface"].includes(problem.key)).map(problem => ({ title: problem.title, ar: problem.problem, sources: problem.sources }));
   const categories = [
-    { id: "lunar", title: "مصادر استكشاف القمر", description: "مراجع NASA عن بيئة القمر وموارده والعمليات القمرية.", sources: nonReports(collect(documentsById(["moon-world", "lunar-base"]))) },
-    { id: "mars", title: "مصادر استكشاف المريخ", description: "مراجع NASA عن بيئة المريخ والماء والغبار ومهمات الروبوتات.", sources: excludeSourcePaths(nonReports(collect(documentsById(["mars-world", "mars-water", "space-dust"]))), ["/rover-components/"]) },
-    { id: "analogs", title: "مصادر البيئات الأرضية التناظرية", description: "سجلات المواقع الستة والحملات الميدانية ومنهجية المحاكاة وحدودها.", sources: nonReports([...collect(siteDocuments), ...collect(siteAnalogProblems), ...collect(documentsById(["analog-method", "project-map-gallery"]))]) },
-    { id: "crew", title: "مشكلات رواد الفضاء والحلول الهندسية", description: "مخاطر الطيران البشري وإجراءات التخفيف وحالة التقنيات.", sources: excludeSourcePaths(nonReports(collect(GUIDE_CREW_PROBLEMS)), ["nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust", "moon-water-and-ices", "nasas-oxygen-generating-experiment-moxie-completes-mars-mission"]) },
-    { id: "geology", title: "الجيولوجيا والتربة والموارد الطبيعية", description: "الريغوليث والصخور والجليد والماء والعينات وطرق تحليلها.", sources: nonReports([...collect(documentsById(["soil-earth-mars", "project-game"])), ...collect(GUIDE_CREW_PROBLEMS.filter(document => document.id === "crew-resources")).filter(source => source.url.includes("water-on-the-moon"))]) },
-    { id: "missions", title: "المهمات الفضائية والتقنيات المستخدمة", description: "مراجع مباشرة عن مهمات NASA وأنظمة المركبات والروبوتات.", sources: nonReports(collect(documentsById(["nasa-missions", "mars-robots", "landing-hazards"]))) },
-    { id: "research", title: "الأبحاث والتقارير العلمية", description: "تقارير NASA Technical Reports Server والأبحاث الفنية المرتبطة بالمشروع.", sources: collect([...siteDocuments, ...siteAnalogProblems, ...problemDocuments, ...allDocuments])
+    { id: "lunar", title: "مصادر استكشاف القمر", titleEn: "Moon exploration", description: "مراجع عن القمر وموارده ومهماته.", descriptionEn: "References about the Moon, its resources, and missions.", sources: nonReports(collect(documentsById(["moon-world", "lunar-base"]))) },
+    { id: "mars", title: "مصادر استكشاف المريخ", titleEn: "Mars exploration", description: "مراجع عن المريخ والماء والغبار والروبوتات.", descriptionEn: "References about Mars, water, dust, and robotic missions.", sources: excludeSourcePaths(nonReports(collect(documentsById(["mars-world", "mars-water", "space-dust"]))), ["/rover-components/"]) },
+    { id: "analogs", title: "مصادر البيئات الأرضية التناظرية", titleEn: "Earth analog sites", description: "مراجع المواقع والتجارب وحدود المقارنة.", descriptionEn: "References about field sites, tests, and comparison limits.", sources: nonReports([...collect(siteDocuments), ...collect(siteAnalogProblems), ...collect(documentsById(["analog-method", "project-map-gallery"]))]) },
+    { id: "crew", title: "مشكلات رواد الفضاء والحلول الهندسية", titleEn: "Astronaut challenges", description: "مراجع المخاطر والحلول والتقنيات.", descriptionEn: "References about mission risks, engineering solutions, and technology.", sources: excludeSourcePaths(nonReports(collect(GUIDE_CREW_PROBLEMS)), ["nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust", "moon-water-and-ices", "nasas-oxygen-generating-experiment-moxie-completes-mars-mission"]) },
+    { id: "geology", title: "الجيولوجيا والتربة والموارد الطبيعية", titleEn: "Geology and resources", description: "مراجع الصخور والتربة والماء والعينات.", descriptionEn: "References about rocks, soil, water, and samples.", sources: nonReports([...collect(documentsById(["soil-earth-mars", "project-game"])), ...collect(GUIDE_CREW_PROBLEMS.filter(document => document.id === "crew-resources")).filter(source => source.url.includes("water-on-the-moon"))]) },
+    { id: "missions", title: "المهمات الفضائية والتقنيات المستخدمة", titleEn: "Missions and technology", description: "مراجع المهمات والمركبات والروبوتات.", descriptionEn: "References about missions, spacecraft, and robotics.", sources: nonReports(collect(documentsById(["nasa-missions", "mars-robots", "landing-hazards"]))) },
+    { id: "research", title: "الأبحاث والتقارير العلمية", titleEn: "Research and reports", description: "تقارير وأبحاث فنية مرتبطة بالمشروع.", descriptionEn: "Technical reports and research related to this project.", sources: collect([...siteDocuments, ...siteAnalogProblems, ...problemDocuments, ...allDocuments])
       .filter(source => /ntrs\.nasa\.gov/i.test(source.url)) }
   ];
   const usedSourceUrls = new Set();
@@ -1833,32 +1838,114 @@ function sourcesPage() {
     });
   });
   const publisherFor = url => {
-    try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "مصدر خارجي"; }
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, "");
+      const publishers = {
+        "nasa.gov": "وكالة ناسا",
+        "science.nasa.gov": "علوم ناسا",
+        "images.nasa.gov": "مكتبة صور ناسا",
+        "images-assets.nasa.gov": "أرشيف صور ناسا",
+        "ntrs.nasa.gov": "مستودع تقارير ناسا الفنية",
+        "jpl.nasa.gov": "مختبر الدفع النفاث التابع لناسا",
+        "usgs.gov": "هيئة المسح الجيولوجي الأمريكية",
+        "nps.gov": "خدمة المتنزهات الوطنية الأمريكية",
+        "lternet.edu": "شبكة الأبحاث البيئية طويلة الأمد",
+        "astrobiology.nasa.gov": "برنامج ناسا لعلم الأحياء الفلكي"
+      };
+      return publishers[host] || publishers[host.split(".").slice(-2).join(".")] || "جهة علمية";
+    } catch { return "مصدر علمي"; }
+  };
+  const publisherForEnglish = url => {
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, "");
+      const publishers = {
+        "nasa.gov": "NASA",
+        "science.nasa.gov": "NASA Science",
+        "images.nasa.gov": "NASA Images",
+        "images-assets.nasa.gov": "NASA Image Archive",
+        "ntrs.nasa.gov": "NASA Technical Reports",
+        "jpl.nasa.gov": "NASA Jet Propulsion Laboratory",
+        "usgs.gov": "U.S. Geological Survey",
+        "nps.gov": "U.S. National Park Service",
+        "lternet.edu": "Long Term Ecological Research Network"
+      };
+      return publishers[host] || publishers[host.split(".").slice(-2).join(".")] || "Science source";
+    } catch { return "Science source"; }
+  };
+  const english = window.siteI18n?.language === "en";
+  const sourceTitlesArabic = new Map(Object.entries({
+    "NASA Lunar Reconnaissance Orbiter": "المسبار الاستطلاعي المداري القمري (LRO) — NASA",
+    "NASA Moon factsheet": "صحيفة حقائق القمر — NASA",
+    "NASA Moon dust": "غبار القمر — علوم ناسا",
+    "Lunar dust and EDS demonstration, NASA": "الغبار القمري وتجربة درع EDS — NASA",
+    "Space radiation risk, NASA HRP": "مخاطر الإشعاع الفضائي — برنامج أبحاث الإنسان NASA",
+    "EVA thermal control, NASA": "التحكم الحراري أثناء السير الفضائي — NASA",
+    "NASA Mars facts": "حقائق عن المريخ — علوم ناسا",
+    "NASA Perseverance rover": "مسبار بيرسيفيرانس — NASA",
+    "NASA Opportunity: Mars-wide dust storm": "مسبار أوبورتيونيتي والعاصفة الغبارية المريخية — NASA",
+    "NASA Earth Observatory: Meteor Crater": "مرصد الأرض التابع لناسا: فوهة ميتيور",
+    "Barringer Meteor Crater": "فوهة بارينجر — الموقع الرسمي",
+    "USGS Hawaiian Volcano Observatory": "مرصد براكين هاواي — هيئة المسح الجيولوجي الأمريكية",
+    "NASA ASTER: Island of Hawaii": "صورة ASTER لجزيرة هاواي — NASA",
+    "NASA BASALT": "مشروع BASALT لدراسة الصخور البركانية",
+    "NASA: K-10 Rover near Haughton Crater": "العربة الروبوتية K-10 قرب فوهة هوتون — NASA",
+    "Haughton-Mars Project": "مشروع هوتون-المريخ",
+    "NASA: Dry Streambed in Northern Chile": "مجرى جاف في شمال تشيلي — NASA",
+    "NASA Astrobiology": "برنامج ناسا لعلم الأحياء الفلكي",
+    "NASA ASTER: Badwater, Death Valley": "صورة ASTER لحوض بادووتر في وادي الموت — NASA",
+    "Death Valley National Park": "متنزه وادي الموت الوطني",
+    "NASA ASTER: Dry Valleys, Antarctica": "صورة ASTER للوديان الجافة في أنتاركتيكا — NASA",
+    "McMurdo Dry Valleys LTER": "برنامج الأبحاث البيئية طويلة الأمد في وديان ماكموردو",
+    "NASA GIBS API documentation": "الوثائق التقنية لخدمة صور الأرض NASA GIBS",
+    "NASA Earth observation for the sites": "صور ومشاهد رصد الأرض — NASA",
+    "NASA Haughton-Mars field work": "العمل الميداني في مشروع هوتون-المريخ — NASA",
+    "صندوق الإلكترونيات والتحكم الحراري في Perseverance، NASA": "صندوق الإلكترونيات والتحكم الحراري في مركبة بيرسيفيرانس — NASA",
+    "اختبار نماذج Phoenix في الوديان الجافة، NASA NTRS": "اختبار نماذج فينكس لأجهزة التربة في الوديان الجافة — NASA NTRS",
+    "NASA: The Human Body in Space": "جسم الإنسان في الفضاء — NASA",
+    "NASA: International Space Station research": "الأبحاث العلمية على محطة الفضاء الدولية — NASA",
+    "NASA: Space Radiation and Human Exploration": "الإشعاع الفضائي واستكشاف الإنسان — NASA",
+    "NASA Moon facts and environment": "حقائق وبيئة القمر — NASA",
+    "NASA Human Research Program": "برنامج أبحاث الإنسان — NASA",
+    "NASA/JPL Deep Space Network": "شبكة الفضاء العميق — NASA/JPL",
+    "NASA Apollo lunar sample catalog": "فهرس عينات أبولو القمرية — NASA",
+    "Martian dust measurements and perchlorates, NASA/JPL": "قياسات غبار المريخ والبيركلورات — NASA/JPL",
+    "NASA: Water and ice on the Moon": "الماء والجليد على القمر — NASA",
+    "NASA Artemis": "برنامج أرتميس لاستكشاف القمر — NASA",
+    "NASA MOXIE results": "نتائج تجربة إنتاج الأكسجين MOXIE — NASA"
+  }));
+  const sourceTitleArabic = source => {
+    const title = source.label || source.name || "مرجع علمي";
+    if (sourceTitlesArabic.has(title)) return sourceTitlesArabic.get(title);
+    return /[A-Za-z]/.test(title) ? `مرجع علمي موثق من ${publisherFor(source.url)}` : title;
+  };
+  const sourceTitleEnglish = source => {
+    const title = source.label || source.name || "";
+    return /[A-Za-z]/.test(title) && !/[\u0600-\u06FF]/.test(title) ? title : `Verified reference from ${publisherForEnglish(source.url)}`;
   };
   const sourceDescription = source => {
     const text = String(source.description || "").replace(/\s+/g, " ").trim();
-    return text.length > 230 ? `${text.slice(0, 227)}…` : text;
+    return text.length > 140 ? `${text.slice(0, 137)}…` : text;
   };
-  return `${heading("المكتبة العلمية للمشروع", "المصادر والمراجع", "مصادر NASA وNASA JPL والتقارير الفنية المرتبطة بالمواقع ومشكلات الطاقم والمهمات.")}
+  return `${heading("كل معلومة لها مرجع", "المصادر والمراجع", "اكتشف أصل المعلومات وافتح المرجع بنفسك.")}
     <div class="sources-page">
       ${categories.map(group => `<section class="sources-group sources-group-${group.id}" aria-labelledby="sources-${group.id}-title">
         <header class="sources-group-heading">
-          <span class="eyebrow">${group.sources.length} مرجعًا</span>
-          <h2 id="sources-${group.id}-title">${group.title}</h2>
-          <p>${group.description}</p>
+          <span class="eyebrow" data-i18n-ar="${group.sources.length} مرجعًا" data-i18n-en="${group.sources.length} references">${group.sources.length} مرجعًا</span>
+          <h2 id="sources-${group.id}-title" data-i18n-ar="${escapeHtml(group.title)}" data-i18n-en="${escapeHtml(group.titleEn)}">${group.title}</h2>
+          <p data-i18n-ar="${escapeHtml(group.description)}" data-i18n-en="${escapeHtml(group.descriptionEn)}">${group.description}</p>
         </header>
         <div class="sources-grid">
           ${group.sources.map(source => `<article class="source-entry">
-            <div class="source-entry-meta"><span class="source-world-tag">${escapeHtml(publisherFor(source.url))}</span></div>
-            <h3>${escapeHtml(source.label || source.name || "مرجع علمي")}</h3>
-            <p class="source-location">${escapeHtml(sourceDescription(source))}</p>
-            <a class="source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">فتح المصدر الأصلي <span aria-hidden="true">↗</span></a>
+            <div class="source-entry-meta"><span class="source-world-tag" data-i18n-ar="${escapeHtml(publisherFor(source.url))}" data-i18n-en="${escapeHtml(publisherForEnglish(source.url))}">${escapeHtml(publisherFor(source.url))}</span></div>
+            <h3 data-i18n-ar="${escapeHtml(sourceTitleArabic(source))}" data-i18n-en="${escapeHtml(sourceTitleEnglish(source))}">${escapeHtml(sourceTitleArabic(source))}</h3>
+            <p class="source-location" data-i18n-ar="${escapeHtml(sourceDescription(source))}" data-i18n-en="${escapeHtml(source.descriptionEn ? source.descriptionEn.replace(/\\s+/g, " ").trim().slice(0, 140) : "A reference supporting the information shown on this site.")}">${escapeHtml(sourceDescription(source))}</p>
+            <a class="source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer"><span data-i18n-ar="فتح المصدر الأصلي" data-i18n-en="Open original source">فتح المصدر الأصلي</span> <span aria-hidden="true">↗</span></a>
           </article>`).join("")}
         </div>
       </section>`).join("")}
       <aside class="sources-note">
-        <strong>استخدام الأدلة</strong>
-        <p>المراجع تدعم المعلومات المنقولة في المساعد والصفحات. الصور لا تُعد وحدها قياسات ميدانية، والمواقع الأرضية لا تطابق بيئة القمر أو المريخ. تُحفظ حالة التقنيات كما يصفها المصدر، بما في ذلك النماذج التجريبية والمقترحات.</p>
+        <strong data-i18n-ar="كيف نستخدمها؟" data-i18n-en="How are these sources used?">كيف نستخدمها؟</strong>
+        <p data-i18n-ar="المراجع تسند معلومات الموقع والمهام. الصور ليست قياسات ميدانية، ومواقع الأرض لا تطابق القمر أو المريخ." data-i18n-en="References support site and mission information. Images are not field measurements, and Earth sites do not replicate the Moon or Mars.">المراجع تسند معلومات الموقع والمهام. الصور ليست قياسات ميدانية، ومواقع الأرض لا تطابق القمر أو المريخ.</p>
       </aside>
     </div>`;
 }
@@ -3752,9 +3839,9 @@ document.getElementById("menu-toggle").addEventListener("click", event => {
   event.currentTarget.setAttribute("aria-expanded", String(isOpen));
   event.currentTarget.setAttribute("aria-label", isOpen ? "إغلاق القائمة" : "فتح القائمة");
 });
-document.getElementById("language-toggle").addEventListener("click", () => {
+document.addEventListener("click", event => {
+  if (!event.target.closest(".language-toggle")) return;
   window.siteI18n?.toggle();
-  render();
 });
 document.getElementById("sidebar-backdrop").addEventListener("click", () => {
   document.getElementById("sidebar").classList.remove("open");

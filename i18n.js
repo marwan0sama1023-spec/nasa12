@@ -136,6 +136,100 @@
     "لا يوجد أي موقع على وجه الأرض يطابق سطح القمر أو المريخ تطابقًا كاملًا. استخدام المواقع الأرضية مقتصر على أهداف اختبار تجريبية محددة.": "No place on Earth fully matches the Moon or Mars. Earth analogs are useful only for specific experimental goals.",
     "فريق المشروع": "Project team",
     "أعضاء الفريق": "Team members",
+    "مشاكل وحلول الرواد": "Astronaut challenges and solutions",
+    "كل معلومة لها مرجع": "Every fact has a source",
+    "المصادر والمراجع": "Sources and references",
+    "اكتشف أصل المعلومات وافتح المرجع بنفسك.": "Explore the evidence behind each fact.",
+    "كيف نستخدمها؟": "How are these sources used?",
+    "فتح المصدر الأصلي": "Open original source",
+    "متابعة الرحلة المحفوظة": "Continue saved journey",
+    "بدء رحلة جديدة": "Start a new journey",
+    "01 · اختر مسارك": "01 · Choose your path",
+    "ابدأ من الأرض مع مستكشف فضائي، أو انطلق من قاعدة مدارية كرائد فضاء.": "Begin on Earth as an alien explorer, or depart from an orbital base as an astronaut.",
+    "أول زيارة للأرض. اختر بيئة تناظرية وتعلّم لماذا يدرسها العلماء.": "Your first visit to Earth. Choose an analog environment and learn why scientists study it.",
+    "انطلق من قاعدة مدارية، ثم اختر وجهة بصرية للقمر أو المريخ.": "Depart from an orbital base, then choose a lunar or Martian destination.",
+    "تُضبط مؤثرات الخطوات والبيئة من إعدادات اللعبة.": "Adjust footstep and environment effects in the game settings.",
+    "02 · الوجهة التناظرية": "02 · Choose a destination",
+    "اختر البيئة التناظرية على كوكب الأرض": "Choose an Earth analog environment",
+    "اختر البيئة التناظرية؛ ستنطلق في رحلة استكشافية للأماكن الشبيهة بها على كوكب الأرض.": "Choose an analog environment, then explore similar places on Earth.",
+    "رحلة تخيلية إلى وجهة فضائية، ثم عودة إلى مواقع أرضية حقيقية للمقارنة العلمية.": "Travel to a space destination, then compare it with real sites on Earth.",
+    "اختر بيئة أرضية؛ ستبدأ رحلة استكشافية لمواقع تشبه وجهتك.": "Choose an Earth environment and explore sites related to your destination.",
+    "وجهة فضائية": "Space destination",
+    "بيئة أرضية · نظير القمر": "Earth site · lunar analog",
+    "بيئة أرضية · نظير المريخ": "Earth site · Mars analog",
+    "الأماكن التي تشبه القمر على الأرض": "Places on Earth that resemble the Moon",
+    "الأماكن التي تشبه المريخ على الأرض": "Places on Earth that resemble Mars",
+    "فوهات اصطدام وتضاريس بركانية": "Impact craters and volcanic terrain",
+    "جفاف وتضاريس واختبارات ميدانية": "Dry terrain and field testing",
+    "فوهة ميتيور، جزر هاواي، جزيرة ديفون": "Meteor Crater, Hawaiian Islands, Devon Island",
+    "صحراء أتاكاما، وادي الموت، الوديان الجافة في ماكموردو": "Atacama Desert, Death Valley, McMurdo Dry Valleys",
+    "بدء المسح الميداني": "Beginning field survey",
+    "مهمة الموقع · جمع العينات": "SITE OBJECTIVE · COLLECT SAMPLES",
+    "إشارة العينة": "Sample beacon",
+    "نقطة اهتمام علمية": "Science point of interest",
+    "إضافة إلى سجل الاستكشاف · موضع توضيحي": "Added to the field log · illustrative location",
+    "فريق الفضائيين": "Explorer crew",
+    "الاستطلاع": "Reconnaissance",
+    "التضاريس": "Terrain",
+    "العينات": "Samples",
+    "التوثيق": "Documentation",
+    "الخروج من اللعبة": "Exit game",
+    "البدلة": "Suit",
+    "المركبة": "Spacecraft",
+    "العتاد": "Equipment",
+    "عينات": "samples",
+    "م": "m",
+    "W A S D حركة · الماوس نظر · Space قفز/نفاث · Shift جري · E جمع/تفاعل · R حقيبة العينات · C كاميرا · V عربة": "W A S D Move · Mouse Look · Space Jump/Jetpack · Shift Run · E Collect/Interact · R Sample Bag · C Camera · V Rover",
+    "الأرض · فوهة اصطدام · وصف نوعي، لا قياسات آنية": "Earth · impact crater · qualitative description, not live measurements",
+    "كتلة مرتبطة بالاصطدام": "impact-related boulder",
+    "فتات مرتبط بفوهة اصطدام": "impact-crater debris",
+    "فتات صخري زاوي": "angular rock fragments",
+    "صخر بركاني تمثيلي": "representative volcanic rock",
+    "فتات بركاني تمثيلي": "representative volcanic fragments",
+    "كتلة بركانية تمثيلية": "representative volcanic boulder",
+    "نموذج نسيج بركاني": "volcanic texture model",
+    "سطح تدفق بركاني تمثيلي": "representative lava-flow surface",
+    "ابدأ من الحافة، اقترب من الجدار، ثم استكشف الحوض واجمع نماذج تعليمية من الصخور المتأثرة بالاصطدام.": "Start at the rim, approach the wall, then explore the basin and collect educational models of impact-affected rocks.",
+    "اجمع عينات تمثيلية من التربة والرواسب الملحية، افحصها، وقيّم صعوبة رصد مؤشرات الحياة الدقيقة.": "Collect representative soil and salt-deposit samples, inspect them, and assess the challenge of detecting microbial signs of life.",
+    "ميّز بين أسطح Pāhoehoe وʻAʻā، افحص البازلت، واستكشف مدخل أنبوب حمم قديم.": "Compare Pāhoehoe and ʻAʻā surfaces, inspect basalt, and explore an ancient lava-tube entrance.",
+    "اعبر السطح الصخري والجليدي، وافحص التربة المتجمدة والصخور المتأثرة بالاصطدام.": "Cross rocky, icy terrain and examine frozen soil and impact-affected rocks.",
+    "استكشف الوادي، وخذ عينات تعليمية من التربة والجليد، وافحص أثر الأملاح والذوبان المحدود.": "Explore the valley, collect educational soil and ice samples, and examine salts and limited meltwater.",
+    "اجمع عينات تعليمية من القشرة والرواسب، حلل تركيبها المحتمل، وقارن الحوض بالجبال المحيطة.": "Collect educational crust and sediment samples, consider their possible composition, and compare the basin with nearby mountains.",
+    "حافة الفوهة": "Crater rim",
+    "الفوهة بنية اصطدام قطرها نحو 1.2 كم؛ ارتفاع الحافة في هذا المشهد التوضيحي ليس قياسًا ميدانيًا.": "The crater is about 1.2 km wide. The rim height in this illustrative scene is not a field measurement.",
+    "الجدار الداخلي": "Inner wall",
+    "تُظهر الفوهة جدارًا منحدرًا وطبقات صخرية متأثرة بالاصطدام. العمق المرجعي الحالي نحو 170–180 م.": "The crater has a sloping wall and impact-affected rock layers. Its current reference depth is about 170–180 m.",
+    "مواد مقذوفة": "Ejecta",
+    "تنتشر مواد قذف وصخور متكسرة حول الفوهة؛ موضع العلامة داخل اللعبة تقريبي.": "Ejecta and fractured rocks surround the crater; the in-game marker is approximate.",
+    "مروحة غرينية": "Alluvial fan",
+    "تتجمع الرواسب عند مخارج الأودية؛ صورة NASA المرجعية توثق مجرى جافًا ولا تحدد تركيب العينة الافتراضية.": "Sediment gathers at valley outlets. NASA imagery documents a dry channel, not the composition of this virtual sample.",
+    "قشرة ملحية": "Salt crust",
+    "قد تشمل الرواسب الجبس والهاليت. يلزم تحليل عينة فعلية لتحديد المعادن في موضع بعينه.": "Deposits may include gypsum and halite. A physical sample is needed to identify minerals at a specific site.",
+    "منطقة فائقة الجفاف": "Hyper-arid zone",
+    "تتكيف كائنات دقيقة مع الجفاف في بعض البيئات؛ صعوبة العثور عليها لا تثبت غياب الحياة.": "Microbes adapt to dry conditions in some environments; difficulty finding them does not prove life is absent.",
+    "تدفق Pāhoehoe": "Pāhoehoe flow",
+    "تتخذ هذه الحمم عادة سطحًا متحرك المظهر أو حبليًا بعد التصلب؛ الشكل هنا تمثيل بصري.": "This lava often cools into smooth or ropy surfaces; the in-game form is illustrative.",
+    "تدفق ʻAʻā": "ʻAʻā flow",
+    "سطح حمم متصلب خشن ومجزأ؛ لا يعني وجوده أن الحمم نشطة حاليًا.": "A rough, fragmented lava surface; its presence does not mean lava is currently active.",
+    "أنبوب حمم": "Lava tube",
+    "قد توفر الأنابيب البركانية الطبيعية مأوى أو سجلًا جيولوجيًا مهمًا للاستكشاف الكوكبي؛ هذا الممر لعبة تعليمية.": "Natural lava tubes may offer shelter or a geological record for planetary exploration; this passage is a game simulation.",
+    "فوهة هوتون": "Haughton Crater",
+    "فوهة اصطدام قطرها نحو 20 كم وعمرها نحو 38 مليون سنة؛ تختلف عن فوهة Meteor Crater في أريزونا.": "The impact crater is about 20 km wide and 38 million years old; it differs from Meteor Crater in Arizona.",
+    "تربة دائمة التجمد": "Permafrost",
+    "تبقى التربة متجمدة مدة طويلة؛ العلامة لا تمثل عينة حقلية أو قياس حرارة.": "The soil remains frozen for long periods; this marker is not a field sample or temperature reading.",
+    "سطح صخري وجليدي": "Rocky, icy terrain",
+    "تجعل التضاريس والعزلة الحركة والاستطلاع الميداني تحديًا لوجستيًا.": "The terrain and isolation make mobility and field reconnaissance logistically challenging.",
+    "نهر تايلور الجليدي": "Taylor Glacier",
+    "نهر جليدي يغذي جداول ذوبان موسمية محدودة في الوادي؛ التوقيت والكمية يتغيران.": "The glacier feeds limited seasonal meltwater streams in the valley; timing and volume vary.",
+    "بحيرات مغطاة بالجليد": "Ice-covered lakes",
+    "تشمل المنطقة بحيرات Bonney وFryxell وHoare؛ لا تمثل بيانات اللعبة قياسًا لملوحتها.": "The region includes lakes Bonney, Fryxell, and Hoare; the game contains no salinity measurements.",
+    "تربة مكشوفة": "Exposed soil",
+    "تعيش كائنات دقيقة متكيفة مع الظروف القاسية في أجزاء من هذه البيئة؛ النموذج لا يرصدها مباشرة.": "Microbes adapted to harsh conditions live in parts of this environment; the simulation does not detect them.",
+    "حوض بادووتر": "Badwater Basin",
+    "يقع قاع الحوض نحو 86 م تحت مستوى سطح البحر؛ الفرق في اللعبة تمثيل تضاريسي وليس مقياس ارتفاع.": "The basin floor is about 86 m below sea level; the in-game terrain is illustrative, not an elevation measurement.",
+    "تترك عملية تبخر المياه رواسب ملحية؛ لا يحدد مظهر الصورة وحده معدنًا أو تركيزًا.": "Evaporation leaves salt deposits; imagery alone cannot identify a mineral or its concentration.",
+    "كثبان Mesquite Flat": "Mesquite Flat Dunes",
+    "تضيف الكثبان تضاريس رملية إلى المشهد الصحراوي وتختلف عن أرض السبخة.": "The dunes add sandy terrain to the desert scene and differ from the salt flat.",
     "الأسماء والأدوار المعروضة تقتصر على المعلومات المسجلة للمشروع.": "Names and roles are limited to information recorded for this project.",
     "فريق يستكشف عوالم جديدة": "A team exploring new worlds",
     "الموقع والجغرافيا الميدانية": "Site and field geography",
@@ -705,11 +799,33 @@
 
   function translateValue(value) {
     const trimmed = value.trim();
-    const translated = translations[trimmed];
+    const translated = translations[trimmed] || translateDynamic(trimmed);
     if (!translated) return value;
     const leading = value.match(/^\s*/)?.[0] || "";
     const trailing = value.match(/\s*$/)?.[0] || "";
     return `${leading}${translated}${trailing}`;
+  }
+
+  function translateDynamic(value) {
+    const location = value.match(/^الأرض · (.+) · وصف نوعي، لا قياسات آنية( · حركة أبطأ توضيحيًا على السطح البارد)?$/);
+    if (location) return `Earth · ${translateValue(location[1])} · qualitative description, not live measurements${location[2] ? " · movement is slower over the cold terrain (illustrative)" : ""}`;
+    const patterns = [
+      [/^اجمع (\d+) عينات علمية$/, "Collect $1 scientific samples"],
+      [/^اجمع (\d+) عينات ميدانية$/, "Collect $1 field samples"],
+      [/^اجمع (\d+) عينات$/, "Collect $1 samples"],
+      [/^(\d+)\/(\d+) عينات$/, "$1/$2 samples"],
+      [/^(\d+) م$/, "$1 m"],
+      [/^E · جمع (.+)$/, (_, item) => `E · Collect ${translateValue(item).trim()}`],
+      [/^Q · فحص (.+)$/, (_, item) => `Q · Scan ${translateValue(item).trim()}`],
+      [/^تم إرسال الإشارة؛ اتبع المنارة إلى أقرب عينة على بعد (\d+) متر\.$/, "Signal sent; follow the beacon to the nearest sample, $1 meters away."],
+      [/^تم إرسال تقرير الموقع إلى مركز التحكم\.$/, "Location report sent to mission control."],
+      [/^اكتملت العينات ✦ أحسنت!$/, "Samples complete ✦ Great work!"],
+      [/^عربة الاستكشاف متاحة ✦ \+80 XP عند الفوهة$/, "Rover available ✦ +80 XP at the crater"]
+    ];
+    for (const [pattern, replacement] of patterns) {
+      if (pattern.test(value)) return value.replace(pattern, replacement);
+    }
+    return "";
   }
 
   function apply(root = document.body) {
@@ -730,6 +846,14 @@
       if (node.nodeValue !== translated) node.nodeValue = translated;
     }
 
+    const explicitTranslations = [];
+    if (root.matches?.("[data-i18n-en]")) explicitTranslations.push(root);
+    root.querySelectorAll?.("[data-i18n-en]").forEach(element => explicitTranslations.push(element));
+    explicitTranslations.forEach(element => {
+      const localized = english ? element.dataset.i18nEn : element.dataset.i18nAr;
+      if (localized !== undefined && element.textContent !== localized) element.textContent = localized;
+    });
+
     const attributeNames = ["aria-label", "title", "placeholder", "alt"];
     root.querySelectorAll?.("*").forEach(element => {
       let saved = originalAttributes.get(element);
@@ -746,12 +870,11 @@
       });
     });
 
-    const button = document.getElementById("language-toggle");
-    if (button) {
+    document.querySelectorAll(".language-toggle").forEach(button => {
       button.textContent = english ? "العربية" : "English";
       button.setAttribute("aria-label", english ? "Switch the site to Arabic" : "Switch the site to English");
       button.title = english ? "Switch language to Arabic" : "Switch language to English";
-    }
+    });
 
     if (document.body) {
       mutationObserver ||= new MutationObserver(records => {

@@ -468,7 +468,6 @@ class SpaceWorld {
     this.isJetpacking = false;
     this.jetpackFuel = 100;
     this.movementBlend = 0;
-    this.roverMode = false;
     this.lastInteractAt = 0;
     this.lastStepAt = 0;
     this.lastDustAt = 0;
@@ -491,7 +490,6 @@ class SpaceWorld {
       analyzedSites: Array.isArray(config.progress.analyzedSites) ? [...config.progress.analyzedSites] : [],
       completedMissions: Array.isArray(config.progress.completedMissions) ? [...config.progress.completedMissions] : [],
       routePoints: Array.isArray(config.progress.routePoints) ? config.progress.routePoints.slice(-180).map(point => ({ ...point })) : [],
-      roverUnlocked: Boolean(config.progress.roverUnlocked)
     };
     this.routePoints = this.progress.routePoints;
     this.routeLine = null;
@@ -2511,10 +2509,10 @@ class SpaceWorld {
   }
 
   createRover() {
-    const rover = makeDetailedRover(this.isMars);
+    const rover = makeDetailedRover(this.isAlien);
     rover.scale.setScalar(0.55);
     rover.position.set(3.8, this.terrainHeight(3.8, 2.2), 2.2);
-    rover.visible = Boolean(this.progress.roverUnlocked);
+    rover.visible = true;
     this.scene.add(rover);
     this.rover = rover;
     this.roverWheels = rover.userData.wheels || [];
@@ -2584,9 +2582,9 @@ class SpaceWorld {
     this.lastControlToggleAt = 0;
     this.onKeyDown = event => {
       if (event.target instanceof Element && event.target.matches("input, select, textarea, button, a, [contenteditable='true']")) return;
-      const handled = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight", "KeyE", "KeyR", "KeyV", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"];
+      const handled = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight", "KeyE", "KeyR", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"];
       if (handled.includes(event.code)) event.preventDefault();
-      if (event.repeat && ["KeyE", "KeyR", "KeyV", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"].includes(event.code)) return;
+      if (event.repeat && ["KeyE", "KeyR", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"].includes(event.code)) return;
       
       if (event.code === "ControlLeft" || event.code === "ControlRight") {
         const now = performance.now();
@@ -2600,7 +2598,6 @@ class SpaceWorld {
       if (event.code === "Space") this.jump();
       if (event.code === "KeyE") this.interact();
       if (event.code === "KeyR") this.toggleInventory();
-      if (event.code === "KeyV") this.toggleRover();
       if (event.code === "KeyC") this.toggleCameraMode();
       if (event.code === "KeyG") this.toggleEquipmentPanel();
       if (event.code === "Escape" && !document.pointerLockElement) this.togglePause();
@@ -2856,7 +2853,6 @@ class SpaceWorld {
     if (engineButton === "camera") this.toggleCameraMode();
     if (engineButton === "inventory") this.toggleInventory(true);
     if (engineButton === "equipment") this.toggleEquipmentPanel();
-    if (engineButton === "rover") this.toggleRover();
   }
 
   setQuality(level) {
@@ -2940,11 +2936,6 @@ class SpaceWorld {
       return;
     }
 
-    if (this.progress.roverUnlocked && this.nearRover()) {
-      this.toggleRover();
-      return;
-    }
-
     const sample = this.nearestSample(2.8);
     if (!sample) {
       this.toast("اقترب من إشارة عينة أو موقع الاستكشاف.");
@@ -2984,17 +2975,22 @@ class SpaceWorld {
         : this.worldCollectedCount() >= this.sampleGoal;
       if (done && !this.progress.completedMissions.includes(this.sampleMissionId)) {
         this.progress.completedMissions.push(this.sampleMissionId);
-        this.progress.roverUnlocked = true;
         this.progress.xp += 50;
         this.syncProgress();
         this.playCollectChime();
-        this.toast("✅ اكتملت العينات! عربة الاستكشاف متاحة.");
+        this.toast("✅ اكتملت العينات! اكتمل المسح الميداني.");
       }
       if (done && this.config.character === "astronaut") {
         this.finalMissionComplete = true;
         this.paused = true;
         const finalOverlay = this.hud.querySelector("#game-final-mission");
-        if (finalOverlay) finalOverlay.hidden = false;
+        if (finalOverlay) {
+          const stats = finalOverlay.querySelectorAll(".game-stage-stats strong");
+          if (stats[0]) stats[0].textContent = `${this.worldCollectedCount()}/${this.sampleGoal}`;
+          if (stats[1]) stats[1].textContent = "100%";
+          if (stats[2]) stats[2].textContent = String(this.progress.xp);
+          finalOverlay.hidden = false;
+        }
         const beacon = this.hud.querySelector("#game-beacon-solo");
         if (beacon) beacon.hidden = true;
         if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
@@ -3050,36 +3046,6 @@ class SpaceWorld {
       }
     });
     return nearest;
-  }
-
-  nearRover() {
-    if (!this.rover) return false;
-    return Math.hypot(this.playerBody.position.x - this.rover.position.x, this.playerBody.position.z - this.rover.position.z) < 3.8;
-  }
-
-  toggleRover() {
-    if (!this.progress.roverUnlocked) {
-      this.toast(`اجمع ${this.sampleGoal} عينات أولًا لفتح عربة الاستكشاف.`);
-      return;
-    }
-    this.roverMode = !this.roverMode;
-    this.rover.visible = true;
-    this.playerModel.visible = !this.roverMode;
-    this.rover.position.set(this.playerBody.position.x, this.playerBody.position.y - PLAYER_COLLIDER_HEIGHT, this.playerBody.position.z);
-    this.rover.rotation.y = this.cameraYaw;
-
-    if (this.roverMode) {
-      this.toast("أنت تقود عربة الاستكشاف · اضغط V للترجل.");
-      this.playPing(380, 0.2, "sawtooth");
-      if (!this.progress.completedMissions.includes("rover-drive")) {
-        this.progress.completedMissions.push("rover-drive");
-        this.progress.xp += 35;
-        this.syncProgress();
-      }
-    } else {
-      this.toast("عدت للاستكشاف سيرًا على الأقدام.");
-      this.playPing(480, 0.1);
-    }
   }
 
   toggleEquipmentPanel(force) {
@@ -3221,7 +3187,6 @@ class SpaceWorld {
     setText(this.hud, "#game-sample-count", `${this.worldCollectedCount()}/${this.sampleGoal}`);
     setText(this.hud, "#game-world-label", this.look.label);
 
-    if (this.rover) this.rover.visible = Boolean(this.progress.roverUnlocked);
 
     const complete = this.isSampleMissionComplete();
     const craterDone = this.progress.completedMissions.includes(this.craterMissionId);
@@ -3242,7 +3207,7 @@ class SpaceWorld {
       setText(this.hud, "#game-mission-count", `${this.worldCollectedCount()}/${this.sampleGoal} عينات`);
     } else {
       setText(this.hud, "#game-mission-title", craterDone ? "اكتمل الاستكشاف الميداني بنجاح" : complete ? "اتبع المنارة إلى فوهة الاصطدام" : `اجمع ${this.sampleGoal} عينات ميدانية`);
-      setText(this.hud, "#game-mission-count", craterDone ? "المهمة مكتملة" : complete ? "عربة الاستكشاف متاحة ✦ +80 XP عند الفوهة" : `${this.worldCollectedCount()}/${this.sampleGoal} عينات`);
+      setText(this.hud, "#game-mission-count", craterDone ? "المهمة مكتملة" : complete ? "اتبع الإشارة إلى الفوهة ✦ +80 XP" : `${this.worldCollectedCount()}/${this.sampleGoal} عينات`);
     }
   }
 
@@ -3554,7 +3519,7 @@ class SpaceWorld {
       return;
     }
 
-    this.playerModel.visible = !this.roverMode;
+    this.playerModel.visible = true;
 
     if (this.cameraMode === "drone") {
       // Cinematic 360-degree Orbiting Drone View
@@ -3573,8 +3538,8 @@ class SpaceWorld {
 
     // Default: Third Person Dynamic Spring Camera
     const crewDistance = this.siteProfile && this.config.character === "alien" ? 14 : 9.4;
-    const distance = this.roverMode ? 8.2 : this.crewMembers?.length ? crewDistance : this.siteProfile ? this.cameraDistance : 5.8;
-    const targetHeight = this.roverMode ? 0.95 : 1.15;
+    const distance = this.crewMembers?.length ? crewDistance : this.siteProfile ? this.cameraDistance : 5.8;
+    const targetHeight = 1.15;
     const pitchScale = Math.cos(this.cameraPitch);
     const target = new THREE.Vector3(player.x, player.y + targetHeight, player.z);
     const desired = new THREE.Vector3(
@@ -3625,7 +3590,7 @@ class SpaceWorld {
     const sprint = this.keys.has("ShiftLeft") || this.keys.has("ShiftRight");
     this.isRunning = inputLength > 0.08 || this.touchRun;
     const isSprint = (sprint || this.touchRun) && this.isRunning;
-    const speed = (isSprint ? this.look.run : this.look.walk) * (this.roverMode ? 1.85 : 1) * this.siteMovementFactor;
+    const speed = (isSprint ? this.look.run : this.look.walk) * this.siteMovementFactor;
     const grounded = this.isGrounded();
     const acceleration = this.isRunning ? this.look.acceleration : this.look.braking;
     const control = grounded ? 1.0 : (this.isEarth ? 0.95 : this.look.airControl);
@@ -3643,7 +3608,7 @@ class SpaceWorld {
       this.dust.position.copy(this.playerModel.position);
       this.dust.visible = isSprint;
       if (isSprint && this.elapsed - this.lastDustAt > 0.07) this.emitDust();
-      if (!this.roverMode && grounded && this.elapsed - this.lastStepAt > (isSprint ? 0.26 : 0.46)) {
+      if (grounded && this.elapsed - this.lastStepAt > (isSprint ? 0.26 : 0.46)) {
         this.lastStepAt = this.elapsed;
         this.addFootprint();
         this.playFootstepSound(isSprint);
@@ -3693,15 +3658,11 @@ class SpaceWorld {
 
     if (this.rover?.visible) {
       const roverSpeed = Math.hypot(this.playerBody.velocity.x, this.playerBody.velocity.z);
-      const heading = this.playerModel.rotation.y;
-      if (this.roverMode) {
-        this.rover.position.set(body.x, this.playerModel.position.y, body.z);
-      } else {
-        const targetX = body.x + Math.sin(heading) * 1.8;
-        const targetZ = body.z + Math.cos(heading) * 1.8;
-        const target = new THREE.Vector3(targetX, this.terrainHeight(targetX, targetZ), targetZ);
-        this.rover.position.lerp(target, 1 - Math.exp(-4.5 * delta));
-      }
+      const heading = roverSpeed > 0.15 ? this.playerModel.rotation.y : this.cameraYaw;
+      const targetX = body.x + Math.sin(heading) * 1.8;
+      const targetZ = body.z + Math.cos(heading) * 1.8;
+      const target = new THREE.Vector3(targetX, this.terrainHeight(targetX, targetZ), targetZ);
+      this.rover.position.lerp(target, 1 - Math.exp(-4.5 * delta));
       this.rover.rotation.y = heading;
       this.roverWheels.forEach(wheel => { wheel.rotation.x += roverSpeed * delta * 3.5; });
     }
@@ -3831,10 +3792,7 @@ class SpaceWorld {
     const nearest = uncollected || collected;
     const prompt = this.hud.querySelector("#game-nearby-prompt");
     if (prompt) {
-      if (this.progress.roverUnlocked && this.nearRover()) {
-        prompt.textContent = this.roverMode ? "V · ترجل من عربة الاستكشاف" : "E · اصعد إلى عربة الاستكشاف";
-        prompt.hidden = false;
-      } else if (this.isAlien && nearest?.collected) {
+      if (this.isAlien && nearest?.collected) {
         prompt.hidden = true;
       } else if (nearest && Math.hypot(this.playerBody.position.x - nearest.x, this.playerBody.position.z - nearest.z) < 3.2) {
         prompt.textContent = nearest.collected ? `Q · فحص ${nearest.type}` : `E · جمع ${nearest.type}`;
@@ -4546,9 +4504,9 @@ function makeLunarModule() {
   return lm;
 }
 
-function makeDetailedRover(isMars = true) {
+function makeDetailedRover(isAlien = false) {
   const rover = new THREE.Group();
-  const bodyMaterial = new THREE.MeshStandardMaterial({ color: isMars ? 0xd0d8d6 : 0xd8dde0, roughness: 0.65, metalness: 0.35 });
+  const bodyMaterial = new THREE.MeshStandardMaterial({ color: isAlien ? 0x35a85b : 0xf2f4f3, emissive: isAlien ? 0x12652d : 0x777e7a, emissiveIntensity: 0.45, roughness: 0.65, metalness: 0.35 });
   const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x222a2e, roughness: 0.9 });
   const goldMaterial = new THREE.MeshStandardMaterial({ color: 0xe5a93b, roughness: 0.35, metalness: 0.8 });
   const lensMaterial = new THREE.MeshStandardMaterial({ color: 0x48e4ff, emissive: 0x1688aa, emissiveIntensity: 1.2 });

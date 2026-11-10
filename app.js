@@ -307,7 +307,7 @@ let mapResizeFrame = null;
 let marsGlobeFrame = null;
 let spaceGameEngine = null;
 let gameResumeSaveTimer = null;
-const gamePresentation = { active: false, content: null, layer: null, cancelled: false, resumeChoice: false, cancelOrientationWait: null, orientationPaused: false };
+const gamePresentation = { active: false, content: null, layer: null, cancelled: false, resumeChoice: false, summaryScreen: null, cancelOrientationWait: null, orientationPaused: false };
 const MARS_ROTATION_SECONDS = 60;
 let searchTerm = "";
 let scoreState = readStore(storageKeys.scores, {});
@@ -334,7 +334,7 @@ function writeStore(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage may be disabled by the browser. */ }
 }
 function freshSpaceGame() {
-  return { sampleAnalysisVersion: 2, character: null, destination: null, selectedSite: null, suit: null, spacecraft: null, equipment: [], discovered: [], readSites: [], discoveredPoints: [], discoveredSamples: [], analyzedSamples: [], journeyLog: [], routePoints: [], quizResults: {}, completedMissions: [], collectedSamples: [], analyzedSites: [], roverUnlocked: false, settings: { sound: true, soundVersion: 1, quality: "medium", mouseSensitivity: 1, cameraShake: true }, xp: 0, resumeState: null };
+  return { sampleAnalysisVersion: 2, character: null, destination: null, selectedSite: null, suit: null, spacecraft: null, equipment: [], discovered: [], readSites: [], discoveredPoints: [], discoveredSamples: [], analyzedSamples: [], journeyLog: [], routePoints: [], quizResults: {}, completedMissions: [], collectedSamples: [], analyzedSites: [], settings: { sound: true, soundVersion: 1, quality: "medium", mouseSensitivity: 1, cameraShake: true }, xp: 0, resumeState: null };
 }
 function loadSpaceGame() {
   const stored = readStore(spaceGameStorageKey, {});
@@ -393,7 +393,6 @@ function loadSpaceGame() {
     completedMissions: migratedMissions,
     collectedSamples: [...collectedSamples],
     analyzedSites,
-    roverUnlocked: Boolean(saved.roverUnlocked),
     settings: {
       sound: saved.settings?.soundVersion === 1 ? Boolean(saved.settings.sound) : true,
       soundVersion: 1,
@@ -532,10 +531,13 @@ function stepPhotoViewer(step) {
 }
 function siteScienceMarkup(site) {
   const science = site.science;
+  const targetName = site.target === "القمر" ? "القمر" : "المريخ";
+  const similarityLabel = site.target === "القمر" ? "أوجه الشبه بالقمر" : "أوجه الشبه بالمريخ";
+  const targetReference = site.target === "القمر" ? "للقمر" : "للمريخ";
   const facts = [
     ["الخصائص الجيولوجية", science.geology], ["المناخ", science.climate],
     ["الصخور والمعادن", science.rocks], ["التضاريس", science.terrain],
-    ["المياه والموارد", science.water], ["أوجه الشبه بالمريخ", science.mars],
+    ["المياه والموارد", science.water], [similarityLabel, science.mars],
     ["أهمية الموقع البحثية", science.research]
   ];
   return `<section class="panel detail-panel site-science-panel">
@@ -543,7 +545,7 @@ function siteScienceMarkup(site) {
     <div class="site-science-grid">${facts.map(([label, value]) => `<article><h3>${label}</h3><p>${escapeHtml(value)}</p></article>`).join("")}</div>
     <div class="site-research-task"><strong>مهمة الاستكشاف</strong><p>${escapeHtml(science.task)}</p></div>
     <div class="site-science-sources"><strong>المصادر</strong>${science.sources.map(source => `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.name)} ↗</a>`).join("")}</div>
-    <p class="site-science-caveat">الموقع الأرضي نموذج لدراسة خصائص محددة، وليس نسخة مطابقة للمريخ. الإحداثيات المعروضة نقاط مرجعية تقريبية، ومؤشرات اللعبة لا تمثل قياسات ميدانية.</p>
+    <p class="site-science-caveat">الموقع الأرضي نموذج لدراسة خصائص محددة، وليس نسخة مطابقة ${targetReference}. الإحداثيات المعروضة نقاط مرجعية تقريبية، ومؤشرات اللعبة لا تمثل قياسات ميدانية.</p>
   </section>`;
 }
 function homePage() {
@@ -855,7 +857,6 @@ function spaceGameBadges() {
 function gameBadgesMarkup() {
   const badges = spaceGameBadges();
   if (spaceGame.analyzedSites?.length) badges.push({ icon: "⌕", label: "خبير التضاريس" });
-  if (spaceGame.roverUnlocked) badges.push({ icon: "◈", label: "قائد العربة" });
   return badges.length
     ? badges.map(badge => `<span class="game-badge"><span aria-hidden="true">${badge.icon}</span>${badge.label}</span>`).join("")
     : `<span class="game-badge-locked">الشارات تُفتح مع الاكتشاف</span>`;
@@ -1258,13 +1259,13 @@ function spaceGameMapScreen() {
       ${gamePlanetStripMarkup(world)}
       <div class="game-arrival-title" id="game-arrival-title"><span>بدء المسح الميداني</span><strong>${worldName}</strong>${stageSite ? `<small>${escapeHtml(stageSite.science.task)}</small>` : ""}</div>
       ${spaceGame.character === "astronaut" ? `<div class="game-mission-kit"><div class="game-kit-item"><span class="game-kit-label">البدلة</span><strong>${spaceGame.suit === "moon-suit" ? "بدلة القمر" : spaceGame.suit === "mars-suit" ? "بدلة المريخ" : "بدلة قياسية"}</strong></div><div class="game-kit-item"><span class="game-kit-label">المركبة</span><strong>${spaceGame.spacecraft === "lunar-lander" ? "مركبة هبوط القمر" : spaceGame.spacecraft === "mars-lander" ? "مركبة هبوط المريخ" : "مركبة قياسية"}</strong></div><div class="game-kit-item"><span class="game-kit-label">العتاد</span><strong>${spaceGame.equipment.length ? spaceGame.equipment.map(id => ({ "oxygen-tank": "خزان أكسجين", "tool-kit": "حقيبة أدوات", "med-kit": "حقيبة إسعاف", "sample-bag": "حقيبة عينات", "comms-unit": "وحدة اتصال", "thermal-suit": "طبقة حرارية" }[id] || id)).join("، ") : "غير محدد"}</strong></div></div>` : ""}
-      <div class="game-hud game-hud-top"><div class="game-objective-status"><span class="game-mission-index">${stageSite ? "مهمة الموقع · جمع العينات" : "المهمة 01 · تحدي 03:00"}</span><strong id="game-mission-title">${stageSite ? missionComplete ? "اكتملت العينات" : `اجمع ${sampleGoal} عينات` : missionComplete ? "اتبع المنارة إلى فوهة الاصطدام" : `اجمع ${sampleGoal} عينات افتراضية`}</strong><small id="game-mission-count">${stageSite ? `${collected}/${sampleGoal} عينات` : missionComplete ? "المركبة متاحة" : `${collected}/${sampleGoal} عينات مجمعة`}</small><span class="game-mission-clock" id="game-timer">03:00</span></div>${spaceGame.character === "astronaut" ? `<div class="game-oxygen-meter"><span class="game-oxygen-icon">🫁</span><div><small>الأكسجين</small><strong id="game-oxygen-time">02:00</strong></div><div class="game-oxygen-bar"><div id="game-oxygen-fill" style="width:100%"></div></div></div>` : ""}<div class="game-hud-actions"><button class="game-icon-control" type="button" data-engine-action="inventory" aria-label="حقيبة العينات" title="حقيبة العينات الميدانية (R)">🎒</button><button class="game-icon-control" type="button" data-engine-action="solar-system" aria-label="رؤية المجموعة الشمسية" title="رصد المجموعة الشمسية والنجوم">🪐</button><button class="game-icon-control" type="button" data-engine-action="camera" aria-label="تبديل زاوية الكاميرا" title="تبديل الكاميرا (شخص ثالث / قناع الخوذة / طائرة استطلاع)">📷</button><button class="game-icon-control" type="button" data-engine-action="settings" aria-label="إعدادات اللعبة" title="الإعدادات">⚙</button><button class="game-icon-control" type="button" data-engine-action="pause" aria-label="إيقاف مؤقت" title="إيقاف مؤقت">Ⅱ</button><button class="game-icon-control" type="button" data-game-exit aria-label="الخروج من اللعبة" title="الخروج من اللعبة">×</button></div></div>${locationBar}
+      <div class="game-hud game-hud-top"><div class="game-objective-status"><span class="game-mission-index">${stageSite ? "مهمة الموقع · جمع العينات" : "المهمة 01 · تحدي 03:00"}</span><strong id="game-mission-title">${stageSite ? missionComplete ? "اكتملت العينات" : `اجمع ${sampleGoal} عينات` : missionComplete ? "اتبع المنارة إلى فوهة الاصطدام" : `اجمع ${sampleGoal} عينات افتراضية`}</strong><small id="game-mission-count">${stageSite ? `${collected}/${sampleGoal} عينات` : missionComplete ? "اتبع الإشارة إلى الفوهة" : `${collected}/${sampleGoal} عينات مجمعة`}</small><span class="game-mission-clock" id="game-timer">03:00</span></div>${spaceGame.character === "astronaut" ? `<div class="game-oxygen-meter"><span class="game-oxygen-icon">🫁</span><div><small>الأكسجين</small><strong id="game-oxygen-time">02:00</strong></div><div class="game-oxygen-bar"><div id="game-oxygen-fill" style="width:100%"></div></div></div>` : ""}<div class="game-hud-actions"><button class="game-icon-control" type="button" data-engine-action="inventory" aria-label="حقيبة العينات" title="حقيبة العينات الميدانية (R)">🎒</button><button class="game-icon-control" type="button" data-engine-action="solar-system" aria-label="رؤية المجموعة الشمسية" title="رصد المجموعة الشمسية والنجوم">🪐</button><button class="game-icon-control" type="button" data-engine-action="camera" aria-label="تبديل زاوية الكاميرا" title="تبديل الكاميرا (شخص ثالث / قناع الخوذة / طائرة استطلاع)">📷</button><button class="game-icon-control" type="button" data-engine-action="settings" aria-label="إعدادات اللعبة" title="الإعدادات">⚙</button><button class="game-icon-control" type="button" data-engine-action="pause" aria-label="إيقاف مؤقت" title="إيقاف مؤقت">Ⅱ</button><button class="game-icon-control" type="button" data-game-exit aria-label="الخروج من اللعبة" title="الخروج من اللعبة">×</button></div></div>${locationBar}
       <div class="game-beacon-solo" id="game-beacon-solo">${missionComplete ? '' : `<span class="game-beacon-solo-shell" aria-hidden="true"><svg id="game-beacon-arrow" viewBox="0 0 24 24" fill="none"><path d="M12 2.5L4.5 20.5L12 16.5L19.5 20.5L12 2.5Z" fill="#ffcf56" stroke="#fff1b8" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="game-beacon-solo-label">إشارة العينة</span><strong id="game-beacon-distance-solo" class="game-beacon-solo-dist">-- م</strong>`}</div>
       <div class="game-helmet-visor" id="game-helmet-visor" hidden aria-hidden="true"><div class="visor-reflection"></div><div class="visor-hud-reticle"></div></div>
       <div class="game-crosshair" aria-hidden="true"><i></i></div>
       <div class="game-landscape-prompt" role="status" aria-live="polite"><div><span aria-hidden="true">▯</span><strong>أدر الهاتف أفقيًا</strong><small>سيبدأ الاستكشاف فور تدوير الجهاز.</small></div></div>
       <div class="game-hud game-hud-bottom"><div class="game-sample-meter"><span class="game-sample-icon">⌑</span><div><small>عينات محاكاة</small><strong id="game-sample-count">${collected}/${sampleGoal}</strong></div></div><div class="game-xp-meter"><span>✦</span><strong><span class="game-xp-value">${spaceGame.xp}</span> XP</strong></div></div>
-      <div class="game-controls-hint">W A S D حركة · الماوس نظر · Space قفز/نفاث · Shift جري · E جمع/تفاعل · R حقيبة العينات · C كاميرا · V عربة</div>
+      <div class="game-controls-hint">W A S D حركة · الماوس نظر · Space قفز/نفاث · Shift جري · E جمع/تفاعل · R حقيبة العينات · C كاميرا</div>
       <div class="game-nearby-prompt" id="game-nearby-prompt" hidden></div>
       <aside class="game-science-point" id="game-science-point" role="status" aria-live="polite" hidden><span>نقطة اهتمام علمية</span><strong id="game-science-point-title"></strong><p id="game-science-point-text"></p><small>إضافة إلى سجل الاستكشاف · موضع توضيحي</small></aside>
       ${stageSite ? gameFieldLogMarkup(stageSite) : ""}
@@ -1298,7 +1299,9 @@ function spaceGameResumeScreen() {
   return `<div class="game-screen game-resume-screen"><div class="game-screen-heading"><span class="game-step">رحلة محفوظة</span><h2>تحب تكمّل من آخر مرة؟</h2><p>شخصيتك ووجهتك وتقدمك محفوظين على هذا الجهاز. الوجهة الحالية: ${destination} · ${spaceGame.xp} XP.</p></div><div class="game-resume-actions"><button class="button primary" type="button" data-game-session="continue">متابعة الرحلة</button><button class="game-menu-secondary" type="button" data-game-session="new">بدء لعبة جديدة</button></div></div>`;
 }
 function spaceGameSessionPage() {
-  const content = spaceGame.character === "astronaut" && isAstronautCampaignComplete()
+  const content = gamePresentation.summaryScreen === "astronaut" ? astronautCampaignCompleteScreen()
+    : gamePresentation.summaryScreen === "alien" ? spaceGameCampaignCompleteScreen()
+    : spaceGame.character === "astronaut" && isAstronautCampaignComplete()
     ? astronautCampaignCompleteScreen()
     : gamePresentation.resumeChoice ? spaceGameResumeScreen()
       : !spaceGame.character ? spaceCharacterScreen()
@@ -1495,6 +1498,9 @@ function showAlienWarpScreen(onFinish) {
 
 function handleSpaceGameAction(button) {
   const { gameAction: action, character, destination, suit, spacecraft } = button.dataset;
+  if (!["show-campaign-summary", "astronaut-show-summary", "show-journey-log"].includes(action)) {
+    gamePresentation.summaryScreen = null;
+  }
   if (action === "show-journey-log") {
     const log = button.closest(".game-stage-card")?.querySelector(".game-stage-journey-log");
     if (log) {
@@ -1539,6 +1545,7 @@ function handleSpaceGameAction(button) {
     const nextSite = campaign.find(site => site.id === spaceGame.selectedSite);
     if (nextSite) recordJourneyEvent("site-arrival", `الانتقال إلى: ${nextSite.ar}`, nextSite.science.task, nextSite.id);
     if (isAlien) {
+      stopSpaceGameScene();
       saveSpaceGame();
       showAlienWarpScreen(() => render());
       return;
@@ -1552,12 +1559,14 @@ function handleSpaceGameAction(button) {
     const firstMarsSite = campaignSites("mars").find(site => site.id === spaceGame.selectedSite);
     if (firstMarsSite) recordJourneyEvent("site-arrival", `بدء مسار المريخ: ${firstMarsSite.ar}`, firstMarsSite.science.task, firstMarsSite.id);
     if (isAlien) {
+      stopSpaceGameScene();
       saveSpaceGame();
       showAlienWarpScreen(() => render());
       return;
     }
   } else if (action === "show-campaign-summary") {
     spaceGame.resumeState = null;
+    gamePresentation.summaryScreen = "alien";
   } else if (action === "astronaut-switch-mars") {
     spaceGame.destination = "mars";
     spaceGame.suit = null;
@@ -1574,6 +1583,7 @@ function handleSpaceGameAction(button) {
     spaceGame.routePoints = [];
   } else if (action === "astronaut-show-summary") {
     spaceGame.resumeState = null;
+    gamePresentation.summaryScreen = "astronaut";
   } else if (action === "return-home") {
     location.hash = "#home";
     return;
@@ -1671,6 +1681,7 @@ window.addEventListener("resize", updateGameOrientation);
 screen.orientation?.addEventListener?.("change", updateGameOrientation);
 async function startGamePresentation(mode = "new") {
   if (gamePresentation.active) return;
+  gamePresentation.summaryScreen = null;
   const page = app.querySelector(".space-game-page");
   if (!page) return;
   if (mode === "continue" && !hasValidSavedSpaceGame()) mode = "new";
@@ -1834,15 +1845,17 @@ function sourcesPage() {
   const excludeSourcePaths = (entries, paths) => entries.filter(source => !paths.some(path => source.url.includes(path)));
   const documentsById = ids => allDocuments.filter(document => ids.includes(document.id));
   const siteAnalogProblems = siteProblemCards.filter(problem => !["moon-surface", "mars-surface"].includes(problem.key)).map(problem => ({ title: problem.title, ar: problem.problem, sources: problem.sources }));
+  const technicalSources = [
+    ...excludeSourcePaths(nonReports(collect(GUIDE_CREW_PROBLEMS)), ["nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust", "moon-water-and-ices", "nasas-oxygen-generating-experiment-moxie-completes-mars-mission"]),
+    ...nonReports([...collect(documentsById(["soil-earth-mars", "project-game"])), ...collect(GUIDE_CREW_PROBLEMS.filter(document => document.id === "crew-resources")).filter(source => source.url.includes("water-on-the-moon"))]),
+    ...nonReports(collect(documentsById(["nasa-missions", "mars-robots", "landing-hazards"]))),
+    ...collect([...siteDocuments, ...siteAnalogProblems, ...problemDocuments, ...allDocuments]).filter(source => /ntrs\.nasa\.gov/i.test(source.url))
+  ];
   const categories = [
     { id: "lunar", title: "مصادر استكشاف القمر", titleEn: "Moon exploration", description: "مراجع عن القمر وموارده ومهماته.", descriptionEn: "References about the Moon, its resources, and missions.", sources: nonReports(collect(documentsById(["moon-world", "lunar-base"]))) },
     { id: "mars", title: "مصادر استكشاف المريخ", titleEn: "Mars exploration", description: "مراجع عن المريخ والماء والغبار والروبوتات.", descriptionEn: "References about Mars, water, dust, and robotic missions.", sources: excludeSourcePaths(nonReports(collect(documentsById(["mars-world", "mars-water", "space-dust"]))), ["/rover-components/"]) },
     { id: "analogs", title: "مصادر البيئات الأرضية التناظرية", titleEn: "Earth analog sites", description: "مراجع المواقع والتجارب وحدود المقارنة.", descriptionEn: "References about field sites, tests, and comparison limits.", sources: nonReports([...collect(siteDocuments), ...collect(siteAnalogProblems), ...collect(documentsById(["analog-method", "project-map-gallery"]))]) },
-    { id: "crew", title: "مشكلات رواد الفضاء والحلول الهندسية", titleEn: "Astronaut challenges", description: "مراجع المخاطر والحلول والتقنيات.", descriptionEn: "References about mission risks, engineering solutions, and technology.", sources: excludeSourcePaths(nonReports(collect(GUIDE_CREW_PROBLEMS)), ["nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust", "moon-water-and-ices", "nasas-oxygen-generating-experiment-moxie-completes-mars-mission"]) },
-    { id: "geology", title: "الجيولوجيا والتربة والموارد الطبيعية", titleEn: "Geology and resources", description: "مراجع الصخور والتربة والماء والعينات.", descriptionEn: "References about rocks, soil, water, and samples.", sources: nonReports([...collect(documentsById(["soil-earth-mars", "project-game"])), ...collect(GUIDE_CREW_PROBLEMS.filter(document => document.id === "crew-resources")).filter(source => source.url.includes("water-on-the-moon"))]) },
-    { id: "missions", title: "المهمات الفضائية والتقنيات المستخدمة", titleEn: "Missions and technology", description: "مراجع المهمات والمركبات والروبوتات.", descriptionEn: "References about missions, spacecraft, and robotics.", sources: nonReports(collect(documentsById(["nasa-missions", "mars-robots", "landing-hazards"]))) },
-    { id: "research", title: "الأبحاث والتقارير العلمية", titleEn: "Research and reports", description: "تقارير وأبحاث فنية مرتبطة بالمشروع.", descriptionEn: "Technical reports and research related to this project.", sources: collect([...siteDocuments, ...siteAnalogProblems, ...problemDocuments, ...allDocuments])
-      .filter(source => /ntrs\.nasa\.gov/i.test(source.url)) }
+    { id: "technical", title: "الرواد والتقنيات والأبحاث", titleEn: "Astronauts, technology, and research", description: "مراجع عن سلامة الرواد، والأجهزة، والتقارير الفنية.", descriptionEn: "References about astronaut safety, technology, and technical research.", sources: technicalSources }
   ];
   const usedSourceUrls = new Set();
   categories.forEach(category => {
@@ -1935,7 +1948,7 @@ function sourcesPage() {
   const sourceTitleArabic = source => {
     const title = source.label || source.name || "مرجع علمي";
     if (sourceTitlesArabic.has(title)) return sourceTitlesArabic.get(title);
-    return /[A-Za-z]/.test(title) ? `مرجع علمي موثق من ${publisherFor(source.url)}` : title;
+    return title;
   };
   const sourceTitleEnglish = source => {
     const title = source.label || source.name || "";
@@ -1943,9 +1956,10 @@ function sourcesPage() {
   };
   const sourceDescription = source => {
     const text = String(source.description || "").replace(/\s+/g, " ").trim();
-    return text.length > 140 ? `${text.slice(0, 137)}…` : text;
+    const firstSentence = text.split(/(?<=[.!؟])\s+/)[0] || text;
+    return firstSentence.length > 110 ? `${firstSentence.slice(0, 107)}…` : firstSentence;
   };
-  return `${heading("كل معلومة لها مرجع", "المصادر والمراجع", "اكتشف أصل المعلومات وافتح المرجع بنفسك.")}
+  return `${heading("مصادر موثوقة ومرتبة", "المصادر والمراجع", "اختر الموضوع، اقرأ ما يدعمه المرجع، ثم افتح رابطه الأصلي.")}
     <div class="sources-page">
       ${categories.map(group => `<section class="sources-group sources-group-${group.id}" aria-labelledby="sources-${group.id}-title">
         <header class="sources-group-heading">
@@ -1957,7 +1971,7 @@ function sourcesPage() {
           ${group.sources.map(source => `<article class="source-entry">
             <div class="source-entry-meta"><span class="source-world-tag" data-i18n-ar="${escapeHtml(publisherFor(source.url))}" data-i18n-en="${escapeHtml(publisherForEnglish(source.url))}">${escapeHtml(publisherFor(source.url))}</span></div>
             <h3 data-i18n-ar="${escapeHtml(sourceTitleArabic(source))}" data-i18n-en="${escapeHtml(sourceTitleEnglish(source))}">${escapeHtml(sourceTitleArabic(source))}</h3>
-            <p class="source-location" data-i18n-ar="${escapeHtml(sourceDescription(source))}" data-i18n-en="${escapeHtml(source.descriptionEn ? source.descriptionEn.replace(/\\s+/g, " ").trim().slice(0, 140) : "A reference supporting the information shown on this site.")}">${escapeHtml(sourceDescription(source))}</p>
+            <p class="source-location"><span data-i18n-ar="يدعم:" data-i18n-en="Supports:">يدعم:</span> <span data-i18n-ar="${escapeHtml(sourceDescription(source))}" data-i18n-en="${escapeHtml(source.descriptionEn ? source.descriptionEn.replace(/\\s+/g, " ").trim().slice(0, 110) : "Information in this section.")}">${escapeHtml(sourceDescription(source))}</span></p>
             <a class="source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer"><span data-i18n-ar="فتح المصدر الأصلي" data-i18n-en="Open original source">فتح المصدر الأصلي</span> <span aria-hidden="true">↗</span></a>
           </article>`).join("")}
         </div>

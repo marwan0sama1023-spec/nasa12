@@ -40274,7 +40274,6 @@ var SpaceWorld = class {
     this.isJetpacking = false;
     this.jetpackFuel = 100;
     this.movementBlend = 0;
-    this.roverMode = false;
     this.lastInteractAt = 0;
     this.lastStepAt = 0;
     this.lastDustAt = 0;
@@ -40295,8 +40294,7 @@ var SpaceWorld = class {
       readSites: Array.isArray(config.progress.readSites) ? [...config.progress.readSites] : [],
       analyzedSites: Array.isArray(config.progress.analyzedSites) ? [...config.progress.analyzedSites] : [],
       completedMissions: Array.isArray(config.progress.completedMissions) ? [...config.progress.completedMissions] : [],
-      routePoints: Array.isArray(config.progress.routePoints) ? config.progress.routePoints.slice(-180).map((point) => ({ ...point })) : [],
-      roverUnlocked: Boolean(config.progress.roverUnlocked)
+      routePoints: Array.isArray(config.progress.routePoints) ? config.progress.routePoints.slice(-180).map((point) => ({ ...point })) : []
     };
     this.routePoints = this.progress.routePoints;
     this.routeLine = null;
@@ -42098,10 +42096,10 @@ var SpaceWorld = class {
     });
   }
   createRover() {
-    const rover = makeDetailedRover(this.isMars);
+    const rover = makeDetailedRover(this.isAlien);
     rover.scale.setScalar(0.55);
     rover.position.set(3.8, this.terrainHeight(3.8, 2.2), 2.2);
-    rover.visible = Boolean(this.progress.roverUnlocked);
+    rover.visible = true;
     this.scene.add(rover);
     this.rover = rover;
     this.roverWheels = rover.userData.wheels || [];
@@ -42166,9 +42164,9 @@ var SpaceWorld = class {
     this.lastControlToggleAt = 0;
     this.onKeyDown = (event) => {
       if (event.target instanceof Element && event.target.matches("input, select, textarea, button, a, [contenteditable='true']")) return;
-      const handled = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight", "KeyE", "KeyR", "KeyV", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"];
+      const handled = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ShiftLeft", "ShiftRight", "KeyE", "KeyR", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"];
       if (handled.includes(event.code)) event.preventDefault();
-      if (event.repeat && ["KeyE", "KeyR", "KeyV", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"].includes(event.code)) return;
+      if (event.repeat && ["KeyE", "KeyR", "KeyC", "KeyG", "Escape", "ControlLeft", "ControlRight"].includes(event.code)) return;
       if (event.code === "ControlLeft" || event.code === "ControlRight") {
         const now = performance.now();
         if (now - this.lastControlToggleAt < 180) return;
@@ -42181,7 +42179,6 @@ var SpaceWorld = class {
       if (event.code === "Space") this.jump();
       if (event.code === "KeyE") this.interact();
       if (event.code === "KeyR") this.toggleInventory();
-      if (event.code === "KeyV") this.toggleRover();
       if (event.code === "KeyC") this.toggleCameraMode();
       if (event.code === "KeyG") this.toggleEquipmentPanel();
       if (event.code === "Escape" && !document.pointerLockElement) this.togglePause();
@@ -42432,7 +42429,6 @@ var SpaceWorld = class {
     if (engineButton === "camera") this.toggleCameraMode();
     if (engineButton === "inventory") this.toggleInventory(true);
     if (engineButton === "equipment") this.toggleEquipmentPanel();
-    if (engineButton === "rover") this.toggleRover();
   }
   setQuality(level) {
     this.quality = level;
@@ -42500,10 +42496,6 @@ var SpaceWorld = class {
       }
       return;
     }
-    if (this.progress.roverUnlocked && this.nearRover()) {
-      this.toggleRover();
-      return;
-    }
     const sample = this.nearestSample(2.8);
     if (!sample) {
       this.toast("\u0627\u0642\u062A\u0631\u0628 \u0645\u0646 \u0625\u0634\u0627\u0631\u0629 \u0639\u064A\u0646\u0629 \u0623\u0648 \u0645\u0648\u0642\u0639 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641.");
@@ -42534,17 +42526,22 @@ var SpaceWorld = class {
       const done = this.isAlien ? this.worldCollectedCount() >= this.sampleGoal : this.worldCollectedCount() >= this.sampleGoal;
       if (done && !this.progress.completedMissions.includes(this.sampleMissionId)) {
         this.progress.completedMissions.push(this.sampleMissionId);
-        this.progress.roverUnlocked = true;
         this.progress.xp += 50;
         this.syncProgress();
         this.playCollectChime();
-        this.toast("\u2705 \u0627\u0643\u062A\u0645\u0644\u062A \u0627\u0644\u0639\u064A\u0646\u0627\u062A! \u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \u0645\u062A\u0627\u062D\u0629.");
+        this.toast("\u2705 \u0627\u0643\u062A\u0645\u0644\u062A \u0627\u0644\u0639\u064A\u0646\u0627\u062A! \u0627\u0643\u062A\u0645\u0644 \u0627\u0644\u0645\u0633\u062D \u0627\u0644\u0645\u064A\u062F\u0627\u0646\u064A.");
       }
       if (done && this.config.character === "astronaut") {
         this.finalMissionComplete = true;
         this.paused = true;
         const finalOverlay = this.hud.querySelector("#game-final-mission");
-        if (finalOverlay) finalOverlay.hidden = false;
+        if (finalOverlay) {
+          const stats = finalOverlay.querySelectorAll(".game-stage-stats strong");
+          if (stats[0]) stats[0].textContent = `${this.worldCollectedCount()}/${this.sampleGoal}`;
+          if (stats[1]) stats[1].textContent = "100%";
+          if (stats[2]) stats[2].textContent = String(this.progress.xp);
+          finalOverlay.hidden = false;
+        }
         const beacon = this.hud.querySelector("#game-beacon-solo");
         if (beacon) beacon.hidden = true;
         if (document.pointerLockElement === this.renderer.domElement) document.exitPointerLock?.();
@@ -42594,33 +42591,6 @@ var SpaceWorld = class {
       }
     });
     return nearest;
-  }
-  nearRover() {
-    if (!this.rover) return false;
-    return Math.hypot(this.playerBody.position.x - this.rover.position.x, this.playerBody.position.z - this.rover.position.z) < 3.8;
-  }
-  toggleRover() {
-    if (!this.progress.roverUnlocked) {
-      this.toast(`\u0627\u062C\u0645\u0639 ${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A \u0623\u0648\u0644\u064B\u0627 \u0644\u0641\u062A\u062D \u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641.`);
-      return;
-    }
-    this.roverMode = !this.roverMode;
-    this.rover.visible = true;
-    this.playerModel.visible = !this.roverMode;
-    this.rover.position.set(this.playerBody.position.x, this.playerBody.position.y - PLAYER_COLLIDER_HEIGHT, this.playerBody.position.z);
-    this.rover.rotation.y = this.cameraYaw;
-    if (this.roverMode) {
-      this.toast("\u0623\u0646\u062A \u062A\u0642\u0648\u062F \u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \xB7 \u0627\u0636\u063A\u0637 V \u0644\u0644\u062A\u0631\u062C\u0644.");
-      this.playPing(380, 0.2, "sawtooth");
-      if (!this.progress.completedMissions.includes("rover-drive")) {
-        this.progress.completedMissions.push("rover-drive");
-        this.progress.xp += 35;
-        this.syncProgress();
-      }
-    } else {
-      this.toast("\u0639\u062F\u062A \u0644\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \u0633\u064A\u0631\u064B\u0627 \u0639\u0644\u0649 \u0627\u0644\u0623\u0642\u062F\u0627\u0645.");
-      this.playPing(480, 0.1);
-    }
   }
   toggleEquipmentPanel(force) {
     const panel = this.hud.querySelector("#game-equipment-panel");
@@ -42745,7 +42715,6 @@ var SpaceWorld = class {
     setText(this.hud, "#game-xp-value", String(this.progress.xp));
     setText(this.hud, "#game-sample-count", `${this.worldCollectedCount()}/${this.sampleGoal}`);
     setText(this.hud, "#game-world-label", this.look.label);
-    if (this.rover) this.rover.visible = Boolean(this.progress.roverUnlocked);
     const complete = this.isSampleMissionComplete();
     const craterDone = this.progress.completedMissions.includes(this.craterMissionId);
     const oxygenMeter = this.hud.querySelector(".game-oxygen-meter");
@@ -42763,7 +42732,7 @@ var SpaceWorld = class {
       setText(this.hud, "#game-mission-count", `${this.worldCollectedCount()}/${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A`);
     } else {
       setText(this.hud, "#game-mission-title", craterDone ? "\u0627\u0643\u062A\u0645\u0644 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \u0627\u0644\u0645\u064A\u062F\u0627\u0646\u064A \u0628\u0646\u062C\u0627\u062D" : complete ? "\u0627\u062A\u0628\u0639 \u0627\u0644\u0645\u0646\u0627\u0631\u0629 \u0625\u0644\u0649 \u0641\u0648\u0647\u0629 \u0627\u0644\u0627\u0635\u0637\u062F\u0627\u0645" : `\u0627\u062C\u0645\u0639 ${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A \u0645\u064A\u062F\u0627\u0646\u064A\u0629`);
-      setText(this.hud, "#game-mission-count", craterDone ? "\u0627\u0644\u0645\u0647\u0645\u0629 \u0645\u0643\u062A\u0645\u0644\u0629" : complete ? "\u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \u0645\u062A\u0627\u062D\u0629 \u2726 +80 XP \u0639\u0646\u062F \u0627\u0644\u0641\u0648\u0647\u0629" : `${this.worldCollectedCount()}/${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A`);
+      setText(this.hud, "#game-mission-count", craterDone ? "\u0627\u0644\u0645\u0647\u0645\u0629 \u0645\u0643\u062A\u0645\u0644\u0629" : complete ? "\u0627\u062A\u0628\u0639 \u0627\u0644\u0625\u0634\u0627\u0631\u0629 \u0625\u0644\u0649 \u0627\u0644\u0641\u0648\u0647\u0629 \u2726 +80 XP" : `${this.worldCollectedCount()}/${this.sampleGoal} \u0639\u064A\u0646\u0627\u062A`);
     }
   }
   showGameOver(title, reason) {
@@ -43029,7 +42998,7 @@ var SpaceWorld = class {
       this.playerModel.visible = false;
       return;
     }
-    this.playerModel.visible = !this.roverMode;
+    this.playerModel.visible = true;
     if (this.cameraMode === "drone") {
       const orbitSpeed = 0.18;
       const angle = this.elapsed * orbitSpeed;
@@ -43044,8 +43013,8 @@ var SpaceWorld = class {
       return;
     }
     const crewDistance = this.siteProfile && this.config.character === "alien" ? 14 : 9.4;
-    const distance = this.roverMode ? 8.2 : this.crewMembers?.length ? crewDistance : this.siteProfile ? this.cameraDistance : 5.8;
-    const targetHeight = this.roverMode ? 0.95 : 1.15;
+    const distance = this.crewMembers?.length ? crewDistance : this.siteProfile ? this.cameraDistance : 5.8;
+    const targetHeight = 1.15;
     const pitchScale = Math.cos(this.cameraPitch);
     const target = new Vector3(player.x, player.y + targetHeight, player.z);
     const desired = new Vector3(
@@ -43086,7 +43055,7 @@ var SpaceWorld = class {
     const sprint = this.keys.has("ShiftLeft") || this.keys.has("ShiftRight");
     this.isRunning = inputLength > 0.08 || this.touchRun;
     const isSprint = (sprint || this.touchRun) && this.isRunning;
-    const speed = (isSprint ? this.look.run : this.look.walk) * (this.roverMode ? 1.85 : 1) * this.siteMovementFactor;
+    const speed = (isSprint ? this.look.run : this.look.walk) * this.siteMovementFactor;
     const grounded = this.isGrounded();
     const acceleration = this.isRunning ? this.look.acceleration : this.look.braking;
     const control = grounded ? 1 : this.isEarth ? 0.95 : this.look.airControl;
@@ -43101,7 +43070,7 @@ var SpaceWorld = class {
       this.dust.position.copy(this.playerModel.position);
       this.dust.visible = isSprint;
       if (isSprint && this.elapsed - this.lastDustAt > 0.07) this.emitDust();
-      if (!this.roverMode && grounded && this.elapsed - this.lastStepAt > (isSprint ? 0.26 : 0.46)) {
+      if (grounded && this.elapsed - this.lastStepAt > (isSprint ? 0.26 : 0.46)) {
         this.lastStepAt = this.elapsed;
         this.addFootprint();
         this.playFootstepSound(isSprint);
@@ -43145,15 +43114,11 @@ var SpaceWorld = class {
     this.playerModel.position.set(body.x, Math.max(feet, body.y - PLAYER_COLLIDER_HEIGHT), body.z);
     if (this.rover?.visible) {
       const roverSpeed = Math.hypot(this.playerBody.velocity.x, this.playerBody.velocity.z);
-      const heading = this.playerModel.rotation.y;
-      if (this.roverMode) {
-        this.rover.position.set(body.x, this.playerModel.position.y, body.z);
-      } else {
-        const targetX = body.x + Math.sin(heading) * 1.8;
-        const targetZ = body.z + Math.cos(heading) * 1.8;
-        const target = new Vector3(targetX, this.terrainHeight(targetX, targetZ), targetZ);
-        this.rover.position.lerp(target, 1 - Math.exp(-4.5 * delta));
-      }
+      const heading = roverSpeed > 0.15 ? this.playerModel.rotation.y : this.cameraYaw;
+      const targetX = body.x + Math.sin(heading) * 1.8;
+      const targetZ = body.z + Math.cos(heading) * 1.8;
+      const target = new Vector3(targetX, this.terrainHeight(targetX, targetZ), targetZ);
+      this.rover.position.lerp(target, 1 - Math.exp(-4.5 * delta));
       this.rover.rotation.y = heading;
       this.roverWheels.forEach((wheel) => {
         wheel.rotation.x += roverSpeed * delta * 3.5;
@@ -43264,10 +43229,7 @@ var SpaceWorld = class {
     const nearest = uncollected || collected;
     const prompt = this.hud.querySelector("#game-nearby-prompt");
     if (prompt) {
-      if (this.progress.roverUnlocked && this.nearRover()) {
-        prompt.textContent = this.roverMode ? "V \xB7 \u062A\u0631\u062C\u0644 \u0645\u0646 \u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641" : "E \xB7 \u0627\u0635\u0639\u062F \u0625\u0644\u0649 \u0639\u0631\u0628\u0629 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641";
-        prompt.hidden = false;
-      } else if (this.isAlien && nearest?.collected) {
+      if (this.isAlien && nearest?.collected) {
         prompt.hidden = true;
       } else if (nearest && Math.hypot(this.playerBody.position.x - nearest.x, this.playerBody.position.z - nearest.z) < 3.2) {
         prompt.textContent = nearest.collected ? `Q \xB7 \u0641\u062D\u0635 ${nearest.type}` : `E \xB7 \u062C\u0645\u0639 ${nearest.type}`;
@@ -43838,9 +43800,9 @@ function makeLunarModule() {
   lm.scale.setScalar(0.95);
   return lm;
 }
-function makeDetailedRover(isMars = true) {
+function makeDetailedRover(isAlien = false) {
   const rover = new Group();
-  const bodyMaterial = new MeshStandardMaterial({ color: isMars ? 13686998 : 14212576, roughness: 0.65, metalness: 0.35 });
+  const bodyMaterial = new MeshStandardMaterial({ color: isAlien ? 3516507 : 15922419, emissive: isAlien ? 1205549 : 7831162, emissiveIntensity: 0.45, roughness: 0.65, metalness: 0.35 });
   const darkMaterial = new MeshStandardMaterial({ color: 2239022, roughness: 0.9 });
   const goldMaterial = new MeshStandardMaterial({ color: 15051067, roughness: 0.35, metalness: 0.8 });
   const lensMaterial = new MeshStandardMaterial({ color: 4777215, emissive: 1476778, emissiveIntensity: 1.2 });

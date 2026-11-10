@@ -38,6 +38,7 @@
     "إرسال السؤال": "Send question",
     "إرسال": "Send",
     "إجابات من سجل المشروع · دون اتصال بنموذج خارجي": "Answers from project records · no external AI model",
+    "استرجاع محلي دلالي من محتوى المشروع ومراجع NASA · دون نموذج خارجي": "Local semantic retrieval from project content and NASA references · no external AI model",
     "مركز الاستكشاف": "Exploration Center",
     "السرعة:": "Speed:",
     "طبيعية": "Normal",

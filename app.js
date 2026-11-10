@@ -1790,38 +1790,75 @@ function whyPage() {
   </div>`;
 }
 function sourcesPage() {
-  const groups = [
-    { id: "lunar", title: "مواقع القمر", target: "القمر", sites: siteGroups.lunar.ids, description: "مراجع NASA للمواقع الأرضية المستخدمة لدراسة أسئلة جيولوجية وعملياتية مرتبطة بالقمر." },
-    { id: "mars", title: "مواقع المريخ", target: "المريخ", sites: siteGroups.mars.ids, description: "مراجع NASA للمواقع الأرضية المستخدمة لاختبار أسئلة محددة مرتبطة باستكشاف المريخ." }
+  const allDocuments = [...GUIDE_REFERENCE_DOCUMENTS, ...GUIDE_CREW_PROBLEMS];
+  const siteDocuments = sites.map(site => ({
+    siteId: site.id,
+    topics: guideChatTopics(`${site.brief} ${site.science?.geology || ""} ${site.science?.rocks || ""} ${site.science?.water || ""}`),
+    ar: `${site.ar} (${site.en}) · ${site.guide.summary}`,
+    sources: [
+      ...(site.science?.sources || []),
+      ...(site.image?.source ? [{ label: site.image.credit || `NASA image: ${site.image.title}`, url: site.image.source }] : []),
+      ...(nasaSourcePages[site.id] ? [{ label: nasaSourcePages[site.id].title, url: nasaSourcePages[site.id].url }] : [])
+    ]
+  }));
+  const problemDocuments = getGuideCorpus().filter(document => document.kind === "problem");
+  const collect = documents => documents.flatMap(document => (document.sources || []).map(source => {
+    const item = typeof source === "string" ? { label: "NASA", url: source } : source;
+    return { ...item, description: document.ar || document.fieldsAr?.problem || document.title || "مرجع علمي مرتبط باستكشاف القمر والمريخ." };
+  }));
+  const nonReports = entries => entries.filter(source => !/ntrs\.nasa\.gov/i.test(source.url));
+  const excludeSourcePaths = (entries, paths) => entries.filter(source => !paths.some(path => source.url.includes(path)));
+  const documentsById = ids => allDocuments.filter(document => ids.includes(document.id));
+  const siteAnalogProblems = siteProblemCards.filter(problem => !["moon-surface", "mars-surface"].includes(problem.key)).map(problem => ({ title: problem.title, ar: problem.problem, sources: problem.sources }));
+  const categories = [
+    { id: "lunar", title: "مصادر استكشاف القمر", description: "مراجع NASA عن بيئة القمر وموارده والعمليات القمرية.", sources: nonReports(collect(documentsById(["moon-world", "lunar-base"]))) },
+    { id: "mars", title: "مصادر استكشاف المريخ", description: "مراجع NASA عن بيئة المريخ والماء والغبار ومهمات الروبوتات.", sources: excludeSourcePaths(nonReports(collect(documentsById(["mars-world", "mars-water", "space-dust"]))), ["/rover-components/"]) },
+    { id: "analogs", title: "مصادر البيئات الأرضية التناظرية", description: "سجلات المواقع الستة والحملات الميدانية ومنهجية المحاكاة وحدودها.", sources: nonReports([...collect(siteDocuments), ...collect(siteAnalogProblems), ...collect(documentsById(["analog-method", "project-map-gallery"]))]) },
+    { id: "crew", title: "مشكلات رواد الفضاء والحلول الهندسية", description: "مخاطر الطيران البشري وإجراءات التخفيف وحالة التقنيات.", sources: excludeSourcePaths(nonReports(collect(GUIDE_CREW_PROBLEMS)), ["nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust", "moon-water-and-ices", "nasas-oxygen-generating-experiment-moxie-completes-mars-mission"]) },
+    { id: "geology", title: "الجيولوجيا والتربة والموارد الطبيعية", description: "الريغوليث والصخور والجليد والماء والعينات وطرق تحليلها.", sources: nonReports([...collect(documentsById(["soil-earth-mars", "project-game"])), ...collect(GUIDE_CREW_PROBLEMS.filter(document => document.id === "crew-resources")).filter(source => source.url.includes("water-on-the-moon"))]) },
+    { id: "missions", title: "المهمات الفضائية والتقنيات المستخدمة", description: "مراجع مباشرة عن مهمات NASA وأنظمة المركبات والروبوتات.", sources: nonReports(collect(documentsById(["nasa-missions", "mars-robots", "landing-hazards"]))) },
+    { id: "research", title: "الأبحاث والتقارير العلمية", description: "تقارير NASA Technical Reports Server والأبحاث الفنية المرتبطة بالمشروع.", sources: collect([...siteDocuments, ...siteAnalogProblems, ...problemDocuments, ...allDocuments])
+      .filter(source => /ntrs\.nasa\.gov/i.test(source.url)) }
   ];
-  return `${heading("مراجع NASA الرسمية", "مصادر المواقع الستة", "سجلات NASA الأصلية المرتبطة بالصور والمشاهد المعروضة لكل موقع.")}
+  const usedSourceUrls = new Set();
+  categories.forEach(category => {
+    category.sources = category.sources.filter(source => {
+      if (!source.url || usedSourceUrls.has(source.url)) return false;
+      try {
+        const url = new URL(source.url);
+        if (url.protocol !== "https:") return false;
+      } catch { return false; }
+      usedSourceUrls.add(source.url);
+      return true;
+    });
+  });
+  const publisherFor = url => {
+    try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "مصدر خارجي"; }
+  };
+  const sourceDescription = source => {
+    const text = String(source.description || "").replace(/\s+/g, " ").trim();
+    return text.length > 230 ? `${text.slice(0, 227)}…` : text;
+  };
+  return `${heading("المكتبة العلمية للمشروع", "المصادر والمراجع", "مصادر NASA وNASA JPL والتقارير الفنية المرتبطة بالمواقع ومشكلات الطاقم والمهمات.")}
     <div class="sources-page">
-      ${groups.map(group => `<section class="sources-group sources-group-${group.id}" aria-labelledby="sources-${group.id}-title">
+      ${categories.map(group => `<section class="sources-group sources-group-${group.id}" aria-labelledby="sources-${group.id}-title">
         <header class="sources-group-heading">
-          <span class="eyebrow">${group.sites.length} مواقع أرضية</span>
+          <span class="eyebrow">${group.sources.length} مرجعًا</span>
           <h2 id="sources-${group.id}-title">${group.title}</h2>
           <p>${group.description}</p>
         </header>
         <div class="sources-grid">
-          ${group.sites.map(siteId => {
-            const site = sites.find(item => item.id === siteId);
-            const source = nasaSourcePages[siteId];
-            return `<article class="source-entry">
-              <div class="source-entry-meta">
-                <span class="source-world-tag">${group.target}</span>
-                <span class="source-nasa-id">NASA ID: ${source.id}</span>
-              </div>
-              <h3>${escapeHtml(site.ar)}</h3>
-              <p class="source-location">${escapeHtml(site.country)} · ${escapeHtml(site.subsite)}</p>
-              <p class="source-record-title" lang="en" dir="ltr">${escapeHtml(source.title)}</p>
-              <a class="source-link" href="${source.url}" target="_blank" rel="noopener noreferrer">فتح سجل NASA الرسمي <span aria-hidden="true">↗</span></a>
-            </article>`;
-          }).join("")}
+          ${group.sources.map(source => `<article class="source-entry">
+            <div class="source-entry-meta"><span class="source-world-tag">${escapeHtml(publisherFor(source.url))}</span></div>
+            <h3>${escapeHtml(source.label || source.name || "مرجع علمي")}</h3>
+            <p class="source-location">${escapeHtml(sourceDescription(source))}</p>
+            <a class="source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">فتح المصدر الأصلي <span aria-hidden="true">↗</span></a>
+          </article>`).join("")}
         </div>
       </section>`).join("")}
       <aside class="sources-note">
-        <strong>حدود المراجع</strong>
-        <p>تدعم هذه السجلات وصف الصور والمشاهد ومواقعها؛ ولا تُعد بحد ذاتها قياسات ميدانية أو إثباتًا لخصائص التربة أو تطابق الموقع مع القمر أو المريخ.</p>
+        <strong>استخدام الأدلة</strong>
+        <p>المراجع تدعم المعلومات المنقولة في المساعد والصفحات. الصور لا تُعد وحدها قياسات ميدانية، والمواقع الأرضية لا تطابق بيئة القمر أو المريخ. تُحفظ حالة التقنيات كما يصفها المصدر، بما في ذلك النماذج التجريبية والمقترحات.</p>
       </aside>
     </div>`;
 }
@@ -1905,8 +1942,7 @@ function teamPage() {
     </section>
   </div>`;
 }
-function problemsPage() {
-  const problems = [
+const siteProblemCards = [
     { key: "moon-surface", title: "سطح القمر · الغبار الكهروستاتيكي", icon: "◌", target: "بيئة فضائية · القمر",
       problem: "غبار الريغوليث القمري ناعم وحاد ويمكن أن يلتصق ببدلات الرواد والعدسات والمفاصل.",
       cause: "غياب التجوية بالماء والهواء يبقي الحبيبات زاويّة، وتكسب الجسيمات شحنة بفعل الأشعة فوق البنفسجية والرياح الشمسية. حركة الأقدام والعربات تثير الغبار في بيئة ضعيفة الجاذبية.",
@@ -1979,7 +2015,10 @@ function problemsPage() {
       status: "هوية ومورفولوجيا موثقتان؛ المقارنة مع القمر تحليل مكتبي لا تجربة مأهولة",
       solution: "ثبّت المقارنة على عناصر قابلة للرصد فقط: الحافة، الجدار، القاع والمواد المقذوفة. قارنها بخرائط الارتفاع ثلاثية الأبعاد وبيانات LOLA من المسبار القمري LRO، ودوّن اختلاف الجاذبية والتعرية بدل استنتاج قابلية حركة الرواد من الموقع الأرضي. يوفّر LRO خرائط ارتفاع تساعد NASA على دراسة التضاريس واختيار مواقع هبوط آمنة.",
       sources: [{ label: "Meteor Crater في أريزونا، NASA Image Library (2026)", url: "https://images.nasa.gov/details/iss074e0208832" }, { label: "رسم خرائط القمر وقياس الارتفاع LOLA، NASA LRO", url: "https://science.nasa.gov/mission/lro/" }] }
-  ];
+];
+
+function problemsPage() {
+  const problems = siteProblemCards;
   return `${heading("مواقع الاستكشاف ونظائرها الأرضية", "مشكلة وحل لكل موقع", "ثماني بطاقات تربط كل تحدٍ بمكانه المحدد، وتفصل بين خبرة NASA الموثقة والمقترحات الخاصة بحملات المحاكاة الأرضية.")}
   <section class="panel problems-page-panel">
     <div class="problems-intro">
@@ -1997,31 +2036,15 @@ function problemsPage() {
                 <p>${escapeHtml(item.problem)}</p>
                 <p><strong>السبب:</strong> ${escapeHtml(item.cause)}</p>
                 <p><strong>الأثر على الاستكشاف:</strong> ${escapeHtml(item.effect)}</p>
-                <p><strong>السبب:</strong> ${escapeHtml(item.cause)}</p>
-                <p><strong>الأثر:</strong> ${escapeHtml(item.effect)}</p>
               </div>
               <div class="problem-box problem-box-solution">
                 <span class="problem-label">الحل · ${escapeHtml(item.status)}</span>
                 <p>${escapeHtml(item.solution)}</p>
               </div>
             </div>
-            <div class="problem-sources"><strong>مصادر موثوقة</strong>${item.sources.map(source => `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)} ↗</a>`).join("")}</div>
           </div>
         </article>
       `).join("")}
-    </div>
-  </section>
-  <section class="panel risk-reference-panel" aria-labelledby="risk-references-title">
-    <div><span class="eyebrow">المراجع العلمية</span><h2 id="risk-references-title">مصادر NASA لكل موقع</h2><p>تُذكر حالة التقنية كما تصفها الجهة أو الدراسة؛ العرض التجريبي لا يعني اعتماد التقنية تشغيليًا لكل مهمة.</p></div>
-    <div class="risk-reference-links">
-      <a href="https://www.nasa.gov/image-article/nasas-dust-shield-successfully-repels-lunar-regolith-on-moon/" target="_blank" rel="noopener noreferrer">الغبار القمري ودرع EDS <span>↗</span></a>
-      <a href="https://www.nasa.gov/missions/mars-2020-perseverance/perseverance-rover/nasas-oxygen-generating-experiment-moxie-completes-mars-mission/" target="_blank" rel="noopener noreferrer">غلاف المريخ وتجربة MOXIE <span>↗</span></a>
-      <a href="https://ntrs.nasa.gov/citations/20240000585" target="_blank" rel="noopener noreferrer">حفر TRIDENT في ديفون <span>↗</span></a>
-      <a href="https://ntrs.nasa.gov/citations/20220005416" target="_blank" rel="noopener noreferrer">برنامج ARADS في أتاكاما <span>↗</span></a>
-      <a href="https://images.nasa.gov/details/PIA26197" target="_blank" rel="noopener noreferrer">تغير بادووتر في وادي الموت <span>↗</span></a>
-      <a href="https://ntrs.nasa.gov/citations/20100003844" target="_blank" rel="noopener noreferrer">أجهزة Phoenix في ماكموردو <span>↗</span></a>
-      <a href="https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/" target="_blank" rel="noopener noreferrer">تنقل Perseverance وتفادي الأخطار <span>↗</span></a>
-      <a href="https://science.nasa.gov/mission/lro/" target="_blank" rel="noopener noreferrer">خرائط الارتفاع القمرية من LRO <span>↗</span></a>
     </div>
   </section>
   <div class="page-actions" style="margin-top:24px;text-align:center;">
@@ -2333,6 +2356,7 @@ function render() {
   document.getElementById("menu-toggle").setAttribute("aria-expanded", "false");
   document.getElementById("menu-toggle").setAttribute("aria-label", "فتح القائمة");
   window.siteI18n?.apply(document.body);
+  if (guideStarted) updateGuidePrompts();
   pageRoot.focus?.({ preventScroll: true });
 }
 function makeIcon(site) {
@@ -2363,7 +2387,7 @@ function mountMap(id, selectedSites, options = {}) {
   const map = L.map(element, { scrollWheelZoom: Boolean(options.scrollWheelZoom), touchZoom: true, worldCopyJump: true }).setView(startCenter, options.zoom || 2);
   currentMap = map;
   const gibs = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best";
-  const gibsAttribution = 'Imagery: <a href="https://earthdata.nasa.gov/data/instruments/gibs" target="_blank" rel="noopener noreferrer">NASA GIBS / ESDIS</a>';
+  const gibsAttribution = 'Imagery: <a href="https://nasa-gibs.github.io/gibs-api-docs/" target="_blank" rel="noopener noreferrer">NASA GIBS / ESDIS</a>';
   const satellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: 'Imagery: &copy; <a href="https://www.esri.com" target="_blank">Esri</a>, Maxar, Earthstar Geographics, USDA, USGS', crossOrigin: true, keepBuffer: 2 });
   const blueMarble = L.tileLayer(`${gibs}/BlueMarble_ShadedRelief_Bathymetry/default/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg`, { maxZoom: 18, maxNativeZoom: 8, attribution: gibsAttribution, crossOrigin: true, keepBuffer: 2 });
   const features = L.tileLayer(`${gibs}/Reference_Features_15m/default/default/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png`, { maxZoom: 18, maxNativeZoom: 13, attribution: gibsAttribution, crossOrigin: true, opacity: 0.88 });
@@ -2697,7 +2721,7 @@ function speakSite(site) {
   utterance.rate = 0.94;
   window.speechSynthesis.speak(utterance);
 }
-function answerQuestion(question) {
+function answerQuestionLegacy(question) {
   const arithmetic = String(question).match(/(-?\d+(?:\.\d+)?)\s*([+\-*/×÷])\s*(-?\d+(?:\.\d+)?)/);
   if (arithmetic) {
     const first = Number(arithmetic[1]);
@@ -2788,6 +2812,586 @@ function answerQuestion(question) {
   
   return `لم أجد في سجل المشروع جوابًا موثقًا لهذا السؤال بعد. أستطيع مساعدتك في المواقع ${sites.map(item => item.ar).join("، ")}، أو القمر والمريخ، أو NASA واللعبة والمقارنة. إذا كان سؤالك عن موضوع عام، حدّد الجزء الذي تريد معرفته وسأحاول الإجابة بما يتوفر لدي؛ لا أستخدم خدمة ذكاء اصطناعي خارجية.`;
 }
+
+const GUIDE_TOPIC_ALIASES = {
+  comparison: ["compare", "comparison", "difference", "similar", "similarity", "versus", "vs", "قارن", "مقارنة", "فرق", "الفرق", "اختلاف", "اوجه الشبه", "وجه الشبه", "تشابه"],
+  geology: ["geology", "geological", "terrain", "surface", "rock", "rocks", "crater", "lava", "volcanic", "جيولوجيا", "تضاريس", "سطح", "صخر", "صخور", "فوهة", "حمم", "بركان", "البازلت"],
+  soil: ["soil", "regolith", "sediment", "sand", "gravel", "sample", "samples", "تربة", "التراب", "ريغوليث", "رواسب", "رمل", "حصى", "عينه", "عينات"],
+  water: ["water", "ice", "frost", "brine", "humidity", "ماء", "مياه", "جليد", "ثلج", "صقيع", "رطوبة", "ملوحة", "مياه جوفية"],
+  atmosphere: ["atmosphere", "pressure", "air", "oxygen", "breathe", "co2", "غلاف جوي", "ضغط", "هواء", "اكسجين", "تنفس", "ثاني اكسيد الكربون"],
+  climate: ["climate", "weather", "temperature", "heat", "hot", "cold", "حرارة", "حراره", "طقس", "مناخ", "بارد", "برودة", "حر"],
+  dust: ["dust", "dust storm", "dust storms", "غبار", "غبار قمري", "غبار مريخي", "عاصفة ترابية", "عواصف ترابية", "تراب"],
+  radiation: ["radiation", "cosmic ray", "solar particle", "اشعاع", "إشعاع", "اشعة", "أشعة", "شعاع"],
+  biology: ["life", "biology", "microbe", "microbial", "biosignature", "organic", "كائن", "حياة", "احياء", "ميكروب", "مؤشر حيوي", "بصمة حيوية", "مادة عضوية"],
+  robotics: ["robot", "robotic", "rover", "wheel", "mobility", "vehicle", "drill", "روبوت", "روبوتات", "عربة", "عربات", "مركبة", "مركبات", "جوالة", "عجلات", "حفر", "مثقاب"],
+  mission: ["mission", "nasa", "artemis", "apollo", "perseverance", "curiosity", "moxie", "lro", "بعثة", "مهمة", "ناسا", "ارتميس", "ابولو", "بيرسيفيرانس", "كوريوسيتي"],
+  analog: ["analog", "analogue", "simulation", "simulate", "test", "testing", "field test", "تناظري", "محاكاة", "يحاكي", "اختبار", "تجربة", "ميداني"],
+  engineering: ["engineering", "equipment", "technology", "solution", "problem", "challenge", "risk", "engineer", "هندسي", "معدات", "تقنية", "حل", "مشكلة", "تحدي", "خطر", "مخاطر"],
+  landing: ["landing", "touchdown", "hazard avoidance", "navigation", "هبوط", "هبوط المركبة", "تجنب العوائق", "ملاحة", "صخور", "منحدر"],
+  isolation: ["isolation", "confinement", "crew", "sleep", "psychology", "عزلة", "انغلاق", "حصر", "طاقم", "نوم", "نفسي"],
+  map: ["map", "imagery", "image", "gallery", "gis", "خريطة", "صور", "صورة", "معرض", "طبقة"],
+  sources: ["source", "sources", "reference", "references", "citation", "مراجع", "مصدر", "مصادر", "مرجع", "توثيق"],
+  methodology: ["method", "methodology", "criteria", "how do you compare", "منهج", "منهجية", "معيار", "كيف تقارن", "كيف نقارن"],
+  game: ["game", "controls", "play", "لعبة", "اللعبة", "التحكم", "العب", "تحكم"]
+};
+
+const GUIDE_STOP_WORDS = new Set(("في من على الى إلى عن مع ما ماذا هل هو هي هم هذا هذه ذلك تلك كيف لماذا ليش وين اين where what which who when why how the and or to of for in on at as is are be do does can may a an it we you them der die das und oder von zu im am ein eine einheit der dieser que el la los y con de en a para" ).split(/\s+/));
+const GUIDE_SITE_ALIASES = {
+  atacama: ["اتاكاما", "اتاكما", "اتاكامه", "اتاكاما", "يونغاي", "yungay", "atacama"],
+  hawaii: ["هاواي", "هاواى", "ماونا لوا", "مونا لوا", "mauna loa", "hawaii"],
+  "death-valley": ["وادي الموت", "بادووتر", "بادواتر", "death valley", "badwater"],
+  mcmurdo: ["الوديان الجافة", "وديان ماكموردو", "ماكموردو", "مكموردو", "mcmurdo", "dry valleys", "antarctic dry valleys"],
+  devon: ["جزيرة ديفون", "ديفون", "فوهة هوتون", "هوتون", "devon island", "haughton crater", "haughton"],
+  "meteor-crater": ["فوهة ميتيور", "فوهة ميتيور كريتر", "ميتيور كريتر", "فوهة بارينجر", "بارينجر", "meteor crater", "barringer crater"]
+};
+const GUIDE_WORLD_ALIASES = {
+  moon: ["القمر", "قمري", "قمر", "moon", "lunar"],
+  mars: ["المريخ", "مريخي", "مريخ", "الكوكب الاحمر", "mars", "martian", "red planet"],
+  earth: ["الارض", "ارض", "earth", "terrestrial"]
+};
+
+const GUIDE_REFERENCE_DOCUMENTS = [
+  { id: "moon-world", type: "reference", title: "القمر وخصائصه", enTitle: "The Moon", aliases: ["القمر", "moon", "lunar world"], topics: ["moon", "geology", "gravity", "water", "climate", "dust", "radiation"], ar: "القمر جسم صخري بلا غلاف جوي كثيف وله جاذبية أقل كثيرًا من الأرض. ترسم مهمة LRO تضاريسه ثلاثية الأبعاد وتقيس خصائص السطح وموارده، وتساعد بياناتها في اختيار مواقع هبوط مناسبة. قد يوجد جليد ماء في مناطق قطبية مظللة؛ لا يعني ذلك توفره في أي نقطة أو كونه موردًا جاهزًا للاستخدام.", en: "The Moon is a rocky world without a substantial atmosphere and has much lower gravity than Earth. NASA's Lunar Reconnaissance Orbiter maps its topography and measures surface properties to support landing-site selection. Water ice may occur in permanently shadowed polar regions; that does not make it available at every location or ready for use.", sources: [{ label: "NASA Lunar Reconnaissance Orbiter", url: "https://science.nasa.gov/mission/lro/" }, { label: "NASA Moon factsheet", url: "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html" }, { label: "NASA Moon dust", url: "https://science.nasa.gov/moon/moon-dust/" }] },
+  { id: "mars-world", type: "reference", title: "المريخ وخصائصه", enTitle: "Mars", aliases: ["المريخ", "mars", "red planet", "الكوكب الاحمر"], topics: ["mars", "geology", "atmosphere", "climate", "water", "dust", "gravity"], ar: "المريخ كوكب صخري ذو غلاف جوي رقيق يغلب عليه ثاني أكسيد الكربون؛ لا يمكن التنفس خارجه. تتغير درجات الحرارة والطقس حسب المكان والفصل، وقد ترفع الرياح غبارًا إقليميًا أو عالميًا. ترصد المركبات الجليد والتاريخ الجيولوجي، لكن بيانات موقع واحد لا تمثل الكوكب كله.", en: "Mars is a rocky planet with a thin atmosphere dominated by carbon dioxide; its air is not breathable. Temperature and weather vary by location and season, and winds can raise regional or global dust storms. Rovers study ice and geological history, but measurements from one site do not represent the entire planet.", sources: [{ label: "NASA Mars facts", url: "https://science.nasa.gov/mars/facts/" }, { label: "NASA Perseverance rover", url: "https://science.nasa.gov/mission/mars-2020-perseverance/" }] },
+  { id: "mars-water", type: "reference", title: "الماء والجليد على المريخ", enTitle: "Water and ice on Mars", aliases: ["ماء المريخ", "الجليد على المريخ", "mars water", "mars ice", "water on mars"], topics: ["mars", "water", "resources", "missions"], ar: "توجد على المريخ أدلة على ماء قديم، ويوجد اليوم جليد مائي تحت السطح وفي المناطق القطبية. تبحث المهمات عن الماء بمدارات ومستشعرات وحفر روبوتي؛ أما استخراج الماء وتنقيته للاستخدام البشري فيحتاج نظامًا مصممًا ومختبرًا، ولا يثبت رصد الجليد وحده سهولة الوصول إليه.", en: "Mars preserves evidence of ancient liquid water, and water ice exists beneath the surface and in polar regions today. Missions search using orbital instruments and robotic sampling; extracting and purifying water for human use requires a dedicated, validated system. Detecting ice does not by itself prove it is easy to reach.", sources: [{ label: "NASA Mars facts", url: "https://science.nasa.gov/mars/facts/" }, { label: "NASA Perseverance rover components and sample systems", url: "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/" }] },
+  { id: "planet-comparison", type: "reference", title: "مقارنة القمر والمريخ والأرض", enTitle: "Moon, Mars, and Earth comparison", aliases: ["مقارنة الكواكب", "الفرق بين القمر والمريخ", "moon vs mars", "moon and mars", "earth moon mars"], topics: ["comparison", "moon", "mars", "earth", "gravity", "atmosphere", "climate"], ar: "القمر عالم صخري بلا غلاف جوي كثيف، بينما للمريخ غلاف رقيق غني بثاني أكسيد الكربون. جاذبية القمر نحو 1/6 من جاذبية الأرض، وجاذبية المريخ نحو 0.38g. تختلف الحرارة والموارد والتضاريس بينهما وبين الأرض؛ لذلك لا تحاكي المواقع الأرضية إلا سؤالًا أو عملية محددة.", en: "The Moon is a rocky world without a substantial atmosphere, while Mars has a thin carbon-dioxide-rich atmosphere. Lunar gravity is about one-sixth of Earth's; Martian gravity is about 0.38g. Terrain, temperature, and resources differ, so an Earth analog reproduces only a specific question or operation, not an entire world.", sources: [{ label: "NASA Moon factsheet", url: "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html" }, { label: "NASA Mars facts", url: "https://science.nasa.gov/mars/facts/" }] },
+  { id: "mars-robots", type: "reference", title: "الروبوتات والاستكشاف الميداني", enTitle: "Rovers and field exploration", aliases: ["الروبوتات", "المركبات الروبوتية", "rovers", "robot exploration", "rover wheels"], topics: ["robotics", "engineering", "geology", "missions", "landing"], ar: "تستخدم مركبات مثل Perseverance عجلات ونظام تعليق وكاميرات ملاحة وتفادي أخطار، وتتحرك بحذر فوق الصخور والمنحدرات. في Devon وAtacama اختُبرت عمليات الحفر وأخذ العينات عن بعد على الأرض. تجارب النظير تساعد على كشف أعطال الإجراءات والأدوات، لكنها لا تمثل ظروف المريخ الفيزيائية.", en: "Rovers such as Perseverance use wheels, suspension, navigation cameras, and hazard-detection cameras to move carefully around rocks and slopes. Field tests in Devon and the Atacama have exercised remote drilling and sampling operations on Earth. Analog campaigns can expose procedural and hardware faults, but they do not reproduce Mars physics.", sources: [{ label: "NASA Perseverance rover components", url: "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/" }, { label: "NASA TRIDENT field validation", url: "https://ntrs.nasa.gov/citations/20240000585" }, { label: "NASA ARADS Atacama drilling", url: "https://ntrs.nasa.gov/citations/20220005416" }] },
+  { id: "nasa-missions", type: "reference", title: "بعثات NASA للقمر والمريخ", enTitle: "NASA Moon and Mars missions", aliases: ["مهمات ناسا", "بعثات ناسا", "future nasa missions", "artemis", "apollo", "perseverance", "curiosity", "moxie", "lro"], topics: ["mission", "moon", "mars", "robotics", "resources"], ar: "تشمل سجلات NASA القمرية بعثات Apollo وLRO وبرنامج Artemis الجاري للتحضير لاستكشاف مأهول جديد. وعلى المريخ تدرس مركبتا Curiosity وPerseverance الجيولوجيا والبيئة؛ كما اختبر MOXIE إنتاج الأكسجين من CO₂ ضمن عرض تقني صغير انتهى، وليس نظام دعم حياة للطاقم.", en: "NASA's lunar exploration includes Apollo, the Lunar Reconnaissance Orbiter, and the ongoing Artemis campaign preparing for renewed crewed exploration. On Mars, Curiosity and Perseverance study geology and environment. MOXIE demonstrated small-scale oxygen production from CO2, but it has ended and is not a crew life-support system.", sources: [{ label: "NASA LRO", url: "https://science.nasa.gov/mission/lro/" }, { label: "NASA Artemis", url: "https://www.nasa.gov/humans-in-space/artemis/" }, { label: "NASA Mars 2020 Perseverance", url: "https://science.nasa.gov/mission/mars-2020-perseverance/" }, { label: "NASA MOXIE results", url: "https://www.nasa.gov/missions/mars-2020-perseverance/perseverance-rover/nasas-oxygen-generating-experiment-moxie-completes-mars-mission/" }] },
+  { id: "analog-method", type: "reference", title: "منهجية المواقع التناظرية وحدودها", enTitle: "Analog-site methodology and limits", aliases: ["كيف نستخدم المواقع", "منهجية المحاكاة", "earth analog sites", "analog methodology", "حدود التشابه"], topics: ["analog", "methodology", "comparison", "sources"], ar: "يبدأ العمل التناظري بسؤال محدد، مثل اختبار مثقاب أو إجراء مناورة أو تحليل عينة؛ ثم تُختار بيئة أرضية تلائم هذا السؤال وتُقاس خصائصها. يجب فصل ما قيس فعلًا عن الصور الفضائية والوصف العام، وتوثيق الموقع والتاريخ والأداة. لا تحاكي الأرض جاذبية القمر أو ضغط المريخ أو الإشعاع الفضائي.", en: "Analog work starts with a defined question—such as drill performance, a traverse procedure, or sample analysis—then selects an Earth setting relevant to that question and measures it. Keep measurements separate from satellite imagery and general descriptions, and document location, date, and instrument. Earth does not reproduce lunar gravity, Martian pressure, or space radiation.", sources: [{ label: "NASA Haughton-Mars field work", url: "https://ntrs.nasa.gov/citations/20060013129" }, { label: "NASA Atacama ARADS lessons", url: "https://ntrs.nasa.gov/citations/20240000586" }] },
+  { id: "project-map-gallery", type: "reference", title: "خريطة وصور المشروع", enTitle: "Project map and images", aliases: ["ماذا تعرض الخريطة", "مصدر الصور", "صور الموقع", "map layers", "gallery photos"], topics: ["map", "sources", "images"], ar: "تعرض الخريطة مواقع أرضية فقط، وعلاماتها نقاط مرجعية تقريبية وليست حدودًا أو محطات قياس. صور NASA ASTER أو الصور المدارية توثق مشاهد وتواريخ محددة؛ لا تقيس وحدها كيمياء التربة أو حالة الطقس الحالية. طبقات الخريطة تعتمد NASA GIBS عند توفر الاتصال.", en: "The map displays Earth sites only; markers are approximate reference points, not surveyed boundaries or measurement stations. NASA ASTER or orbital images document specific scenes and dates; they do not by themselves measure soil chemistry or current weather. Map imagery uses NASA GIBS layers when online.", sources: [{ label: "NASA GIBS API documentation", url: "https://nasa-gibs.github.io/gibs-api-docs/" }, { label: "NASA Earth observation for the sites", url: "https://images.nasa.gov/" }] },
+  { id: "project-game", type: "reference", title: "لعبة Space Explorer والعينات", enTitle: "Space Explorer game and samples", aliases: ["كيف ألعب", "طريقة اللعب", "عينات اللعبة", "space explorer controls", "virtual samples"], topics: ["game", "robotics", "soil", "missions"], ar: "لعبة Space Explorer محاكاة تعليمية ثلاثية الأبعاد. عينات المواقع الأرضية افتراضية، ومسارات القمر والمريخ مبنية بصريًا على سجلات المهمات وليست بعثات حقيقية أو عينات ميدانية. على الكمبيوتر: WASD للحركة، E للتفاعل، Space للقفز/الدفع، وShift للجري. على اللمس استخدم عصا الحركة والأزرار الظاهرة.", en: "Space Explorer is an educational 3D simulation. Earth-site samples are virtual, and the Moon/Mars scenes are visual mission-inspired simulations—not real missions or field samples. On desktop: WASD moves, E interacts, Space jumps/boosts, and Shift runs. On touch devices, use the joystick and on-screen controls.", sources: [{ label: "NASA Mars 2020 sample collection", url: "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/" }, { label: "NASA Apollo lunar sample catalog", url: "https://curator.jsc.nasa.gov/lunar/" }] }
+];
+
+GUIDE_REFERENCE_DOCUMENTS.push(
+  { id: "soil-earth-mars", type: "reference", title: "تربة المريخ وترب الأرض", enTitle: "Martian regolith and Earth soils", aliases: ["تربة المريخ والارض", "تربة المريخ", "mars soil", "martian soil", "earth soil", "regolith comparison"], topics: ["soil", "mars", "earth", "comparison", "biology"], ar: "لا توجد تربة أرضية واحدة للمقارنة، كما أن مادة سطح المريخ ريغوليث معدني وليست تربة زراعية مماثلة لترب الأرض. في مناطق أتاكاما شديدة الجفاف سجلت دراسات NASA مادة عضوية قليلة جدًا؛ وعلى المريخ تقيس Perseverance غبارًا معدنيًا دقيقًا وقد رُصدت مركبات مثل البيركلورات. يجب مقارنة عينة محددة بتحليلها وسياقها، لا تعميم نتيجة أتاكاما على كل الأرض أو المريخ.", en: "There is no single Earth soil for comparison, and Martian surface material is mineral regolith rather than ordinary agricultural soil. NASA studies found very low organic matter in some hyper-arid Atacama samples; Perseverance has measured fine mineral dust on Mars, where compounds such as perchlorates have also been detected. Compare a defined sample and method instead of generalizing one Atacama result to all Earth or Mars.", sources: [{ label: "Low organic matter in hyper-arid Atacama samples, NASA NTRS", url: "https://ntrs.nasa.gov/citations/20050173968" }, { label: "Martian dust measurements and perchlorates, NASA/JPL", url: "https://www.nasa.gov/missions/mars-2020-perseverance/nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust/" }, { label: "Mars sample and regolith systems, NASA", url: "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/" }] },
+  { id: "lunar-base", type: "reference", title: "تحديات قاعدة مأهولة على القمر", enTitle: "Challenges for a crewed lunar base", aliases: ["قاعدة على القمر", "بناء قاعدة قمرية", "lunar base", "moon base", "settlement on the moon"], topics: ["moon", "engineering", "dust", "radiation", "climate", "water", "resources", "isolation"], ar: "تحتاج قاعدة قمرية إلى ضغط وهواء قابل للتنفس، وتحكم حراري خلال الإضاءة والظل، وإدارة الغبار الكاشط، وحماية من الإشعاع، وطاقة واتصالات وموارد موثوقة. يساعد LRO في رسم التضاريس وتقييم الإضاءة والموارد المحتملة؛ لكن اختيار موقع أو وجود جليد لا يثبت وحده توفر بنية قاعدة أو استخراج مورد جاهز.", en: "A lunar base needs a pressurized breathable habitat, thermal control across sunlight and shadow, abrasive-dust management, radiation protection, reliable power and communications, and accessible resources. LRO maps topography, illumination, and potential resources; a mapped site or detected ice alone does not establish a ready base or usable resource system.", sources: [{ label: "NASA LRO mapping and site selection", url: "https://science.nasa.gov/mission/lro/" }, { label: "Lunar dust and EDS demonstration, NASA", url: "https://www.nasa.gov/image-article/nasas-dust-shield-successfully-repels-lunar-regolith-on-moon/" }, { label: "Space radiation risk, NASA HRP", url: "https://www.nasa.gov/hrp/hazard-space-radiation/" }, { label: "EVA thermal control, NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }] },
+  { id: "landing-hazards", type: "reference", title: "مخاطر الهبوط والملاحة الذاتية", enTitle: "Landing hazards and autonomous navigation", aliases: ["مخاطر الهبوط", "هبوط المركبات", "تفادي الصخور", "landing hazard", "terrain relative navigation", "safe landing site"], topics: ["landing", "robotics", "engineering", "geology", "moon", "mars"], ar: "الصخور الكبيرة والمنحدرات والحفر ومناطق الرمال قد تتلف مركبة الهبوط أو تعرقل حركتها. استخدمت Perseverance ملاحة نسبية للتضاريس: تقارن صور الهبوط بخريطة onboard وتستطيع الانحراف إلى منطقة أكثر أمانًا ضمن مجال الهبوط. وللقمر يرسم LRO الارتفاعات ثلاثية الأبعاد لدعم اختيار المواقع. هذه تقنيات موثقة لمهمات روبوتية؛ اعتمادها لمركبة مأهولة يتطلب تصميمًا وتأهيلًا خاصين.", en: "Large rocks, slopes, craters, and loose sand can damage a lander or block a traverse. Perseverance used Terrain-Relative Navigation: descent images were compared with an onboard map and the vehicle could divert toward safer terrain within its landing zone. LRO's 3D elevation maps support lunar site assessment. These capabilities are documented for robotic missions; crewed systems require their own design and qualification.", sources: [{ label: "Perseverance rover components and terrain-relative navigation, NASA", url: "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/" }, { label: "LRO lunar topography and mapping, NASA", url: "https://science.nasa.gov/mission/lro/" }] }
+);
+
+GUIDE_REFERENCE_DOCUMENTS.push({
+  id: "space-dust", type: "reference", title: "الغبار على القمر والمريخ", enTitle: "Dust on the Moon and Mars", aliases: ["غبار الفضاء", "غبار القمر والمريخ", "dust on moon and mars", "dust effects on equipment"], topics: ["dust", "moon", "mars", "engineering", "problem", "solution"],
+  ar: "الغبار القمري زاوي ومشحون ويمكن أن يلتصق بالبدلات والبصريات؛ أما غبار المريخ فتثيره الرياح وقد يترسب على الأسطح. وثقت NASA تهيجًا من غبار القمر، كما أنهت عاصفة مريخية عالمية اتصال Opportunity بعد أن حد الغبار من ضوء الشمس لألواحه. تختلف المعالجة: أُظهر EDS على أسطح قمرية محددة، بينما تحتاج المهمات المريخية هوامش طاقة وخطط طوارئ ومواد مقاومة للغبار. لا يوجد نظام واحد مثبت لكل الأسطح والبيئات.",
+  en: "Lunar grains are sharp and charged and can stick to suits and optics; Martian winds raise dust that can settle on hardware. NASA documented lunar dust irritation, while a global Martian dust storm reduced sunlight to Opportunity's solar arrays and the rover stopped communicating. Mitigations differ: EDS was demonstrated on selected lunar surfaces; Mars missions need power margin, contingency plans, and dust-tolerant materials. No single system is proven for every surface and environment.",
+  sources: [{ label: "NASA Moon dust", url: "https://science.nasa.gov/moon/moon-dust/" }, { label: "NASA Opportunity: Mars-wide dust storm", url: "https://science.nasa.gov/mission/mer-opportunity/" }, { label: "NASA EDS lunar demonstration", url: "https://www.nasa.gov/image-article/nasas-dust-shield-successfully-repels-lunar-regolith-on-moon/" }]
+});
+
+const GUIDE_CREW_PROBLEMS = [
+  { id: "crew-microgravity", type: "problem", title: "انعدام الجاذبية · العظام والعضلات والتوازن", titleEn: "Microgravity: bones, muscles, and balance", aliases: ["انعدام الجاذبية", "الجاذبية الصغرى", "فقدان العظام", "ضعف العضلات", "bone loss", "muscle loss", "microgravity", "weightlessness"], topics: ["crew", "health", "microgravity", "bones", "muscles", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "في الجاذبية الصغرى يقل الحمل الميكانيكي على العظام والعضلات وتتغير سوائل الجسم والتوازن. قد يحدث فقد في كثافة العظام وضعف عضلي وتكيّف دهليزي، مع اختلاف الاستجابة بين الأفراد والمهام.", en: "In microgravity, reduced mechanical loading affects bones and muscles, while body fluids and balance adapt. Crews can experience bone-density loss, muscle deconditioning, and vestibular changes, with individual variation.",
+    fieldsAr: { problem: "إزالة الحمل المعتاد عن الهيكل العضلي والعظمي تؤدي إلى فقدان تكيّف بدني، وقد يظهر دوار أو صعوبة اتزان عند العودة إلى الجاذبية.", cause: "غياب الجاذبية المستمرة يقلل التحميل على العظام والعضلات ويعيد توزيع سوائل الجسم؛ المدة والتمرين والحالة الفردية تؤثر في مقدار التغير.", effect: "قد تتراجع القوة والقدرة على أداء المهام، ويزداد خطر الإصابة أثناء العمل والعودة، كما يحتاج الطاقم إلى إعادة تأهيل بعد المهمة.", status: "تُستخدم مقاومة وتمارين هوائية على محطة الفضاء الدولية مع متابعة طبية؛ الحماية ليست كاملة وتُدرس وسائل إضافية للبعثات الطويلة.", solution: "تتضمن الإجراءات الحالية برنامج تمارين منتظم بأجهزة مقاومة ودراجة وجهاز جري، مع تغذية ومراقبة طبية. تُبحث الجاذبية الاصطناعية كخيار تصميمي، لكنها ليست علاجًا تشغيليًا مثبتًا على رحلات مأهولة حالية." },
+    fieldsEn: { problem: "Reduced loading can cause physical deconditioning and balance symptoms during adaptation or return to gravity.", cause: "Microgravity reduces normal bone and muscle loading and shifts body fluids; mission duration, exercise, and individual response matter.", effect: "Strength and task performance may decline, injury risk can rise, and crews may need rehabilitation after flight.", status: "ISS crews use scheduled aerobic and resistance exercise with medical monitoring; mitigation is incomplete for long missions.", solution: "Current countermeasures include regular resistance, cycling, and treadmill exercise plus nutrition and monitoring. Artificial gravity remains a studied design option, not an operational treatment on current crewed missions." },
+    sources: [{ label: "NASA: The Human Body in Space", url: "https://www.nasa.gov/humans-in-space/the-human-body-in-space/" }, { label: "NASA: International Space Station research", url: "https://www.nasa.gov/missions/station/iss-research/" }] },
+  { id: "crew-radiation", type: "problem", title: "الإشعاع الفضائي والعواصف الشمسية", titleEn: "Space radiation and solar particle events", aliases: ["الاشعاع الكوني", "العواصف الشمسية", "الجسيمات الشمسية", "radiation", "solar storm", "cosmic rays"], topics: ["crew", "radiation", "health", "moon", "mars", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "خارج الحماية الجزئية التي يوفرها المجال المغناطيسي والغلاف الجوي للأرض، يتعرض الرواد للأشعة الكونية المجرية والجسيمات الشمسية. تختلف الجرعة مع المسار والمدة والنشاط الشمسي والتدريع.", en: "Beyond much of Earth's magnetic and atmospheric shielding, crews encounter galactic cosmic rays and solar energetic particles. Dose depends on trajectory, duration, solar activity, and shielding.",
+    fieldsAr: { problem: "التعرض للإشعاع المؤين قد يرفع مخاطر السرطان ويؤثر في الجهاز العصبي والقلب والأوعية، وقد تسبب عاصفة شمسية جرعة حادة.", cause: "الجسيمات عالية الطاقة تخترق المركبة والأنسجة؛ لا يوجد تدريع عملي يوقف كل الإشعاع الكوني دون كتلة كبيرة.", effect: "تتراكم الجرعة مع الزمن، وتفرض العواصف الشمسية إدارة فورية للعمليات ومأوى أقل تعرضًا.", status: "ترصد NASA الإشعاع وتقيم المخاطر وتخطط للتدريع والعمليات؛ لا توجد حماية كاملة للرحلات العميقة.", solution: "تشمل الإجراءات قياس الجرعة والتنبؤ بالطقس الفضائي وتحديد ملاذ محمي بمواد مناسبة وإدارة مدة التعرض. تصميم دروع خفيفة محسنة وتقنيات الحماية النشطة ما زالت موضوع بحث، وليست حماية تشغيلية مثبتة للطاقم." },
+    fieldsEn: { problem: "Ionizing radiation can increase cancer risk and affect the nervous and cardiovascular systems; a solar event can deliver an acute dose.", cause: "High-energy particles penetrate spacecraft and tissue; practical shielding cannot stop all cosmic radiation without substantial mass.", effect: "Dose accumulates over time, and solar events require rapid operational response and shelter.", status: "NASA monitors radiation and evaluates shielding and operational controls; deep-space missions have no complete protection.", solution: "Controls include dosimetry, space-weather forecasting, designated shelter, suitable shielding, and exposure management. Lightweight improved shielding and active protection remain research topics, not operational crew protection." },
+    sources: [{ label: "NASA HRP: Space Radiation", url: "https://www.nasa.gov/hrp/hazard-space-radiation/" }, { label: "NASA: Space Radiation and Human Exploration", url: "https://www.nasa.gov/humans-in-space/space-radiation-wont-stop-nasas-human-exploration/" }] },
+  { id: "crew-life-support", type: "problem", title: "الضغط والأكسجين وإزالة ثاني أكسيد الكربون", titleEn: "Pressure, oxygen, and carbon-dioxide control", aliases: ["التنفس", "نقص الاكسجين", "تسرب الضغط", "دعم الحياة", "life support", "oxygen supply", "carbon dioxide", "decompression"], topics: ["crew", "lifeSupport", "atmosphere", "health", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "الفراغ القمري وغلاف المريخ الرقيق غير قابلين للتنفس. يحتاج الطاقم إلى ضغط وحرارة وتركيب غاز مضبوط وإزالة مستمرة لثاني أكسيد الكربون والرطوبة والملوثات.", en: "The lunar vacuum and thin Martian atmosphere are unbreathable. Crews need controlled pressure, temperature, gas composition, and continuous removal of carbon dioxide, moisture, and contaminants.",
+    fieldsAr: { problem: "فقدان الضغط أو تعطل الأكسجين وإزالة CO₂ يهدد الحياة سريعًا، ويختلف تصميم دعم الحياة بين المركبة والبدلة والموطن.", cause: "لا يوفر القمر هواءً، وغلاف المريخ منخفض الضغط وغني بـCO₂؛ الأنظمة المغلقة تعتمد على حساسات ومضخات ومرشحات وطاقة.", effect: "التسرب قد يؤدي إلى نقص أكسجة أو فرط CO₂ أو انخفاض ضغط خطير، وتعطل عنصر واحد قد يفرض إلغاء النشاط والعودة للمأوى.", status: "تستخدم محطة الفضاء الدولية أنظمة دعم حياة وتجديد هواء وماء؛ MOXIE أثبت إنتاج أكسجين آليًا على المريخ بكميات تجريبية صغيرة، وانتهت تجربته.", solution: "تعتمد الهندسة على مراقبة مستمرة للضغط والغازات، إنذارات، عزل مناطق التسرب، مخزون احتياطي وإجراءات عودة. يلزم للبعثات المريخية نظام مستقل قابل للصيانة؛ لا يمد MOXIE الطاقم بالأكسجين ولا يُعد نظام دعم حياة مأهولًا." },
+    fieldsEn: { problem: "Loss of pressure, oxygen supply, or CO2 removal can become life-threatening; spacecraft, suits, and habitats need different life-support designs.", cause: "The Moon has no breathable atmosphere and Mars has low-pressure CO2-rich air; closed systems depend on sensors, pumps, filters, and power.", effect: "A leak can cause hypoxia, CO2 buildup, or dangerous depressurization; a component failure may force an EVA abort or shelter return.", status: "The ISS operates environmental-control and life-support systems. MOXIE demonstrated small-scale robotic oxygen production on Mars and has completed its experiment.", solution: "Engineering controls include continuous atmosphere monitoring, alarms, leak isolation, reserves, and return procedures. Mars crews need maintainable independent systems; MOXIE does not supply crew oxygen and is not crew life support." },
+    sources: [{ label: "NASA: Spacewalk spacesuit basics", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "NASA: MOXIE completes Mars mission", url: "https://www.nasa.gov/missions/mars-2020-perseverance/perseverance-rover/nasas-oxygen-generating-experiment-moxie-completes-mars-mission/" }] },
+  { id: "crew-thermal", type: "problem", title: "الحرارة والبرودة في الفضاء وعلى الأسطح", titleEn: "Thermal extremes in space and on planetary surfaces", aliases: ["الحرارة المتطرفة", "البرد الشديد", "التبريد", "التدفئة", "thermal control", "extreme temperature"], topics: ["crew", "climate", "EVA", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "في الفراغ ينتقل معظم الحمل الحراري بالإشعاع والتوصيل عبر البدلة؛ وعلى القمر تتباين الإضاءة والظل بشدة، بينما يعتمد المريخ على غلاف رقيق وغبار وموقع وفصل.", en: "In vacuum, thermal exchange is dominated by radiation and conduction through the suit. Lunar illumination and shadow contrast sharply; Martian conditions vary with location, season, and dust.",
+    fieldsAr: { problem: "فرط الحرارة أو فقدها يضعف الأداء وقد يسبب إصابة؛ كما تتأثر البطاريات والأجهزة والمواد.", cause: "غياب الحمل الحراري في الفراغ، التعرض للشمس أو الظل، حرارة الجسم أثناء العمل، وتغيرات الموقع تجعل التوازن الحراري تحديًا هندسيًا.", effect: "قد ترتفع حرارة البدلة أو المقصورة أو تتجمد أجزاء، ويصبح على الرواد إنهاء السير خارج المركبة إذا تجاوز النظام حدوده.", status: "تستخدم بدلات السير أنظمة تبريد وملابس تبريد سائل وعزلًا ومراقبة؛ كل بدلة مصممة لبيئة تشغيل محددة.", solution: "تُدار الحرارة عبر عزل متعدد الطبقات، عواكس، دوائر تبريد ومبادلات حرارية، وتخطيط أوقات العمل. حلول قواعد القمر أو المريخ تحتاج تصميمًا واختبارات بيئية خاصة؛ لا تُعمم مواصفات بدلة محطة الفضاء عليها تلقائيًا." },
+    fieldsEn: { problem: "Overheating or heat loss can impair performance and damage equipment, batteries, and materials.", cause: "Vacuum removes convective cooling; sunlight, shadow, metabolic heat, and local conditions complicate thermal balance.", effect: "Suit or cabin temperatures can exceed limits, requiring an EVA to end early.", status: "EVA suits use insulation, liquid-cooling garments, thermal control, and monitoring; each suit is designed for a specific operating environment.", solution: "Controls include multilayer insulation, reflective surfaces, cooling loops, heat exchangers, and activity scheduling. Lunar and Martian habitat systems need environment-specific design and testing; ISS suit specifications cannot simply be assumed suitable." },
+    sources: [{ label: "NASA: Spacewalk spacesuit basics", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "NASA Moon facts and environment", url: "https://science.nasa.gov/moon/facts/" }] },
+  { id: "crew-dust", type: "problem", title: "الغبار القمري والمريخي وتأثيره على الطاقم والمعدات", titleEn: "Lunar and Martian dust hazards", aliases: ["غبار البدلة", "الغبار على المعدات", "غبار الرواد", "mars dust", "lunar dust", "dust on spacesuits"], topics: ["crew", "dust", "moon", "mars", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "غبار القمر حاد وزاوي ويمكن أن يكتسب شحنة ويلتصق بالأسطح؛ أما غبار المريخ فتحركه الرياح وقد يحجب الضوء عن الألواح الشمسية ويترسب على المعدات.", en: "Lunar dust is angular and can become electrostatically charged and adhere to surfaces. Martian winds raise dust that can reduce sunlight on solar arrays and settle on hardware.",
+    fieldsAr: { problem: "الغبار يسبب تآكل الأختام والمفاصل وخدش البصريات أو تلوث المقصورة، وقد يهيج العين والجهاز التنفسي؛ وعلى المريخ يخفض الطاقة الشمسية.", cause: "طحن الصخور والبيئة القمرية تحفظ حبيبات حادة، بينما الرياح المريخية ترفع غبارًا دقيقًا لمسافات واسعة.", effect: "تزداد الصيانة ومخاطر التسرب والتلوث، وقد تحد طبقة الغبار من قدرة المركبات المعتمدة على الطاقة الشمسية.", status: "أُظهر EDS على أسطح محددة بمهمة قمرية في 2025، وليس على بدلة كاملة؛ طرق إزالة الغبار من البدلات والمساكن ما زالت موضع تطوير.", solution: "تتضمن الضوابط تقليل انتقال الغبار إلى المقصورة، أختام ومواد مقاومة للتآكل، تنظيفًا مضبوطًا وإدارة احتياط الطاقة. درع EDS عرض تقني لأسطح محددة؛ لا يوجد حل واحد مثبت لإزالة الغبار عن كل البدلات والمعدات." },
+    fieldsEn: { problem: "Dust can abrade seals and joints, scratch optics, contaminate habitats, irritate eyes or airways, and reduce solar power on Mars.", cause: "Lunar surface processes leave sharp grains; Martian winds can loft fine dust over large areas.", effect: "Maintenance and contamination risks rise, and dust on solar arrays can reduce available power.", status: "EDS was demonstrated on selected lunar surfaces in 2025, not a complete spacesuit; suit and habitat dust-control integration remains under development.", solution: "Controls include limiting dust transfer into habitats, abrasion-resistant seals and materials, controlled cleaning, and power reserves. EDS is a surface-specific demonstration, not a proven universal dust-removal system." },
+    sources: [{ label: "NASA Moon dust", url: "https://science.nasa.gov/moon/moon-dust/" }, { label: "NASA electrodynamic dust shield demonstration", url: "https://www.nasa.gov/image-article/nasas-dust-shield-successfully-repels-lunar-regolith-on-moon/" }, { label: "NASA: Mars dust and crew protection", url: "https://www.nasa.gov/missions/mars-2020-perseverance/nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust/" }] },
+  { id: "crew-resources", type: "problem", title: "الماء والغذاء وإعادة تدوير الموارد", titleEn: "Water, food, and resource recycling", aliases: ["نقص المياه", "الغذاء في الفضاء", "اعادة تدوير الماء", "water recycling", "food supply", "in situ resources"], topics: ["crew", "water", "resources", "nutrition", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "المهمات البعيدة محدودة الإمداد؛ الماء والهواء والغذاء والمواد الاستهلاكية كتلة وحجم وطاقة، كما تختلف موارد الجليد المكتشفة عن مورد قابل للاستخراج.", en: "Long missions have limited resupply. Water, air, food, and consumables require mass, volume, and power; detected ice is not automatically an accessible resource.",
+    fieldsAr: { problem: "فقد الماء أو الغذاء أو تعطل إعادة التدوير يضعف صحة الطاقم ويهدد استمرارية المهمة.", cause: "المسافة وتأخر الإمداد، التسربات، تلوث المياه، والاعتماد على أنظمة معالجة متعددة المراحل تحد من الاستقلالية.", effect: "يزداد مخزون الإطلاق ومتطلبات الطاقة، وأي خلل قد يجبر الطاقم على تقنين الاستهلاك أو إنهاء المهمة.", status: "تستعيد محطة الفضاء الدولية جزءًا كبيرًا من الماء من مصادر متعددة وتختبر أنظمة دعم الحياة؛ إنتاج الغذاء الكامل أو الاعتماد على موارد القمر والمريخ لم يصبح حلًا مأهولًا مكتملًا.", solution: "تستخدم المهمات الحالية مخزونًا مدروسًا وأنظمة استعادة ومعالجة ومراقبة جودة. تُدرس الزراعة وإنتاج الوقود أو الماء من الموارد المحلية، لكن يلزم إثبات الاستخراج والتنقية والاعتمادية في الموقع قبل اعتبارها موردًا تشغيليًا." },
+    fieldsEn: { problem: "Loss of water, food, or recycling capability can harm crew health and mission continuity.", cause: "Distance, delayed resupply, leaks, contamination, and multistage treatment systems constrain autonomy.", effect: "Launch mass and power needs increase; a failure may require rationing or mission termination.", status: "The ISS recovers a substantial portion of water and tests life-support systems. Full food production or routine use of lunar/Martian resources is not yet a complete crewed solution.", solution: "Current missions use planned reserves, recovery, treatment, and quality monitoring. Crop production and local resource extraction are being studied, but extraction, purification, and reliability must be demonstrated at the destination before treating them as operational supplies." },
+    sources: [{ label: "NASA: International Space Station life support research", url: "https://www.nasa.gov/missions/station/iss-research/" }, { label: "NASA: Water and ice on the Moon", url: "https://science.nasa.gov/moon/moon-water-and-ices/" }, { label: "NASA Mars facts and water", url: "https://science.nasa.gov/mars/facts/" }] },
+  { id: "crew-psychology", type: "problem", title: "العزلة والنوم والصحة النفسية", titleEn: "Isolation, sleep, and behavioral health", aliases: ["العزلة", "الضغط النفسي", "الوحدة", "النوم في الفضاء", "isolation", "confinement", "sleep disruption", "psychological"], topics: ["crew", "psychology", "isolation", "health", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "الاحتجاز في حيز محدود، البعد عن الأسرة، عبء العمل، اختلاف دورة الضوء وتأخر التواصل قد تؤثر في النوم والمزاج والانتباه والعمل الجماعي.", en: "Confinement, distance from family, workload, altered light-dark cycles, and communication delays can affect sleep, mood, attention, and teamwork.",
+    fieldsAr: { problem: "الإجهاد واضطراب النوم أو النزاع داخل الطاقم قد يضعف القرار والسلامة في مهمة لا يمكن مغادرتها سريعًا.", cause: "العزلة والبيئة المغلقة والجدول المكثف وفقدان الإشارات الزمنية الأرضية تتفاعل مع الفروق الفردية.", effect: "قد تتراجع جودة النوم والانتباه والأداء، وتتعقد الاستجابة للطوارئ والعمل المشترك.", status: "تستخدم المهمات الحالية اختيار الطاقم والتدريب والدعم النفسي والجدولة والنوم؛ بعثات المريخ ستحتاج استقلالية أكبر بسبب تأخر الاتصال.", solution: "تشمل الإجراءات تصميم جداول عمل وراحة، إضاءة مناسبة، خصوصية ومساحة مشتركة، تدريبًا سلوكيًا ودعمًا نفسيًا واتصالًا غير متزامن. وسائل المحاكاة الأرضية تساعد على دراسة العوامل، لكنها لا تتنبأ وحدها باستجابة كل طاقم." },
+    fieldsEn: { problem: "Stress, sleep disruption, or crew conflict can degrade decisions and safety when a mission cannot be quickly exited.", cause: "Isolation, a closed environment, demanding schedules, and loss of Earth-like time cues interact with individual differences.", effect: "Sleep, attention, performance, emergency response, and teamwork may suffer.", status: "Current missions use crew selection, training, behavioral support, scheduling, and sleep planning; Mars crews need greater autonomy because of communication delay.", solution: "Controls include work/rest schedules, suitable lighting, privacy and shared space, behavioral training, psychological support, and asynchronous communication. Earth analogs help study factors but cannot predict every crew response." },
+    sources: [{ label: "NASA Human Research Program", url: "https://www.nasa.gov/hrp/" }, { label: "NASA: The Human Body in Space", url: "https://www.nasa.gov/humans-in-space/the-human-body-in-space/" }] },
+  { id: "crew-communications", type: "problem", title: "تأخر الاتصالات والاستقلالية التشغيلية", titleEn: "Communication delay and operational autonomy", aliases: ["تاخر الاتصالات", "انقطاع الاتصال", "التواصل مع الارض", "communication delay", "signal delay", "mission autonomy"], topics: ["crew", "communication", "mars", "engineering", "problem"], targetWorld: "mars",
+    ar: "تستغرق الإشارة بين الأرض والمريخ دقائق إلى عشرات الدقائق في اتجاه واحد بحسب المسافة، وتوجد أيضًا نوافذ حجب واتصال محدودة؛ لذلك لا يصلح التحكم اللحظي عن بعد.", en: "One-way Earth–Mars signal time ranges from minutes to tens of minutes depending on orbital geometry, with additional communication windows and outages; real-time remote control is not practical.",
+    fieldsAr: { problem: "لا يمكن للأرض توجيه كل خطوة أو الرد الفوري على الطوارئ، كما قد ينقطع الاتصال مؤقتًا.", cause: "المسافة بين الكواكب تحدد زمن انتقال الإشارة، وتعمل الروابط عبر شبكات ومركبات ترحيل ونوافذ رؤية.", effect: "يجب على الطاقم أو الروبوت تشخيص المشكلة واتخاذ إجراءات آمنة محليًا، وتصبح خطة المهمة أقل تفاعلية.", status: "تستخدم المركبات المريخية أوامر مجدولة وروابط ترحيل وعمليات ذاتية محدودة؛ استقلالية طاقم بشري بعيد يجري تصميمها ودراستها.", solution: "تُبنى إجراءات الطوارئ على قواعد محلية واضحة، تخطيط مسبق، سجلات تشخيص، اتصال مؤجل ومخازن بيانات. لا تُعامل أنظمة محطة الفضاء القريبة كبديل مباشر لقيادة بعثة مريخية مستقلة." },
+    fieldsEn: { problem: "Earth cannot direct every action or respond immediately to emergencies, and communication outages can occur.", cause: "Interplanetary distance creates signal latency; links also depend on relay assets and visibility windows.", effect: "Crew or robots must diagnose and enter safe states locally, reducing interactive mission control.", status: "Mars spacecraft use scheduled commands, relay links, and bounded autonomy; human deep-space autonomy is still being designed and studied.", solution: "Use local emergency rules, preplanned operations, diagnostic logs, delayed messaging, and onboard data storage. Near-Earth ISS operations are not a direct substitute for autonomous Mars mission operations." },
+    sources: [{ label: "NASA Perseverance rover components and communications", url: "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/" }, { label: "NASA/JPL Deep Space Network", url: "https://deepspace.jpl.nasa.gov/" }] },
+  { id: "crew-equipment", type: "problem", title: "أعطال المركبة والطاقة وأنظمة دعم الحياة", titleEn: "Spacecraft, power, and life-support failures", aliases: ["اعطال المركبة", "تعطل الطاقة", "عطل نظام دعم الحياة", "equipment failure", "power failure", "spacecraft fault"], topics: ["crew", "power", "lifeSupport", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "المركبة المأهولة تعتمد على أنظمة مترابطة للطاقة والحرارة والاتصالات والضغط؛ وتتعرض المكونات للاهتزاز والإشعاع ودورات الحرارة وصعوبة الإصلاح.", en: "Crewed spacecraft depend on interconnected power, thermal, communication, and pressure systems; components face vibration, radiation, thermal cycling, and difficult repair.",
+    fieldsAr: { problem: "عطل منفرد أو متسلسل قد يفقد الطاقة أو الاتصال أو التحكم البيئي ويجبر الطاقم على إلغاء المهمة أو الاحتماء.", cause: "البيئة القاسية والاعتماد المتبادل والتآكل ومحدودية قطع الغيار وأدوات الصيانة.", effect: "قد تتوقف تجارب أو مركبات، أو يتعرض الطاقم لخطر إذا فشلت أنظمة حرجة دون بديل.", status: "تعتمد المركبات الحالية على اختبارات وتأهيل ومراقبة وإجراءات طوارئ وتكرار لبعض الأنظمة؛ حجم الاستقلالية والإصلاح يختلف بين المركبات.", solution: "تستخدم الهندسة تحليل أنماط الفشل، استقلالية الأنظمة الحرجة، عزل الأعطال، قواطع وحساسات، قطع غيار، تشخيصًا قابلًا للصيانة وتدريب الطاقم. تُصمم كل منظومة وفق تحليل مخاطرها؛ لا توجد مضاعفة واحدة تضمن منع كل الأعطال." },
+    fieldsEn: { problem: "A single or cascading fault can remove power, communications, or environmental control and force an abort or shelter-in-place response.", cause: "Harsh conditions, system coupling, wear, limited spares, and constrained maintenance contribute to failures.", effect: "Experiments or vehicles may stop, and crew safety can be threatened if a critical function has no fallback.", status: "Current spacecraft use qualification, monitoring, emergency procedures, and redundancy for selected functions; details vary by vehicle.", solution: "Engineering uses failure-mode analysis, independent critical paths, fault isolation, breakers and sensors, spares, maintainable diagnostics, and crew training. Each system requires its own risk-based design; no single redundancy approach prevents every failure." },
+    sources: [{ label: "NASA Human Research Program", url: "https://www.nasa.gov/hrp/" }, { label: "NASA Spacewalk spacesuit basics", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }] },
+  { id: "crew-landing", type: "problem", title: "الهبوط والتنقل الآمن على السطح", titleEn: "Landing and safe surface mobility", aliases: ["مخاطر الهبوط", "هبوط المركبة", "التحرك على السطح", "landing hazard", "terrain navigation", "surface mobility"], topics: ["crew", "landing", "robotics", "moon", "mars", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "الصخور والمنحدرات والحفر والتربة المفككة قد تعيق الهبوط أو السير؛ تختلف جاذبية القمر وغلاف المريخ وطرق الهبوط، ولا يمكن نقل حل روبوتي إلى مركبة مأهولة دون تأهيل.", en: "Rocks, slopes, craters, and loose soil can threaten landing and traverses. Lunar gravity and the Martian atmosphere differ, and robotic landing capability cannot be assumed qualified for crewed vehicles.",
+    fieldsAr: { problem: "قد تنقلب المركبة أو تعلق أو تتضرر الأرجل والعجلات، وقد يتعذر على الرواد الوصول إلى هدف أو العودة للمأوى.", cause: "الرؤية المحدودة أثناء الهبوط، عدم يقين الخرائط، خواص التربة، ميل السطح، الغبار وتفاوت التضاريس.", effect: "يهدد الهبوط الفاشل المركبة والطاقم، ويزيد عبور التضاريس الوعرة استهلاك الطاقة ووقت السير ومخاطر السقوط.", status: "استخدمت Perseverance ملاحة نسبية للتضاريس في هبوط روبوتي؛ خرائط LRO تدعم دراسة مواقع القمر. ذلك لا يثبت تأهيل نظام مماثل لهبوط بشري.", solution: "تجمع الضوابط بين خرائط عالية الدقة، ملاحة مستقلة وتفادي أخطار، هوامش في الوقود والطاقة، اختيار مسار محافظ، وتدريب على الحركة والإنقاذ. تُختبر البدلات والمركبات المأهولة على متطلبات البيئة والحمولة الفعلية." },
+    fieldsEn: { problem: "A lander can tip, become stuck, or damage legs and wheels; crews may be unable to reach a target or return to shelter.", cause: "Limited descent visibility, map uncertainty, soil properties, slopes, dust, and variable terrain.", effect: "A failed landing threatens the vehicle and crew; rough traverses increase time, energy use, and fall risk.", status: "Perseverance used Terrain-Relative Navigation for a robotic landing, while LRO maps support lunar site assessment. Neither fact qualifies an equivalent crewed landing system.", solution: "Controls combine high-resolution maps, autonomous navigation and hazard avoidance, fuel and power margins, conservative routing, and mobility/rescue training. Crewed vehicles and suits require qualification for their actual environment and loads." },
+    sources: [{ label: "NASA Perseverance rover components and landing navigation", url: "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/" }, { label: "NASA Lunar Reconnaissance Orbiter", url: "https://science.nasa.gov/mission/lro/" }] },
+  { id: "crew-eva", type: "problem", title: "العمل خارج المركبة (EVA)", titleEn: "Extravehicular activity workload and suit limits", aliases: ["السير في الفضاء", "العمل خارج المركبة", "بدلة الفضاء", "EVA", "spacewalk", "spacesuit mobility"], topics: ["crew", "EVA", "health", "engineering", "problem"], targetWorld: "spaceflight",
+    ar: "البدلة تحافظ على الضغط والتنفس والحرارة لكنها تضيف كتلة ومقاومة للحركة؛ يتطلب العمل أدوات وتثبيتًا واتصالًا ومراقبة للأكسجين والوقت.", en: "A suit provides pressure, breathing, and thermal control but adds mass and mobility resistance; EVA requires tools, restraint, communications, and oxygen/time monitoring.",
+    fieldsAr: { problem: "الإجهاد البدني، تقييد حركة المفاصل، تسرب البدلة، تلف القفازات أو فقد التثبيت قد يهدد المهمة والطاقم.", cause: "اختلاف الضغط عبر البدلة، مقاومة المفاصل، الحرارة والبرودة، الإضاءة، الغبار، وانعدام نقاط الارتكاز.", effect: "تستهلك المهام وقتًا وطاقة، وقد يتطلب إنذار أو تدهور صحي إنهاء السير والعودة إلى المركبة.", status: "تستخدم EVA الحالية قوائم تحقق وربطًا بالمركبة وأنظمة دعم حياة ومراقبة؛ تصميم بدلات القمر والمريخ له متطلبات مختلفة وما زالت أنظمة قيد التطوير.", solution: "تُقلل المخاطر بتدريب ومحاكاة، أدوات وقيود تثبيت، فحص البدلة، حدود زمنية، مراقبة حيوية واتصال، وخطة إجهاض وعودة. تحسين الحركة والوقاية من الغبار للبدلات المستقبلية قيد التطوير ولا يُعرض كقدرة مكتملة." },
+    fieldsEn: { problem: "Physical workload, restricted joint motion, suit leaks, glove damage, or loss of restraint can threaten the crew and task.", cause: "Pressure across the suit, joint resistance, thermal conditions, lighting, dust, and limited footholds.", effect: "EVA consumes time and energy; an alarm or health concern may require early return to the vehicle.", status: "Current EVAs use checklists, restraints, life-support systems, and monitoring. Lunar and Mars suits have different requirements, and future systems remain in development.", solution: "Risk controls include training, simulation, restraints and tools, suit inspections, time limits, biomedical monitoring, communications, and abort/return plans. Mobility and dust protection improvements for future suits are not yet a completed capability." },
+    sources: [{ label: "NASA: Spacewalk spacesuit basics", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "NASA Moon dust", url: "https://science.nasa.gov/moon/moon-dust/" }] }
+];
+
+const GUIDE_SITE_ENGLISH = {
+  atacama: { environment: "Hyper-arid desert", location: "Chile · near Yungay", subsite: "Yungay area", summary: "NASA imagery documents a dry streambed on an alluvial fan in northern Chile. NASA's ARADS field campaigns tested rover drilling and life-detection workflows at an Atacama analog site.", geology: "The project record describes dry channels, alluvial fans, exposed hills, salts, and mixed sediment grain sizes. The NASA image is regional imagery, not a local soil assay.", limit: "Hyperaridity can challenge biosignature detection, but Earth pressure, atmosphere, gravity, and radiation differ from Mars." },
+  hawaii: { environment: "Volcanic lava terrain", location: "Hawaii, United States", subsite: "Mauna Loa", summary: "NASA ASTER imagery covers Mauna Loa and regional volcanic flows. It supports regional surface interpretation, not wheel-scale hazard mapping.", geology: "The image has 15–90 m spatial resolution depending on band, so it can map regional flow patterns but cannot identify every wheel-scale crack or rock.", limit: "Any rover traverse would need a permitted, close-range survey. The project does not claim a NASA crew or rover test at this exact point." },
+  "death-valley": { environment: "Hot desert basin and salt flat", location: "California, United States", subsite: "Badwater Basin", summary: "NASA ASTER documented Badwater Basin before and after the temporary lake formed following Hurricane Hilary in 2023.", geology: "Badwater is a closed desert basin with salt flats, dunes, and surrounding mountains; surface conditions change after episodic flooding.", limit: "Surface conditions can change after rare floods; this is an Earth field-planning issue, not Martian weather." },
+  mcmurdo: { environment: "Cold polar desert", location: "Antarctica", subsite: "McMurdo Dry Valleys", summary: "NASA tested engineering models of Phoenix soil instruments and collected sterile samples in the McMurdo Dry Valleys; NASA ASTEP also developed a subsurface corer concept there.", geology: "The region combines extremely dry exposed ground with localized buried ice, glaciers, and ice-covered lakes; a surface sample alone may not represent the subsurface.", limit: "Dry exposed ground can coexist with localized buried ice. The campaign tests sampling methods, not a flight-ready system or the whole Martian environment." },
+  devon: { environment: "Arctic impact crater", location: "Nunavut, Canada", subsite: "Haughton Crater", summary: "NASA tested robotic drilling and remote exploration operations at Haughton Crater on Devon Island.", geology: "The site combines an impact structure, rocky terrain, and permafrost. NASA's TRIDENT tests encountered ice-cemented breccia and drill cuttings that could choke or bind the auger.", limit: "Ice-cemented impact breccia and permafrost caused drill binding; this informs robotic hardware and field procedures, not actual astronaut activity on Mars." },
+  "meteor-crater": { environment: "Impact crater in a high desert", location: "Arizona, United States", subsite: "Meteor Crater (Barringer Crater)", summary: "NASA identifies Meteor Crater in Arizona as an impact site about 4,000 feet across and roughly 50,000 years old.", geology: "Its rim, interior wall, basin, and ejecta provide a terrestrial impact-crater morphology for comparison with orbital images.", limit: "NASA's image record confirms the site; it does not establish a NASA astronaut-training campaign there. Use it for morphology comparisons only." }
+};
+
+const GUIDE_PROBLEM_ENGLISH_TITLES = {
+  "moon-surface": "Moon surface: electrostatic dust",
+  "mars-surface": "Mars surface: thin, unbreathable atmosphere",
+  "devon-site": "Devon Island: drilling ice-cemented breccia",
+  "atacama-site": "Atacama Desert: life detection in hyper-arid soil",
+  "death-valley-site": "Death Valley: heat and changing basin conditions",
+  "mcmurdo-site": "McMurdo Dry Valleys: subsurface water sampling",
+  "hawaii-site": "Mauna Loa: rover mobility over lava terrain",
+  "meteor-site": "Meteor Crater (Barringer): limits of crater analogs"
+};
+
+const GUIDE_PROBLEM_ENGLISH = {
+  "moon-surface": { problem: "Lunar regolith is fine, sharp, and electrostatically charged, so it adheres to suits, lenses, and joints.", cause: "The Moon lacks water-and-air weathering, and ultraviolet light and solar wind charge grains; walking and rover motion loft dust.", effect: "Dust abrades seals and optics and can enter habitats. Apollo crews reported eye and respiratory irritation.", status: "NASA demonstrated EDS on selected lunar surfaces; suit/habitat integration remains under evaluation.", solution: "NASA's Electrodynamic Dust Shield used electric fields to clear dust from glass and a thermal radiator during the 2025 Blue Ghost demonstration. That proves removal on those tested surfaces, not a whole-suit cleaning system. Suitports or multi-chamber airlocks are design approaches to limit dust transfer." },
+  "mars-surface": { problem: "Mars has a very thin, carbon-dioxide-dominated atmosphere and no breathable surface air for people.", cause: "Low pressure and gas composition together require a sealed, pressurized environment.", effect: "A crew needs continuous pressure, oxygen supply, carbon-dioxide removal, and environmental control; a leak threatens life support.", status: "A pressurized habitat is required; MOXIE was a robotic technology demonstration, not crew life support.", solution: "A habitat needs closed environmental control and life support. MOXIE demonstrated oxygen extraction from Martian CO2 on Perseverance, but its experimental output and scale cannot supply a crew." },
+  "devon-site": { problem: "NASA's TRIDENT drill encountered ice-cemented impact breccia with low cuttings permeability at Haughton Crater.", cause: "In massive material, drilling debris could not escape up the auger and accumulated around the bit.", effect: "Drilling slowed and choking/binding faults interrupted sample collection in the field campaign.", status: "NASA documented the fault; reducing bite size was demonstrated as a mitigation in difficult target material.", solution: "NASA's report recommends reducing drill bites from about 10 cm to 1–2 cm and lifting the auger more often to remove cuttings. Percussion was also needed in ice-cemented breccia." },
+  "atacama-site": { problem: "Some hyper-arid Atacama samples have extremely low organic matter and sparse detectable microbial signals.", cause: "Long-term water scarcity and surface exposure limit biomass and can obscure molecular signatures.", effect: "A negative instrument reading may reflect low signal, sample location, or handling—not proof that the whole desert is lifeless.", status: "NASA's ARADS project field-tested drilling and life-detection workflows in an Atacama analog; it did not establish life at every site.", solution: "ARADS combined rover-based drilling, controlled sample handling, and remote operations to access subsurface material. NASA also reports power/vibration scheduling and repeated cleaning as field challenges; instrument duty cycles and contamination controls must be planned." },
+  "death-valley-site": { problem: "Badwater Basin is exposed to desert heat, but its surface is not permanently dry: NASA documented a temporary lake after Hurricane Hilary in 2023.", cause: "Rare storm runoff collects in the closed basin; solar heat also loads batteries and electronics.", effect: "Flooding or salt-crust changes can invalidate an old route survey, while excessive equipment temperature can exceed calibration limits.", status: "This is a proposed field-campaign control, not a claim that NASA tested crewed equipment at Badwater.", solution: "Recheck imagery and ground-route conditions after storms, avoid flooded or unstable crust, and use temperature-rated, thermally monitored electronics. Perseverance's warm electronics box is an engineering precedent, not equipment tested at Badwater." },
+  "mcmurdo-site": { problem: "The McMurdo Dry Valleys are extremely dry, with localized subsurface ice and ice-covered lakes.", cause: "Surface conditions do not reveal all subsurface water, and cold plus isolation complicate sterile sampling and instrument handling.", effect: "Surface-only sampling can miss targets; warming or contaminating a sample can alter measurements in remote field work.", status: "NASA tested Phoenix instrument models and a corer concept in the Dry Valleys; neither is a flight-qualified system.", solution: "NASA took Phoenix wet-chemistry and conductivity/temperature instrument engineering models into the Dry Valleys and collected sterile samples for lab analysis. A NASA ASTEP project also developed and tested an ultrasonic-corer concept at Lake Vida." },
+  "hawaii-site": { problem: "ASTER imagery around Mauna Loa maps regional lava flows, but its 15–90 m bands cannot resolve every wheel-scale crack or block.", cause: "Regional multispectral imagery is coarser than close-range stereo terrain mapping, while lava surfaces vary locally in roughness and fractures.", effect: "A rover test route chosen from imagery alone may encounter impassable fissures or damaging rocks. This is a proposed ground-test risk, not a reported NASA crew campaign at Mauna Loa.", status: "Route mapping is a proposed site-specific control; the cited wheels and hazard cameras are flown on Mars rovers.", solution: "Survey and authorize a ground route, then map slopes, cracks, and blocks with close-range stereo images and define no-go areas. NASA redesigned Perseverance wheels after Curiosity wear on sharp rocks and uses HazCams to inspect rocks, trenches, and dunes." },
+  "meteor-site": { problem: "NASA identifies Meteor Crater (Barringer Crater) in Arizona as an impact crater about 4,000 feet across and roughly 50,000 years old; it is not a dome.", cause: "Its rim, wall, basin, and ejecta have experienced Earth's gravity, atmosphere, and weathering, unlike lunar terrain.", effect: "Treating its slopes or ejecta as direct lunar analogs could mislead conclusions about mobility or surface processes. NASA's image record does not establish a training campaign there.", status: "NASA verifies the site's identity and morphology; the proposed use here is image-based comparison, not a NASA field trial.", solution: "Compare observable crater features with mapped lunar terrain and use LRO LOLA elevation data for 3D lunar topography and landing-site analysis. Keep gravity and weathering differences explicit." }
+};
+const GUIDE_CHAT_STOP_WORDS = new Set("في من على الى إلى عن مع ما ماذا هل هو هي هم هذا هذه تلك ذلك الذي التي و او انا انت انتِ نحن هم هو هي the a an and or to of in on at for from with about what why how which who is are was were do does did can could would should it they you we by as this that these those about tell me explain".split(/\s+/));
+const GUIDE_CHAT_SITE_ALIASES = {
+  atacama: ["اتاكاما", "اتاكما", "اتاكامه", "يونغاي", "yungay", "atacama"],
+  hawaii: ["هاواي", "هاواى", "ماونا لوا", "مونا لوا", "mauna loa", "hawaii"],
+  "death-valley": ["وادي الموت", "بادووتر", "بادواتر", "death valley", "badwater"],
+  mcmurdo: ["الوديان الجافة", "وديان ماكموردو", "ماكموردو", "مكموردو", "mcmurdo", "dry valleys", "antarctic dry valleys"],
+  devon: ["جزيرة ديفون", "ديفون", "فوهة هوتون", "هوتون", "devon island", "haughton crater", "haughton"],
+  "meteor-crater": ["فوهة ميتيور", "ميتيور كريتر", "فوهة بارينجر", "بارينجر", "meteor crater", "barringer crater"]
+};
+const GUIDE_CHAT_WORLDS = {
+  moon: ["القمر", "قمري", "قمر", "moon", "lunar"],
+  mars: ["المريخ", "مريخي", "مريخ", "الكوكب الاحمر", "mars", "martian", "red planet"],
+  earth: ["الارض", "ارض", "earth", "terrestrial"]
+};
+const GUIDE_CHAT_TOPICS = {
+  comparison: ["compare", "comparison", "difference", "similar", "similarity", "versus", "vs", "قارن", "مقارنة", "فرق", "الفرق", "اختلاف", "اوجه الشبه", "وجه الشبه", "تشابه"],
+  crew: ["astronaut", "astronauts", "crew", "spacefarer", "رواد الفضاء", "رائد الفضاء", "الطاقم", "رواد", "الرواد"],
+  health: ["health", "medical", "physiology", "human body", "صحة", "صحي", "جسم الانسان", "فسيولوجيا", "طبي", "اصابة"],
+  microgravity: ["microgravity", "weightlessness", "zero gravity", "انعدام الجاذبيه", "الجاذبيه الصغرى", "الجاذبيه المنخفضه"],
+  bones: ["bone", "bones", "bone loss", "osteoporosis", "عظام", "كثافه العظام", "فقدان العظام"],
+  muscles: ["muscle", "muscles", "muscle loss", "عضلات", "ضعف العضلات"],
+  nutrition: ["nutrition", "food", "diet", "غذاء", "طعام", "تغذيه"],
+  lifeSupport: ["life support", "oxygen supply", "carbon dioxide", "decompression", "دعم الحياه", "نظام دعم الحياة", "اكسجين", "تنفس", "ثاني اكسيد الكربون", "تسرب الضغط"],
+  psychology: ["psychology", "psychological", "mental health", "stress", "نفسي", "الضغط النفسي", "الصحه النفسيه"],
+  isolation: ["isolation", "confinement", "sleep", "عزله", "الوحده", "النوم", "الاحتجاز"],
+  communication: ["communication delay", "signal delay", "communications", "اتصالات", "الاتصال", "تأخر الاتصال", "تاخر الاتصالات", "تأخر الاشاره"],
+  power: ["power system", "power failure", "battery", "طاقة", "طاقه", "طاقة المركبة", "بطاريه", "انقطاع الطاقه"],
+  EVA: ["eva", "spacewalk", "extravehicular", "space suit", "spacesuit", "السير في الفضاء", "العمل خارج المركبه", "بدله الفضاء"],
+  soil: ["soil", "regolith", "sediment", "sand", "rock", "rocks", "تربة", "التراب", "ريغوليث", "رواسب", "رمل", "حصى", "صخور", "صخر"],
+  geology: ["geology", "geological", "terrain", "surface", "crater", "lava", "volcanic", "جيولوجيا", "تضاريس", "سطح", "فوهة", "حمم", "بركان"],
+  water: ["water", "ice", "frost", "brine", "humidity", "ماء", "مياه", "جليد", "ثلج", "صقيع", "رطوبة", "ملوحة"],
+  atmosphere: ["atmosphere", "pressure", "air", "oxygen", "breathe", "co2", "غلاف جوي", "ضغط", "هواء", "اكسجين", "تنفس", "ثاني اكسيد الكربون"],
+  climate: ["climate", "weather", "temperature", "heat", "hot", "cold", "حرارة", "حراره", "طقس", "مناخ", "بارد", "برودة", "حر"],
+  dust: ["dust", "dust storm", "dust storms", "غبار", "غبار قمري", "غبار مريخي", "عاصفة ترابية", "عواصف ترابية"],
+  radiation: ["radiation", "cosmic ray", "solar particle", "اشعاع", "إشعاع", "اشعه", "أشعة"],
+  biology: ["life", "biology", "microbe", "biosignature", "organic", "كائن", "حياة", "احياء", "ميكروب", "مؤشر حيوي", "بصمة حيوية", "مادة عضوية"],
+  robotics: ["robot", "robotic", "rover", "wheel", "mobility", "vehicle", "drill", "روبوت", "روبوتات", "عربة", "عربات", "مركبة", "مركبات", "جوالة", "عجلات", "حفر", "مثقاب"],
+  mission: ["mission", "nasa", "artemis", "apollo", "perseverance", "curiosity", "moxie", "lro", "بعثة", "مهمة", "ناسا", "ارتميس", "ابولو", "بيرسيفيرانس", "كوريوسيتي"],
+  analog: ["analog", "analogue", "simulation", "simulate", "test", "testing", "field test", "تناظري", "محاكاة", "يحاكي", "اختبار", "تجربة", "ميداني"],
+  engineering: ["engineering", "equipment", "technology", "solution", "problem", "challenge", "risk", "هندسي", "معدات", "تقنية", "حل", "مشكلة", "تحدي", "خطر", "مخاطر"],
+  problem: ["problem", "challenge", "risk", "issue", "hazard", "مشكلات", "مشاكل", "مشكلة", "تحدي", "تحديات", "خطر", "مخاطر"],
+  solution: ["solution", "mitigation", "fix", "solve", "حل", "علاج", "معالجة", "تقليل", "نواجه", "نتعامل مع"],
+  landing: ["landing", "touchdown", "hazard avoidance", "navigation", "هبوط", "تجنب العوائق", "ملاحة", "منحدر"],
+  isolation: ["isolation", "confinement", "crew", "sleep", "psychology", "عزلة", "انغلاق", "حصر", "طاقم", "نوم", "نفسي"],
+  map: ["map", "imagery", "image", "gallery", "gis", "خريطة", "صور", "صورة", "معرض", "طبقة"],
+  sources: ["source", "sources", "reference", "references", "citation", "مراجع", "مصدر", "مصادر", "مرجع", "توثيق"],
+  methodology: ["method", "methodology", "criteria", "how do you compare", "منهج", "منهجية", "معيار", "كيف تقارن", "كيف نقارن"],
+  importance: ["important", "importance", "benefit", "useful", "why", "اهمية", "أهمية", "مهم", "فائدة", "يفيد", "لماذا", "ليه", "ليش"],
+  game: ["game", "controls", "play", "لعبة", "اللعبة", "التحكم", "العب", "تحكم"]
+};
+const GUIDE_CHAT_TOPIC_HINTS = {
+  "moon-surface": ["moon", "dust", "engineering"],
+  "mars-surface": ["mars", "atmosphere", "engineering"],
+  "devon-site": ["analog", "soil", "robotics", "cold", "engineering"],
+  "atacama-site": ["analog", "soil", "biology", "robotics", "engineering"],
+  "death-valley-site": ["analog", "climate", "geology", "engineering"],
+  "mcmurdo-site": ["analog", "water", "cold", "isolation", "soil"],
+  "hawaii-site": ["analog", "geology", "robotics", "landing"],
+  "meteor-site": ["analog", "geology", "comparison"]
+};
+
+let guideCorpusCache = null;
+
+function normalizeGuideText(value) {
+  return String(value || "").toLowerCase().normalize("NFD")
+    .replace(/[\u064B-\u065F\u0670\u0640\u0300-\u036F]/g, "")
+    .replace(/[أإآٱ]/g, "ا").replace(/[ؤئ]/g, "ء").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/گ/g, "ك")
+    .replace(/(.)\1{2,}/g, "$1$1").replace(/[^\p{L}\p{N}]+/gu, " ").replace(/\s+/g, " ").trim();
+}
+
+function guideChatTokens(value) {
+  const raw = normalizeGuideText(value).match(/[\p{L}\p{N}]+/gu) || [];
+  return raw.map(token => {
+    if (!/^[\u0600-\u06FF]+$/.test(token)) return token;
+    const prefix = ["وال", "بال", "كال", "فال", "لل", "و", "ف", "ب", "ك", "ل"].find(value => token.startsWith(value) && token.length - value.length > 2);
+    const withoutPrefix = prefix ? token.slice(prefix.length) : token;
+    return withoutPrefix.startsWith("ال") && withoutPrefix.length > 4 ? withoutPrefix.slice(2) : withoutPrefix;
+  }).filter(token => token.length > 1 && !GUIDE_CHAT_STOP_WORDS.has(token));
+}
+
+function guideEditDistanceOne(first, second) {
+  if (first === second) return true;
+  if (Math.abs(first.length - second.length) > 1 || Math.min(first.length, second.length) < 4) return false;
+  let a = 0;
+  let b = 0;
+  let edits = 0;
+  while (a < first.length && b < second.length) {
+    if (first[a] === second[b]) { a += 1; b += 1; continue; }
+    edits += 1;
+    if (edits > 1) return false;
+    if (first.length > second.length) a += 1;
+    else if (second.length > first.length) b += 1;
+    else { a += 1; b += 1; }
+  }
+  return edits + Number(a < first.length || b < second.length) <= 1;
+}
+
+function guideTokenMatches(token, candidate) {
+  if (token === candidate) return true;
+  const isArabic = /^[\u0600-\u06FF]+$/.test(token) && /^[\u0600-\u06FF]+$/.test(candidate);
+  if (token[0] !== candidate[0] || (isArabic && token.slice(0, 2) !== candidate.slice(0, 2))) return false;
+  return guideEditDistanceOne(token, candidate);
+}
+
+function guideHasWholePhrase(normalized, phrase) {
+  const cleanPhrase = normalizeGuideText(phrase);
+  return Boolean(cleanPhrase) && (` ${normalized} `).includes(` ${cleanPhrase} `);
+}
+
+function guideChatTopics(text) {
+  const normalized = normalizeGuideText(text);
+  const tokens = guideChatTokens(normalized);
+  return Object.entries(GUIDE_CHAT_TOPICS).filter(([, aliases]) => aliases.some(alias => {
+    if (guideHasWholePhrase(normalized, alias)) return true;
+    const aliasTokens = guideChatTokens(alias);
+    return aliasTokens.length === 1 && tokens.some(token => guideTokenMatches(token, aliasTokens[0]));
+  })).map(([topic]) => topic);
+}
+
+function guideNasaSources(sources) {
+  const unique = new Map();
+  (sources || []).forEach(source => {
+    const url = typeof source === "string" ? source : source?.url;
+    if (!url) return;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "https:" || !(parsed.hostname === "nasa.gov" || parsed.hostname.endsWith(".nasa.gov") || parsed.hostname === "nasa-gibs.github.io")) return;
+      unique.set(url, { label: typeof source === "string" ? parsed.hostname : source.label || source.name || parsed.hostname, url });
+    } catch { /* Invalid and non-NASA sources are not surfaced as scientific citations. */ }
+  });
+  return [...unique.values()];
+}
+
+function getGuideCorpus() {
+  if (guideCorpusCache) return guideCorpusCache;
+  const siteDocuments = sites.map(site => {
+    const science = site.science || {};
+    const english = GUIDE_SITE_ENGLISH[site.id] || {};
+    const fields = [site.brief, site.country, site.subsite, site.type, site.guide?.summary, site.guide?.similarity, site.guide?.advantage, site.guide?.difference, site.guide?.more, science.geology, science.climate, science.rocks, science.terrain, science.water, science.mars, science.research, science.task, site.image?.title, site.image?.caption].filter(Boolean);
+    const aliases = [...(GUIDE_CHAT_SITE_ALIASES[site.id] || []), site.ar, site.en, site.id.replaceAll("-", " "), site.subsite].filter(Boolean);
+    return { id: `site-${site.id}`, kind: "site", siteId: site.id, title: `${site.ar} (${site.en})`, aliases, topics: [...new Set(["site", "analog", site.target === "القمر" ? "moon" : "mars", ...guideChatTopics(fields.join(" "))])], ar: fields.join(" "), en: [english.summary, english.geology, english.limit, site.en, site.country, site.subsite].filter(Boolean).join(" "), site, sources: guideNasaSources([...(science.sources || []), site.image?.source, nasaSourcePages[site.id]?.url]) };
+  });
+  const problemDocuments = siteProblemCards.map(problem => {
+    const english = GUIDE_PROBLEM_ENGLISH[problem.key] || {};
+    const siteId = ({ "devon-site": "devon", "atacama-site": "atacama", "death-valley-site": "death-valley", "mcmurdo-site": "mcmurdo", "hawaii-site": "hawaii", "meteor-site": "meteor-crater" })[problem.key] || null;
+    const site = siteId ? sites.find(item => item.id === siteId) : null;
+    const ar = [problem.title, problem.target, problem.problem, problem.cause, problem.effect, problem.status, problem.solution].join(" ");
+    const en = [english.problem, english.cause, english.effect, english.status, english.solution].filter(Boolean).join(" ");
+    return { id: `problem-${problem.key}`, kind: "problem", siteId, title: problem.title, aliases: [problem.title, problem.target, site?.ar, site?.en, ...(GUIDE_CHAT_SITE_ALIASES[siteId] || [])].filter(Boolean), topics: [...new Set(["problem", "engineering", "solution", ...(GUIDE_CHAT_TOPIC_HINTS[problem.key] || []), ...guideChatTopics(`${ar} ${en}`)])], ar, en, fieldsAr: { problem: problem.problem, cause: problem.cause, effect: problem.effect, status: problem.status, solution: problem.solution }, fieldsEn: english, site, sources: guideNasaSources(problem.sources || []) };
+  });
+  const crewProblemDocuments = GUIDE_CREW_PROBLEMS.map(problem => ({
+    ...problem,
+    kind: "problem",
+    aliases: [problem.title, problem.titleEn, ...(problem.aliases || [])],
+    ar: `${problem.title} ${problem.ar} ${Object.values(problem.fieldsAr).join(" ")}`,
+    en: `${problem.titleEn} ${problem.en} ${Object.values(problem.fieldsEn).join(" ")}`,
+    fieldsAr: problem.fieldsAr,
+    fieldsEn: problem.fieldsEn,
+    sources: guideNasaSources(problem.sources || [])
+  }));
+  const references = GUIDE_REFERENCE_DOCUMENTS.map(document => ({ ...document, kind: "reference", topics: [...new Set([...document.topics, ...guideChatTopics(`${document.ar} ${document.en}`)])], sources: guideNasaSources(document.sources || []) }));
+  guideCorpusCache = [...siteDocuments, ...problemDocuments, ...crewProblemDocuments, ...references].map(document => {
+    const text = `${document.title} ${(document.aliases || []).join(" ")} ${document.ar} ${document.en} ${(document.topics || []).join(" ")}`;
+    const tokens = guideChatTokens(text);
+    return { ...document, tokens, tokenSet: new Set(tokens) };
+  });
+  return guideCorpusCache;
+}
+
+function analyzeGuideQuestion(question) {
+  const normalized = normalizeGuideText(question);
+  const tokens = guideChatTokens(question);
+  const topics = guideChatTopics(question);
+  const siteIds = [];
+  for (const site of sites) {
+    const aliases = [...(GUIDE_CHAT_SITE_ALIASES[site.id] || []), site.ar, site.en, site.id.replaceAll("-", " "), site.subsite].filter(Boolean);
+    const direct = aliases.some(alias => normalized.includes(normalizeGuideText(alias)));
+    const fuzzy = !direct && aliases.some(alias => {
+      const aliasTokens = guideChatTokens(alias);
+      return aliasTokens.length === 1 && tokens.some(token => guideTokenMatches(token, aliasTokens[0]));
+    });
+    if (direct || fuzzy) siteIds.push(site.id);
+  }
+  const worlds = Object.entries(GUIDE_CHAT_WORLDS).filter(([, aliases]) => aliases.some(alias => normalized.includes(normalizeGuideText(alias)))).map(([world]) => world);
+  const allSites = ["all sites", "every site", "all locations", "all six", "compare all", "جميع المواقع", "كل المواقع", "كل المواقع الست", "المواقع الست", "قارن المواقع", "قارن بين المواقع"].some(alias => normalized.includes(normalizeGuideText(alias)));
+  const followUp = /^(?:وماذا(?: عن)?|وكيف(?: حال)?|وكمان|وال(?:تربه|ماء|غبار|ضغط|حراره|صخور)|طيب(?:\s|$)|طب(?:\s|$)|كمان(?:\s|$)|and what\b|what about\b|how about\b|why\??$|how\??$|لماذا\??$|ليه\??$|كيف\??$)/.test(normalized)
+    || /(?:هذه المنطقه|المنطقه دي|المنطقه دى|الموقع ده|المكان ده|هذه المنطقه|this area|this site|that site|\bthere\b|\bit\b)/.test(normalized);
+  const arabicCount = (String(question).match(/[\u0600-\u06FF]/g) || []).length;
+  const latinCount = (String(question).match(/[a-z]/gi) || []).length;
+  return { normalized, tokens, topics, siteIds, worlds, allSites, followUp, language: latinCount > arabicCount * 1.2 ? "en" : "ar" };
+}
+
+function rankGuideDocuments(analysis, context) {
+  const documents = getGuideCorpus();
+  const topics = new Set(analysis.topics.length ? analysis.topics : (analysis.followUp ? context?.topics || [] : []));
+  const queryTerms = new Set(analysis.tokens);
+  for (const topic of topics) {
+    queryTerms.add(topic);
+    (GUIDE_CHAT_TOPICS[topic] || []).forEach(alias => guideChatTokens(alias).forEach(token => queryTerms.add(token)));
+  }
+  const averageLength = documents.reduce((sum, document) => sum + document.tokens.length, 0) / Math.max(documents.length, 1);
+  const scored = documents.map(document => {
+    let score = 0;
+    for (const term of queryTerms) {
+      let frequency = document.tokens.reduce((total, token) => total + Number(token === term), 0);
+      if (!frequency && term.length >= 4) frequency = Number(document.tokens.some(token => guideTokenMatches(token, term))) * 0.35;
+      if (!frequency) continue;
+      const documentFrequency = documents.reduce((total, candidate) => total + Number(candidate.tokenSet.has(term) || candidate.topics.includes(term)), 0);
+      const inverseFrequency = Math.log(1 + (documents.length - documentFrequency + 0.5) / (documentFrequency + 0.5));
+      score += inverseFrequency * (frequency * 2.2) / (frequency + 1.2 * (0.25 + 0.75 * document.tokens.length / averageLength));
+      if (document.topics.includes(term)) score += 1.35;
+    }
+    if ([document.title, ...(document.aliases || [])].some(alias => normalizeGuideText(alias) && analysis.normalized.includes(normalizeGuideText(alias)))) score += 4.5;
+    if (analysis.siteIds.includes(document.siteId)) score += document.kind === "problem" ? 5.5 : 4.5;
+    if (analysis.worlds.some(world => document.topics.includes(world))) score += 1.25;
+    if (analysis.followUp && context?.siteIds?.includes(document.siteId)) score += 3.2;
+    if (analysis.followUp && context?.worlds?.some(world => document.topics.includes(world))) score += 2.2;
+    return { document, score };
+  }).sort((first, second) => second.score - first.score);
+  return { topics: [...topics], ranked: scored.filter(item => item.score > 0.35).slice(0, 8) };
+}
+
+function guideCitations(sources, language = "ar") {
+  if (!sources?.length) return language === "en" ? "\n\n**NASA references:** None are recorded for this entry." : "\n\n**المصادر:** لا يوجد مرجع NASA مسجل لهذه المعلومة.";
+  const heading = language === "en" ? "NASA references" : "مصادر NASA";
+  return `\n\n**${heading}:**\n${sources.slice(0, 4).map(source => `- [${source.label}](${source.url})`).join("\n")}`;
+}
+
+function formatGuideProblem(document, language) {
+  const fields = language === "en" ? document.fieldsEn : document.fieldsAr;
+  const siteName = language === "en" ? document.site?.en : document.site?.ar;
+  const heading = language === "en" ? `${siteName ? `${siteName} — ` : ""}${GUIDE_PROBLEM_ENGLISH_TITLES[document.id.replace("problem-", "")] || document.title}` : siteName ? `${siteName} — ${document.title}` : document.title;
+  const title = language === "en" ? document.titleEn || GUIDE_PROBLEM_ENGLISH_TITLES[document.id.replace("problem-", "")] || document.title : document.title;
+  const labels = language === "en"
+    ? { problem: "Problem", cause: "Cause", effect: "Effect on exploration", status: "Solution status", solution: "Engineering/scientific response" }
+    : { problem: "المشكلة", cause: "السبب", effect: "الأثر على الاستكشاف", status: "حالة الحل", solution: "الحل الهندسي/العلمي" };
+  return `## ${language === "en" && document.kind === "problem" && !document.site ? title : heading}\n- **${labels.problem}:** ${fields.problem}\n- **${labels.cause}:** ${fields.cause}\n- **${labels.effect}:** ${fields.effect}\n- **${labels.status}:** ${fields.status}\n- **${labels.solution}:** ${fields.solution}${guideCitations(document.sources, language)}`;
+}
+
+function formatGuideSite(document, language, topics) {
+  const site = document.site;
+  const science = site.science || {};
+  if (language === "en") {
+    const english = GUIDE_SITE_ENGLISH[site.id] || {};
+    const lines = [`## ${site.en} — ${english.environment || "Earth analog site"}`, `Location: ${english.location || site.country}${english.subsite ? `; subsite: ${english.subsite}` : ""}.`, english.summary || site.guide.summary];
+    if (topics.includes("geology") || topics.includes("soil")) lines.push(english.geology || `Geology / terrain: ${science.geology || science.terrain || "The project has no site-specific field measurement for this topic."}`);
+    if (topics.includes("water")) lines.push(`Water: ${science.water || "The project has no verified local water measurement for this site."}`);
+    if (topics.includes("climate")) lines.push(`Climate: ${science.climate || "No local, time-stamped weather measurement is recorded in this project."}`);
+    if (topics.includes("analog") || topics.includes("methodology") || topics.includes("comparison")) lines.push(`Analog use and limits: ${site.guide.advantage} ${english.limit || site.guide.difference}`);
+    return `${lines.join("\n\n")}${guideCitations(document.sources, language)}`;
+  }
+  const lines = [`## ${site.ar} (${site.en})`, `**نوع البيئة:** ${site.type} · ${site.country} · ${site.subsite}.`];
+  if (topics.includes("geology") || topics.includes("soil")) lines.push(`**الجيولوجيا والتربة:** ${science.geology || science.rocks || site.brief} ${science.rocks || ""} ${science.terrain || ""}`);
+  else lines.push(`**ملخص الموقع:** ${site.brief} ${site.guide.summary}`);
+  if (topics.includes("water")) lines.push(`**الماء:** ${science.water || "لا تتوفر في سجل المشروع قياسات موضعية للماء."}`);
+  if (topics.includes("climate")) lines.push(`**المناخ:** ${science.climate || "لا تتوفر قياسات محلية مؤرخة في سجل المشروع."}`);
+  if (topics.includes("analog") || topics.includes("methodology") || topics.includes("comparison") || topics.length === 0) lines.push(`**ما يمكن دراسته وحدود القياس:** ${site.guide.advantage} ${site.guide.difference}`);
+  return `${lines.join("\n\n")}${guideCitations(document.sources, language)}`;
+}
+
+function formatGuideReference(document, language) {
+  const heading = language === "en" ? document.enTitle || document.title : document.title;
+  const text = language === "en" ? document.en : document.ar;
+  return `## ${heading}\n${text}${guideCitations(document.sources, language)}`;
+}
+
+function formatAllGuideSites(language) {
+  const rows = sites.map(site => {
+    const english = GUIDE_SITE_ENGLISH[site.id] || {};
+    if (language === "en") return `| ${site.en} | ${english.environment || "Earth analog site"} | ${english.summary || site.brief} | ${english.limit || site.guide.difference} |`;
+    return `| ${site.ar} | ${site.target} · ${site.type} | ${site.guide.advantage} | ${site.guide.difference} |`;
+  });
+  const header = language === "en"
+    ? "| Site | Environment | Documented use / data | Limit |\n| --- | --- | --- | --- |"
+    : "| الموقع | البيئة | ما يدعمه السجل | حد المقارنة |\n| --- | --- | --- | --- |";
+  const sources = guideNasaSources(sites.flatMap(site => [...(site.science.sources || []), nasaSourcePages[site.id]?.url]));
+  const note = language === "en" ? "**Note:** Earth analogs test specific operations; they do not reproduce lunar or Martian gravity, atmosphere, or radiation." : "**ملاحظة:** المواقع الأرضية تختبر عمليات أو أسئلة محددة، ولا تعيد إنتاج جاذبية القمر أو المريخ أو غلافهما أو إشعاعهما.";
+  return `${language === "en" ? "## Project sites compared" : "## مقارنة مواقع المشروع"}\n${header}\n${rows.join("\n")}\n\n${note}${guideCitations(sources, language)}`;
+}
+
+function formatGuideCrewOverview(language) {
+  const groups = language === "en" ? [
+    { title: "Human health", ids: ["crew-microgravity", "crew-radiation", "crew-psychology"] },
+    { title: "Habitat and resources", ids: ["crew-life-support", "crew-thermal", "crew-resources", "crew-dust"] },
+    { title: "Mission operations", ids: ["crew-communications", "crew-equipment", "crew-landing", "crew-eva"] }
+  ] : [
+    { title: "الصحة البشرية", ids: ["crew-microgravity", "crew-radiation", "crew-psychology"] },
+    { title: "الموطن والموارد", ids: ["crew-life-support", "crew-thermal", "crew-resources", "crew-dust"] },
+    { title: "عمليات المهمة", ids: ["crew-communications", "crew-equipment", "crew-landing", "crew-eva"] }
+  ];
+  const documents = new Map(GUIDE_CREW_PROBLEMS.map(document => [document.id, document]));
+  const sections = groups.map(group => `### ${group.title}\n${group.ids.map(id => {
+    const document = documents.get(id);
+    const fields = language === "en" ? document.fieldsEn : document.fieldsAr;
+    return `- **${language === "en" ? document.titleEn : document.title}:** ${fields.problem} ${fields.solution}`;
+  }).join("\n")}`).join("\n\n");
+  const sources = guideNasaSources(GUIDE_CREW_PROBLEMS.flatMap(document => document.sources)).slice(0, 10);
+  return `${language === "en" ? "## Main crew risks and engineering responses" : "## أبرز مخاطر الطاقم والاستجابات الهندسية"}\n${sections}\n\n${language === "en" ? "These controls are mission-specific. ISS experience cannot be assumed to solve Mars communication, resupply, radiation, or surface risks; proposed and demonstration technologies are not operational systems." : "تختلف الضوابط حسب المهمة؛ لا تُنقل حلول محطة الفضاء الدولية تلقائيًا إلى مخاطر الاتصالات والإمداد والإشعاع والعمل السطحي على المريخ. العروض التقنية والمقترحات ليست أنظمة تشغيلية مكتملة."}${guideCitations(sources, language)}`;
+}
+
+function answerQuestion(question) {
+  const trimmed = String(question || "").trim();
+  if (!trimmed) return "";
+  if (/(-?\d+(?:\.\d+)?)\s*([+\-*/×÷])\s*(-?\d+(?:\.\d+)?)/.test(trimmed)) return answerQuestionLegacy(trimmed);
+  const analysis = analyzeGuideQuestion(trimmed);
+  const previous = guideContext && typeof guideContext === "object" ? guideContext : {};
+  const previousSiteIds = previous.siteIds || (previous.siteId ? [previous.siteId] : []);
+  if (!analysis.followUp && !analysis.siteIds.length && !analysis.worlds.length && analysis.tokens.length <= 3
+    && (previousSiteIds.length || (previous.worlds || []).length)) analysis.followUp = true;
+  let siteIds = analysis.siteIds;
+  let worlds = analysis.worlds;
+  if (analysis.followUp) {
+    if (!siteIds.length) siteIds = previousSiteIds;
+    if (!worlds.length) worlds = previous.worlds || [];
+  }
+  if (!siteIds.length && !worlds.length && !analysis.followUp) {
+    const activeRoute = route().split("/");
+    if (activeRoute[0] === "site" && sites.some(site => site.id === activeRoute[1])) siteIds = [activeRoute[1]];
+  }
+  const intentTopics = new Set(["comparison", "importance", "problem", "solution", "sources", "methodology", "game"]);
+  const hasNewSubject = analysis.topics.some(topic => !intentTopics.has(topic));
+  const contextTopics = analysis.followUp
+    ? [...new Set([...(previous.topics || []).filter(topic => hasNewSubject ? topic === "crew" : !intentTopics.has(topic)), ...analysis.topics])]
+    : analysis.topics;
+  if (analysis.siteIds.length || analysis.worlds.length || analysis.followUp || analysis.topics.length) {
+    guideContext = { siteIds, worlds, topics: contextTopics, lastQuestion: trimmed, updatedAt: Date.now() };
+    writeStore("atlas-guide-context", guideContext);
+  }
+  const language = analysis.language;
+  const normalized = analysis.normalized;
+  const has = (...phrases) => phrases.some(phrase => normalized.includes(normalizeGuideText(phrase)));
+  const asksForAllCrewRisks = (contextTopics.includes("crew") && contextTopics.includes("problem") && !contextTopics.includes("comparison"))
+    || has("مشاكل رواد الفضاء", "مشكلات رواد الفضاء", "تحديات رواد الفضاء", "كل مشاكل الطاقم", "جميع مشكلات الطاقم", "all astronaut problems", "all crew risks", "all challenges astronauts");
+  const asksAboutUnprotectedMarsExposure = has("بدون بدلة", "من غير بدلة", "دون بدلة", "without a suit", "without spacesuit", "breathe on mars", "live on mars");
+  if (has("فريق", "اعضاء", "من انتم", "team", "who are you", "trinexus")) return answerQuestionLegacy(trimmed);
+  if (contextTopics.includes("game")) {
+    const gameDocument = getGuideCorpus().find(document => document.id === "project-game");
+    if (gameDocument) return formatGuideReference(gameDocument, language);
+  }
+  if (analysis.allSites) return formatAllGuideSites(language);
+  if (asksForAllCrewRisks) return formatGuideCrewOverview(language);
+  const comparison = contextTopics.includes("comparison") || has("قارن", "مقارنة", "الفرق بين", "compare", "versus", "vs");
+  const ranked = rankGuideDocuments({ ...analysis, siteIds, worlds }, { ...previous, siteIds, worlds, topics: contextTopics });
+  const corpus = getGuideCorpus();
+
+  if (comparison && (siteIds.length + worlds.length > 1)) {
+    if (siteIds.length && worlds.length) {
+      const siteDocs = siteIds.map(id => corpus.find(doc => doc.kind === "site" && doc.siteId === id)).filter(Boolean);
+      const worldDocs = worlds.map(world => corpus.find(doc => doc.kind === "reference" && doc.id === `${world}-world`)).filter(Boolean);
+      const soilDoc = contextTopics.includes("soil") ? corpus.find(doc => doc.id === "soil-earth-mars") : null;
+      const siteRows = siteDocs.map(doc => {
+        const facts = contextTopics.includes("soil") ? `${doc.site.science?.geology || ""} ${doc.site.science?.rocks || ""}`.trim() : contextTopics.includes("water") ? doc.site.science?.water : doc.site.guide.similarity;
+        const detail = facts || GUIDE_SITE_ENGLISH[doc.siteId]?.summary || doc.site.brief;
+        const requestedWorld = worlds.map(world => world === "moon" ? (language === "en" ? "Moon" : "القمر") : world === "mars" ? (language === "en" ? "Mars" : "المريخ") : (language === "en" ? "Earth" : "الأرض")).join(", ");
+        const siteType = language === "en" ? `Earth site · requested comparison: ${requestedWorld}` : `موقع أرضي · المقارنة المطلوبة: ${requestedWorld}`;
+        return language === "en" ? `| ${doc.site.en} | ${siteType} | ${GUIDE_SITE_ENGLISH[doc.siteId]?.summary || detail} | ${GUIDE_SITE_ENGLISH[doc.siteId]?.limit || doc.site.guide.difference} |` : `| ${doc.site.ar} | ${siteType} | ${detail} | ${doc.site.guide.difference} |`;
+      });
+      const worldRows = worldDocs.map(doc => {
+        const label = doc.id === "moon-world" ? (language === "en" ? "Moon" : "القمر") : (language === "en" ? "Mars" : "المريخ");
+        const worldDetail = soilDoc && doc.id === "mars-world" ? (language === "en" ? "Mars has mineral regolith and dust; compare analyzed samples rather than assuming it is ordinary Earth soil." : "للمريخ ريغوليث وغبار معدني؛ يجب مقارنة عينات محللة لا افتراض أنها تربة أرضية عادية.") : language === "en" ? doc.en : doc.ar;
+        return language === "en" ? `| ${label} | Planet | ${worldDetail} | Earth sites only reproduce specific questions. |` : `| ${label} | عالم فضائي | ${worldDetail} | المواقع الأرضية لا تحاكي إلا سؤالًا محددًا. |`;
+      });
+      const table = language === "en" ? "| Entity | Type | Relevant facts | Limit |\n| --- | --- | --- | --- |" : "| المكان/العالم | النوع | المعلومات ذات الصلة | حد المقارنة |\n| --- | --- | --- | --- |";
+      const soilNote = soilDoc ? `\n\n${language === "en" ? soilDoc.en : soilDoc.ar}` : "";
+      return `## ${language === "en" ? "Comparison" : "المقارنة"}\n${table}\n${[...siteRows, ...worldRows].join("\n")}${soilNote}\n\n${guideCitations([...siteDocs, ...worldDocs, ...(soilDoc ? [soilDoc] : [])].flatMap(doc => doc.sources), language)}`;
+    }
+    if (!siteIds.length && contextTopics.includes("soil") && worlds.includes("mars") && worlds.includes("earth")) {
+      const soilDoc = corpus.find(doc => doc.id === "soil-earth-mars");
+      if (soilDoc) return formatGuideReference(soilDoc, language);
+    }
+    const docs = (siteIds.length ? siteIds : worlds.map(world => world)).map(id => corpus.find(doc => doc.kind === (siteIds.length ? "site" : "reference") && (siteIds.length ? doc.siteId === id : doc.id === `${id}-world`))).filter(Boolean);
+    if (docs.length > 1) {
+      const rows = docs.map(doc => language === "en" ? `| ${doc.site?.en || doc.enTitle} | ${doc.site ? GUIDE_SITE_ENGLISH[doc.siteId]?.environment || "Earth analog site" : (doc.id === "moon-world" ? "Moon" : "Mars")} | ${doc.site ? GUIDE_SITE_ENGLISH[doc.siteId]?.summary || doc.site.brief : doc.en} | ${doc.site ? GUIDE_SITE_ENGLISH[doc.siteId]?.limit || doc.site.guide.difference : "Planetary conditions are not reproduced by Earth sites."} |` : `| ${doc.site?.ar || doc.title} | ${doc.site ? `${doc.site.target} · ${doc.site.type}` : (doc.id === "moon-world" ? "القمر" : "المريخ")} | ${doc.site?.guide.similarity || doc.ar} | ${doc.site?.guide.difference || "تختلف الظروف الكوكبية عن المواقع الأرضية."} |`);
+      const header = language === "en" ? "| Site/world | Environment | Similarity or evidence | Difference/limit |\n| --- | --- | --- | --- |" : "| الموقع/العالم | البيئة | وجه الشبه/الدليل | الاختلاف/الحد |\n| --- | --- | --- | --- |";
+      return `${language === "en" ? "## Comparison" : "## المقارنة"}\n${header}\n${rows.join("\n")}\n\n${guideCitations(docs.flatMap(doc => doc.sources || []), language)}`;
+    }
+  }
+
+  if (asksAboutUnprotectedMarsExposure) {
+    const marsAtmosphereProblem = corpus.find(document => document.id === "problem-mars-surface");
+    const lifeSupportProblem = corpus.find(document => document.id === "crew-life-support");
+    if (marsAtmosphereProblem && lifeSupportProblem) return `${formatGuideProblem(marsAtmosphereProblem, language)}\n\n---\n\n${formatGuideProblem(lifeSupportProblem, language)}`;
+  }
+
+  if (siteIds.length) {
+    const answers = [];
+    for (const siteId of siteIds.slice(0, 3)) {
+      const siteDoc = corpus.find(doc => doc.kind === "site" && doc.siteId === siteId);
+      const problemDoc = corpus.find(doc => doc.kind === "problem" && doc.siteId === siteId);
+      const asksForProblem = ["engineering", "solution", "problem", "landing", "robotics", "dust", "climate", "biology"].some(topic => contextTopics.includes(topic)) || (contextTopics.includes("analog") && contextTopics.includes("robotics")) || has("مشكلة", "تحدي", "حل", "روبوت", "حفر", "حرارة", "غبار", "مؤشرات الحياة", "problem", "solution", "robot");
+      answers.push(asksForProblem && problemDoc ? formatGuideProblem(problemDoc, language) : formatGuideSite(siteDoc, language, contextTopics));
+    }
+    return answers.join("\n\n---\n\n");
+  }
+
+  const rankedReferences = ranked.ranked.filter(item => item.document.kind === "reference");
+  const broadTopics = new Set(["engineering", "problem", "solution", "analog", "methodology", "comparison", "importance", "crew"]);
+  const specificTopics = contextTopics.filter(topic => !broadTopics.has(topic));
+  const relevantProblems = ranked.ranked.filter(item => item.document.kind === "problem")
+    .filter(item => specificTopics.some(topic => item.document.topics.includes(topic)));
+  const bestProblem = relevantProblems[0];
+  const asksForProblem = contextTopics.includes("problem") || contextTopics.includes("solution")
+    || (contextTopics.includes("engineering") && specificTopics.length > 0)
+    || asksAboutUnprotectedMarsExposure
+    || (contextTopics.some(topic => ["crew", "health", "microgravity", "bones", "muscles", "radiation", "lifeSupport", "psychology", "isolation", "communication", "power", "EVA", "landing"].includes(topic)) && relevantProblems.length > 0);
+  if (asksForProblem && bestProblem && (contextTopics.includes("crew") || !rankedReferences.length || bestProblem.score >= rankedReferences[0].score * 1.15)) {
+    return relevantProblems.slice(0, contextTopics.length > 1 ? 2 : 1).map(item => formatGuideProblem(item.document, language)).join("\n\n---\n\n");
+  }
+
+  if (rankedReferences.length) {
+    const top = rankedReferences.slice(0, contextTopics.length > 1 ? 3 : 2);
+    return top.map(item => formatGuideReference(item.document, language)).join("\n\n---\n\n");
+  }
+
+  const legacyTopics = ["game", "sources", "methodology"].some(topic => contextTopics.includes(topic));
+  const greeting = has("مرحبا", "اهلا", "السلام", "ازيك", "hello", "hi", "help");
+  if (legacyTopics || greeting) return answerQuestionLegacy(trimmed);
+  if (ranked.ranked.length && ranked.ranked[0].score >= 1.2) {
+    const top = ranked.ranked.slice(0, 2);
+    return top.map(item => formatGuideReference(item.document, language)).join("\n\n---\n\n");
+  }
+  if (analysis.followUp && !siteIds.length && !worlds.length && !previousSiteIds.length && !(previous.worlds || []).length) {
+    return language === "en" ? "What site or topic should I continue with?" : "عن أي موقع أو موضوع تريد أن أتابع؟";
+  }
+  return language === "en"
+    ? "I could not find a well-supported answer in the project’s local NASA knowledge records. Please specify a planet, site, mission, or topic; I do not have a live external AI or web search connection."
+    : "لم أجد إجابة موثقة كافية في قاعدة المعرفة المحلية للمشروع. حدّد كوكبًا أو موقعًا أو مهمة أو موضوعًا؛ لا أستخدم نموذجًا خارجيًا أو بحث ويب مباشرًا.";
+}
+
 function addMessage(text, kind = "assistant") {
   const box = document.getElementById("guide-messages");
   if (!box) return;
@@ -2805,7 +3409,7 @@ function createMessageElement(text, kind) {
   message.setAttribute("aria-live", "off");
   const content = document.createElement("div");
   content.className = "guide-message-content";
-  appendMessageContent(content, text);
+  appendMessageContent(content, text, kind === "assistant");
   message.append(content);
   if (kind === "user") appendMessageStatus(message, "تم الإرسال");
   return message;
@@ -2881,29 +3485,102 @@ function revealAssistantReply(text, message) {
     else setTimeout(revealNextChunk, 16);
   });
 }
-function appendMessageContent(message, text) {
-  const urlPattern = /https:\/\/[^\s]+/g;
+function appendGuideInline(parent, text) {
+  const pattern = /\*\*([^*]+)\*\*|\[([^\]]+)\]\((https:\/\/[^)\s]+)\)|(https:\/\/[^\s]+)/g;
   let textStart = 0;
   let match;
-  while ((match = urlPattern.exec(text))) {
-    const trailing = match[0].match(/[),.;،؛]+$/)?.[0] || "";
-    const href = match[0].slice(0, match[0].length - trailing.length);
-    message.append(document.createTextNode(text.slice(textStart, match.index)));
-    try {
-      if (new URL(href).protocol !== "https:") throw new Error("Unsupported link protocol");
-      const link = document.createElement("a");
-      link.href = href;
-      link.textContent = href;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      message.append(link);
-    } catch {
-      message.append(document.createTextNode(href));
+  while ((match = pattern.exec(text))) {
+    parent.append(document.createTextNode(text.slice(textStart, match.index)));
+    if (match[1]) {
+      const strong = document.createElement("strong");
+      strong.textContent = match[1];
+      parent.append(strong);
+    } else {
+      const href = match[3] || match[4];
+      const trailing = match[3] ? "" : (href.match(/[),.;،؛]+$/)?.[0] || "");
+      const cleanHref = href.slice(0, href.length - trailing.length);
+      try {
+        if (new URL(cleanHref).protocol !== "https:") throw new Error("Unsupported link protocol");
+        const link = document.createElement("a");
+        link.href = cleanHref;
+        link.textContent = match[2] || cleanHref;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        parent.append(link);
+      } catch {
+        parent.append(document.createTextNode(match[2] || cleanHref));
+      }
+      if (trailing) parent.append(document.createTextNode(trailing));
     }
-    if (trailing) message.append(document.createTextNode(trailing));
     textStart = match.index + match[0].length;
   }
-  message.append(document.createTextNode(text.slice(textStart)));
+  parent.append(document.createTextNode(text.slice(textStart)));
+}
+
+function appendMessageContent(message, text, markdown = true) {
+  if (!markdown) {
+    message.textContent = text;
+    return;
+  }
+
+  const lines = String(text).split(/\r?\n/);
+  let index = 0;
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) { index += 1; continue; }
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    if (heading) {
+      const element = document.createElement(heading[1].length <= 2 ? "h3" : "h4");
+      appendGuideInline(element, heading[2]);
+      message.append(element);
+      index += 1;
+      continue;
+    }
+    if (/^\s*\|/.test(line)) {
+      const tableLines = [];
+      while (index < lines.length && /^\s*\|/.test(lines[index])) tableLines.push(lines[index++]);
+      const rows = tableLines.map(row => row.trim().replace(/^\||\|$/g, "").split("|").map(cell => cell.trim()))
+        .filter(row => !row.every(cell => /^:?-{2,}:?$/.test(cell)));
+      if (!rows.length) continue;
+      const table = document.createElement("table");
+      const head = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      rows[0].forEach(value => { const cell = document.createElement("th"); appendGuideInline(cell, value); headRow.append(cell); });
+      head.append(headRow);
+      const body = document.createElement("tbody");
+      rows.slice(1).forEach(row => {
+        const tableRow = document.createElement("tr");
+        row.forEach(value => { const cell = document.createElement("td"); appendGuideInline(cell, value); tableRow.append(cell); });
+        body.append(tableRow);
+      });
+      table.append(head, body);
+      const wrapper = document.createElement("div");
+      wrapper.className = "guide-table-wrap";
+      wrapper.append(table);
+      message.append(wrapper);
+      continue;
+    }
+    const listMatch = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/);
+    if (listMatch) {
+      const ordered = /^\s*\d+[.)]/.test(line);
+      const list = document.createElement(ordered ? "ol" : "ul");
+      while (index < lines.length) {
+        const item = lines[index].match(/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/);
+        if (!item || /^\s*\d+[.)]/.test(lines[index]) !== ordered) break;
+        const element = document.createElement("li");
+        appendGuideInline(element, item[1]);
+        list.append(element);
+        index += 1;
+      }
+      message.append(list);
+      continue;
+    }
+    const paragraph = document.createElement("p");
+    const paragraphLines = [];
+    while (index < lines.length && lines[index].trim() && !/^(?:#{1,4}\s|\s*\||\s*(?:[-*•]|\d+[.)])\s+)/.test(lines[index])) paragraphLines.push(lines[index++].trim());
+    appendGuideInline(paragraph, paragraphLines.join(" "));
+    message.append(paragraph);
+  }
 }
 function playGuideTone(kind) {
   if (!guideAudioUnlocked || !guideAudioContext || guideAudioContext.state !== "running") return;
@@ -2982,6 +3659,45 @@ function resumePendingGuideResponse() {
   pendingGuideResponse = null;
   response();
 }
+function getGuidePrompts() {
+  const isEnglish = document.documentElement.lang === "en";
+  const [kind, id] = route().split("/");
+  const site = kind === "site" ? sites.find(item => item.id === id) : null;
+  if (site) return isEnglish
+    ? [`What can be tested at ${site.en}?`, `How does it differ from ${site.target === "القمر" ? "the Moon" : "Mars"}?`, `Which NASA source documents this site?`]
+    : [`ما الذي يمكن اختباره في ${site.ar}؟`, `كيف يختلف الموقع عن ${site.target}؟`, `ما مصدر NASA الذي يوثّق هذا الموقع؟`];
+  if (kind === "lunar") return isEnglish
+    ? ["How do these sites support lunar research?", "What limits their similarity to the Moon?", "Compare the crater and lava environments."]
+    : ["كيف تدعم هذه المواقع أبحاث القمر؟", "ما حدود تشابهها مع القمر؟", "قارن بين الفوهة والتضاريس البركانية."];
+  if (kind === "mars-analogs") return isEnglish
+    ? ["Why is Atacama useful for life-detection tests?", "How does Devon compare with Mars?", "What can these sites not simulate?"]
+    : ["لماذا تفيد أتاكاما في اختبار البحث عن الحياة؟", "كيف تقارن ديفون بالمريخ؟", "ما الذي لا تستطيع هذه المواقع محاكاته؟"];
+  if (kind === "problems") return isEnglish
+    ? ["Which lunar dust solutions have been demonstrated?", "How does Mars pressure affect a crew?", "Compare a real NASA test with a proposed solution."]
+    : ["ما حلول غبار القمر التي اختُبرت فعليًا؟", "كيف يؤثر ضغط المريخ على الطاقم؟", "ميّز بين اختبار NASA وحل مقترح."];
+  if (kind === "map" || kind === "gallery" || kind === "sources") return isEnglish
+    ? ["What does the map or image actually measure?", "Which NASA source is linked to this place?", "What are the limits of satellite imagery?"]
+    : ["ما الذي تقيسه الخريطة أو الصورة فعلًا؟", "ما مصدر NASA المرتبط بهذا الموقع؟", "ما حدود الصور المدارية؟"];
+  if (kind === "game") return isEnglish
+    ? ["Are the samples in the game real?", "How do the touch controls work?", "Which parts of the scene are illustrative?"]
+    : ["هل عينات اللعبة حقيقية؟", "كيف تعمل أزرار اللمس؟", "ما العناصر التوضيحية في المشهد؟"];
+  return isEnglish
+    ? ["Compare the Moon and Mars.", "Why is Atacama useful for space research?", "How does NASA test rover technology?"]
+    : ["قارن بين القمر والمريخ.", "لماذا تفيد أتاكاما أبحاث الفضاء؟", "كيف تختبر NASA تقنيات المركبات؟"];
+}
+
+function updateGuidePrompts() {
+  const container = document.getElementById("guide-prompts");
+  if (!container) return;
+  container.replaceChildren(...getGuidePrompts().map(prompt => {
+    const button = document.createElement("button");
+    button.className = "guide-prompt";
+    button.type = "button";
+    button.textContent = prompt;
+    return button;
+  }));
+}
+
 function startGuide() {
   if (guideStarted) return;
   guideStarted = true;
@@ -2991,8 +3707,7 @@ function startGuide() {
   });
   box.scrollTop = box.scrollHeight;
   if (!guideHistory.length) addMessage(`مرحبًا! أستطيع شرح المواقع الـ${sites.length} وحدود المقارنة العلمية.`);
-  const prompts = ["لماذا ندرس هذه البيئات؟", "ما المواقع المشابهة للقمر؟", "ما المواقع المشابهة للمريخ؟"];
-  document.getElementById("guide-prompts").innerHTML = prompts.map(prompt => `<button class="guide-prompt" type="button">${prompt}</button>`).join("");
+  updateGuidePrompts();
 }
 
 window.addEventListener("hashchange", () => {

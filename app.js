@@ -1907,91 +1907,56 @@ function teamPage() {
 }
 function problemsPage() {
   const problems = [
-    { key: "radiation", title: "الإشعاع الفضائي", icon: "☢", target: "الفضاء العميق",
-      problem: "خارج حماية الغلاف الجوي والمجال المغناطيسي للأرض يتعرض الطاقم للأشعة الكونية المجرية والجسيمات الشمسية. لا يمكن رؤية الإشعاع أو الإحساس به مباشرة.",
-      cause: "مصادر الجسيمات عالية الطاقة تختلف عن الإشعاع اليومي على سطح الأرض، كما أن العواصف الشمسية قد ترفع الجرعة خلال المهمة.",
-      effect: "تتراكم الجرعة مع الزمن؛ وترتبط المخاطر طويلة الأمد بزيادة احتمال السرطان وأضرار صحية أخرى. التدريع الشامل ضد الأشعة الكونية صعب.",
-      current: "تراقب NASA الجرعات والبيئة الإشعاعية، وتستخدم التدريع المتاح في المركبة وإجراءات تشغيلية، منها اختيار أماكن أكثر حماية عند الحاجة وتقليل التعرض غير الضروري.",
-      research: "تطوير كواشف ومواد تدريع وتحسين نماذج تقدير الجرعة والحماية من العواصف الشمسية؛ لا توجد مادة تلغي الخطر بالكامل.",
-      example: "تختلف رحلة إلى القمر أو المريخ عن الإقامة في مدار أرضي منخفض؛ لا ينبغي اعتبار المواقع الصحراوية الأرضية محاكاة للإشعاع الفضائي.",
-      sources: [{ label: "مخاطر الإشعاع، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-space-radiation/" }, { label: "مراقبة الإشعاع الفضائي، NASA", url: "https://www.nasa.gov/directorates/esdmd/hhp/space-radiation/" }, { label: "مخاطر صحة الإنسان، NASA HRP", url: "https://www.nasa.gov/hrp/risks/" }] },
-    { key: "gravity", title: "الجاذبية وتكيّف الجسم", icon: "↕", target: "المدار · القمر · المريخ",
-      problem: "انعدام الوزن أثناء الرحلة ثم الانتقال إلى جاذبية سطحية يغيّر الإحساس بالاتجاه والتوازن والتناسق الحركي. جاذبية القمر نحو 1.62 m/s² والمريخ نحو 3.71 m/s²؛ وكلاهما أقل من الأرض.",
-      cause: "عندما يقل الحمل الميكانيكي على الجسم تضعف العضلات والعظام، وتتحرك سوائل الجسم نحو الرأس. الانتقال المفاجئ بين حقول الجاذبية يربك الجهاز الدهليزي.",
-      effect: "قد تظهر دوخة أو صعوبة في المشي والعمل اليدوي، كما قد يفقد الجسم جزءًا من اللياقة العضلية والعظمية؛ وهذا يؤثر في مهام السطح والعودة.",
-      current: "يمارس رواد محطة الفضاء الدولية تمارين هوائية ومقاومة ويتلقون متابعة صحية. تُستخدم تدريبات وظيفية لمحاكاة العمل والاستعداد للعودة إلى الجاذبية.",
-      research: "تدرس NASA وسائل تسريع التكيف بعد الهبوط، وفعالية الجاذبية الاصطناعية والأدوية والتدابير المضادة للرحلات الطويلة؛ لا تُعد الجاذبية الاصطناعية إجراءً تشغيليًا روتينيًا على الرحلات الحالية.",
-      example: "تدريب ARGOS وبيئة الطفو المحايد يحاكيان جوانب من الحركة أو تخفيف الوزن على الأرض، لكنهما لا يعيدان إنتاج سطح القمر أو المريخ بالكامل.",
-      sources: [{ label: "حقول الجاذبية، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-gravity-fields/" }, { label: "الجسم البشري في الفضاء، NASA", url: "https://www.nasa.gov/humans-in-space/the-human-body-in-space/" }, { label: "مخاطر اللياقة والعظام، NASA HRP", url: "https://www.nasa.gov/hrp/risks/" }] },
-    { key: "dust", title: "الغبار القمري وغبار السطح", icon: "◌", target: "القمر · المريخ",
-      problem: "غبار الريغوليث القمري حاد ودقيق وقد يلتصق بالبدلات ويدخل إلى الوصلات والمقصورات. غبار المريخ يحد من الرؤية وقد يغطي الأسطح؛ خصائص الغبار ليست متطابقة بين العالمين.",
-      cause: "القمر بلا عوامل تجوية أرضية كالماء والرياح، وجسيماته تتكسر إلى حواف حادة. تحريك الرواد والعربات يرفع الغبار ويلوث المعدات والعينات.",
-      effect: "قد يسبب الغبار تآكلًا أو صعوبة في إحكام الوصلات والرؤية، واستنشاقه خطر صحي. وثّق رواد Apollo 17 تهيجًا بعد دخول الغبار إلى المقصورة.",
-      current: "تُستخدم إجراءات تنظيف واحتواء للحد من نقل الملوثات، وتصمم البدلات بمواد وطبقات واقية. يختبر المهندسون الأدوات في تربة قمرية محاكية قبل الطيران.",
-      research: "تدرس NASA وسائل إزالة الغبار وتقليل التصاقه وحماية المفاصل والعدسات والأنظمة الحرارية؛ بعض تقنيات التخفيف ما زالت قيد الاختبار وليست حلًا شاملًا معتمدًا.",
-      example: "أثار غبار القمر مشكلة في بعثات Apollo، ويستمر اختبار تفاعل الريغوليث المحاكي مع عتاد Artemis. مواقع هاواي أو أتاكاما لا تعيد إنتاج كهرباء الغبار القمري أو سلوكه.",
-      sources: [{ label: "غبار القمر، NASA Science", url: "https://science.nasa.gov/moon/moon-dust/" }, { label: "أساسيات بدلة السير الفضائي، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "اختبار تقنيات الغبار، NASA", url: "https://www.nasa.gov/centers-and-facilities/kennedy/nasa-technology-helps-guard-against-lunar-dust/" }] },
-    { key: "thermal", title: "الحرارة والبيئة المغلقة", icon: "◒", target: "السطح · المركبة",
-      problem: "في الفراغ لا ينقل الهواء الحرارة بالحمل، وتتغير الأحمال الحرارية بشدة بين الظل وأشعة الشمس. للمريخ غلاف جوي رقيق وطقس بارد؛ ولا يصح اختزال الحرارة في قيمة واحدة لكل موقع أو وقت.",
-      cause: "التعرض المباشر للشمس والظل، وخواص السطح، ومصادر الحرارة داخل البدلة والمركبة، كلها تؤثر في ميزان الحرارة.",
-      effect: "قد يؤدي خلل التحكم الحراري إلى إجهاد أو انخفاض حرارة الجسم أو ارتفاع حرارته، كما يضر بالمعدات والبطاريات والعينات.",
-      current: "تتحكم بدلات EVA الحالية في الحرارة بملابس تبريد تمر فيها المياه، وطبقات عزل وواقيات شمسية؛ وتضبط أنظمة دعم الحياة حرارة المركبة.",
-      research: "تُطوّر بدلات الاستكشاف القادمة لتلائم السير على السطح وتحمي من الغبار وتدعم العمل لفترات أطول. تصميم هذه البدلات للمهمات القمرية قيد التطوير وليس عتادًا مستخدمًا على القمر الآن.",
-      example: "توفر بدلة محطة الفضاء الدولية خبرة تشغيلية للسير الفضائي، لكنها ليست بذاتها بدلة سطح قمرية أو مريخية.",
-      sources: [{ label: "أساسيات بدلة السير الفضائي، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "ما هي بدلة الفضاء؟ NASA", url: "https://www.nasa.gov/humans-in-space/what-is-a-spacesuit/" }, { label: "البيئات المغلقة، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-hostile-closed-environments/" }] },
-    { key: "suit", title: "بدلة الفضاء والعمل خارج المركبة", icon: "⛑", target: "نشاط خارج المركبة EVA",
-      problem: "بدلة السير الفضائي مركبة دعم حياة مصغرة، لا ملابس عادية. الضغط الذي يحمي الجسم يجعل المفاصل والقفازات أقل مرونة، ويستهلك العمل فيها جهدًا ووقتًا.",
-      cause: "يجب أن تحافظ البدلة على الضغط وتوفر الأكسجين والطاقة والاتصال والتبريد، وتزيل ثاني أكسيد الكربون وتحمي من الفراغ والحرارة والغبار.",
-      effect: "تقل البراعة الحركية وقد يتعب الرائد أو يصاب. اختلاف الضغط بين المركبة والبدلة يخلق خطر مرض تخفيف الضغط، لذلك تخضع الاستعدادات لإجراءات محددة.",
-      current: "بدلات EMU مستخدمة في محطة الفضاء الدولية، مع تدريب وإجراءات ما قبل السير الفضائي وفحوص واتصالات ومراقبة للأنظمة.",
-      research: "تعمل NASA وشركاؤها على بدلات استكشاف أفضل حركة ومتانة للسطح القمري. لا توجد حاليًا بدلة مريخية عاملة أو بدلة Artemis استخدمت في مهمة مأهولة على السطح.",
-      example: "تستخدم بدلات Apollo تصميمًا تاريخيًا للمشي على القمر؛ أما أنظمة محطة الفضاء الدولية فمصممة لسياق مداري مختلف.",
-      sources: [{ label: "ما هي بدلة الفضاء؟ NASA", url: "https://www.nasa.gov/humans-in-space/what-is-a-spacesuit/" }, { label: "أساسيات بدلة السير الفضائي، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "مخاطر السير الفضائي، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-injury-and-compromised-performance-from-extravehicular-activity-eva/" }] },
-    { key: "isolation", title: "العزلة والنوم والصحة النفسية", icon: "◷", target: "المهمات طويلة الأمد",
-      problem: "العيش والعمل في مساحة محدودة مع طاقم صغير وبعيدًا عن الأسرة والدعم المباشر قد يسبب ضغطًا نفسيًا واضطراب النوم وتراجع الأداء.",
-      cause: "العزلة، وضيق الحيز، وجدول العمل، والإضاءة والضوضاء، والاتصال المحدود تتفاعل مع التعب والخلافات اليومية.",
-      effect: "قد تتأثر اليقظة واتخاذ القرار والتعاون؛ لذلك تعد صحة الفريق عامل سلامة وأداء، وليست رفاهية منفصلة عن المهمة.",
-      current: "تختار NASA الطواقم وتدربها وتدعمها نفسيًا وسلوكيًا، وتدير النوم والجدولة وتراقب الأداء في المهمات والمحاكاة.",
-      research: "تدرس NASA آثار الإقامة الطويلة ووسائل تحسين النوم والتوافق الجماعي في HERA وCHAPEA؛ هذه محاكاة أرضية ولا تثبت وحدها كيف ستكون مهمة مريخ حقيقية.",
-      example: "تستخدم CHAPEA موطنًا أرضيًا لمحاكاة إقامة طويلة على المريخ، بينما تقدم المهمات المدارية خبرة تشغيلية أقصر وباتصال أقرب بالأرض.",
-      sources: [{ label: "العزلة والحصر، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-isolation-and-confinement/" }, { label: "مخاطر النوم والعمل الجماعي، NASA HRP", url: "https://www.nasa.gov/hrp/risks/" }, { label: "برنامج CHAPEA، NASA", url: "https://www.nasa.gov/humans-in-space/chapea/" }] },
-    { key: "communication", title: "تأخر الاتصال والاستقلالية", icon: "⌁", target: "القمر · المريخ",
-      problem: "تزداد مدة الإشارة مع المسافة؛ وقد يصل تأخر الاتصال مع المريخ إلى نحو 20 دقيقة في اتجاه واحد. لا يستطيع الطاقم انتظار رد فوري لكل قرار.",
-      cause: "المسافة بين الكواكب وزمن انتقال موجات الراديو، إضافة إلى انقطاع خط الرؤية أو قيود الشبكة.",
-      effect: "قد يتعذر توجيه إصلاح أو مناورة لحظيًا، ويتطلب ذلك تخطيطًا مسبقًا وقدرة الطاقم على التصرف في الأعطال والحالات الطبية.",
-      current: "يخطط مراقبو الرحلة للاتصال وجدول البيانات ويعتمد رواد ISS حاليًا على دعم أرضي قريب نسبيًا؛ هذا النموذج لا يوفر دعمًا فوريًا لطاقم قرب المريخ.",
-      research: "تطوّر NASA إجراءات واستقلالية تشغيلية وتدريبًا ودعمًا لاتخاذ القرار للرحلات البعيدة. لا يعني ذلك أن الذكاء الاصطناعي أو نظامًا ذاتيًا بعينه معتمد لإنقاذ طاقم مريخي.",
-      example: "تتدرب أطقم HERA على سيناريوهات اتصال متأخر على الأرض؛ أما تأخر المريخ الفعلي فيتغير مع موضع الكوكبين.",
-      sources: [{ label: "المسافة عن الأرض، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-distance-from-earth/" }, { label: "مخاطر دعم التشغيل، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-inadequate-systems-operations-support/" }, { label: "الاتصال مع المهمات، NASA", url: "https://www.nasa.gov/communicating-with-missions/" }] },
-    { key: "resources", title: "الماء والغذاء والموارد", icon: "◍", target: "الرحلات الطويلة",
-      problem: "لا يمكن الاعتماد على إعادة الإمداد المنتظمة في رحلة إلى المريخ؛ يجب أن تكفي المياه والغذاء والأدوية وقطع الغيار الطاقم مع كتلة وحجم محدودين.",
-      cause: "المسافة والمدة وتكلفة الإطلاق تحد من الشحن، كما تتطلب إعادة تدوير الماء والطاقة والصيانة أنظمة موثوقة.",
-      effect: "فقد المورد أو تلف الغذاء أو ضعف التغذية قد يضر بالصحة والأداء ويهدد أهداف المهمة.",
-      current: "تعيد محطة الفضاء الدولية تدوير جزء كبير من الماء وتستقبل شحنات إمداد؛ هذه الإمدادات المنتظمة لا تتاح لمهمة مريخية.",
-      research: "تدرس NASA أنظمة دعم حياة أكثر تجديدًا، ووجبات طويلة الصلاحية ومقبولة غذائيًا، وتقليل الفاقد. لا يعني ذلك أن إنتاج الطعام أو الاكتفاء الذاتي الكامل تحقق بالفعل.",
-      example: "تجارب استعادة الماء على ISS وخطط نظام غذاء Mars توضح الفرق بين تقنية عاملة في المدار وتقنيات تحتاج إلى تكييف لمهمات بعيدة.",
-      sources: [{ label: "المسافة عن الأرض والموارد، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-distance-from-earth/" }, { label: "خطر التغذية غير الكافية، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-inadequate-food-and-nutrition/" }, { label: "استعادة الماء على ISS، NASA", url: "https://www.nasa.gov/missions/station/iss-research/nasa-achieves-water-recovery-milestone-on-international-space-station/" }, { label: "تصميم غذاء للفضاء العميق، NASA", url: "https://www.nasa.gov/humans-in-space/the-menu-for-mars-designing-a-deep-space-food-system/" }] },
-    { key: "emergencies", title: "الأعطال والطوارئ الطبية", icon: "⚠", target: "المركبة · السطح",
-      problem: "عطل في دعم الحياة أو الاتصال أو الطاقة، أو إصابة ومرض خلال السير، قد يتحول سريعًا إلى خطر لأن الإخلاء والمساعدة من الأرض غير فوريين.",
-      cause: "الأنظمة مترابطة، والبدلة والبيئة القاسية تحدان من وقت الإصلاح. في المهمات البعيدة تتأخر المشورة والإمدادات.",
-      effect: "قد يضطر الطاقم إلى إيقاف المهمة أو الاحتماء أو علاج زميله وإصلاح النظام بموارد محدودة.",
-      current: "يتدرب رواد الفضاء على إجراءات الطوارئ وصيانة الأنظمة والرعاية الطبية الأساسية، وتتوفر في ISS استشارة أرضية ومعدات طبية أكثر مما يمكن ضمانه قرب المريخ.",
-      research: "تدرس NASA مقدار التدريب والبيانات وأدوات القرار والرعاية المستقلة اللازمة للرحلات البعيدة؛ أدوات التشخيص الذاتي المتقدمة قيد التطوير وليست بديلًا مثبتًا عن الطاقم الطبي.",
-      example: "تدريب المحاكاة الأرضي وعمليات ISS يختبران الاستجابة، لكنهما لا يماثلان إخلاءً طبيًا من سطح المريخ.",
-      sources: [{ label: "مخاطر دعم التشغيل، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-inadequate-systems-operations-support/" }, { label: "المسافة والرعاية الطبية، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-distance-from-earth/" }, { label: "مخاطر البيئات المغلقة، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-hostile-closed-environments/" }] },
-    { key: "mobility", title: "التنقل والعمل وجمع العينات", icon: "⌖", target: "السطح الميداني",
-      problem: "المنحدرات والصخور والحفر والغبار تعقد الحركة. البدلة المضغوطة تقلل مرونة اليد والجذع، والتقاط عينة أو تخزينها يحتاج خطوات تمنع السقوط والتلوث.",
-      cause: "التضاريس غير المنتظمة، اختلاف الجاذبية عن التدريب الأرضي، مجال الرؤية والقفازات والأدوات، وحدود الوقت والأكسجين.",
-      effect: "يزداد احتمال التعثر أو إجهاد العضلات أو فقد الأداة أو تلويث العينة؛ وقد تقل كمية العينات أو تتأخر المهمة.",
-      current: "تستخدم مهمات EVA التخطيط والتدريب وقوائم الإجراءات والأدوات المربوطة وإدارة وقت المهمة، ويتدرب الطاقم على التقاط العينات وتوثيقها.",
-      research: "تعمل NASA على مفاصل وملاءمة وحركة أفضل لبدلات الاستكشاف وأدوات سطح القمر؛ وتُختبر مفاهيم المركبات والعينات في بيئات تناظرية، لا على أنها عمليات مريخية قائمة.",
-      example: "جمع رواد Apollo عينات قمرية، وتوفر المهمات السابقة خبرة تاريخية؛ أما تصميم بدلات Artemis وحركتها على السطح فما زال قيد التطوير.",
-      sources: [{ label: "مخاطر السير الفضائي، NASA HRP", url: "https://www.nasa.gov/reference/risk-of-injury-and-compromised-performance-from-extravehicular-activity-eva/" }, { label: "أساسيات بدلة السير الفضائي، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }, { label: "ما هي بدلة الفضاء؟ NASA", url: "https://www.nasa.gov/humans-in-space/what-is-a-spacesuit/" }] }
+    { key: "dust", title: "الغبار القمري", icon: "◌", target: "القمر",
+      problem: "جسيمات الريغوليث القمري غير مستديرة وحادة، وتكتسب شحنة بفعل الأشعة فوق البنفسجية والرياح الشمسية؛ لذلك تلتصق بالبدلات والعدسات والوصلات. أظهر Apollo أن دخولها إلى المقصورة قد يهيّج العينين والجهاز التنفسي، كما يمكن أن تبلي الأسطح والأختام.",
+      status: "إجراءات احتواء؛ ودرع EDS عُرض على سطح القمر",
+      solution: "تُحدّ إجراءات الدخول والخروج من انتقال الغبار، وتُدرس مداخل مزدوجة أو suitport لإبقاء البدلة خارج الحيز النظيف. وفي 2025 أزال درع EDS الغبار عن أسطح زجاج ومشعّ حراري في عرض تقني على القمر؛ هذا نجاح تجريبي لأسطح محددة، وليس نظامًا شاملًا معتمدًا لتنظيف البدلات أو المساكن.",
+      sources: [{ label: "غبار القمر وآثاره، NASA Science", url: "https://science.nasa.gov/moon/moon-dust/" }, { label: "اختبار EDS على القمر، NASA (2025)", url: "https://www.nasa.gov/image-article/nasas-dust-shield-successfully-repels-lunar-regolith-on-moon/" }, { label: "دراسة NASA لغبار المريخ واحتواء الغبار، NASA (2026)", url: "https://www.nasa.gov/missions/mars-2020-perseverance/nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust/" }] },
+    { key: "radiation", title: "الإشعاع الفضائي", icon: "☢", target: "القمر · المريخ · الرحلة بينهما",
+      problem: "بعيدًا عن الغلاف الجوي والمجال المغناطيسي للأرض يتعرض الرواد للأشعة الكونية المجرية ولجسيمات قد تطلقها العواصف الشمسية. الإشعاع مؤيّن وغير محسوس، وقد يرفع الجرعة التراكمية والمخاطر الصحية؛ كما قد تسبب الأحداث الشمسية جرعات مرتفعة خلال مدة قصيرة.",
+      status: "مراقبة وإجراءات تشغيلية؛ التدريع الكامل غير متاح",
+      solution: "تُقاس الجرعة وتُتابع أحوال الطقس الفضائي، وتوفر المركبة تدريعها البنيوي. يمكن تجهيز مأوى للعواصف الشمسية بكتلة واقية من ماء ومخزون الرحلة؛ ويخفّض ذلك بعض تعرض الطاقم للجسيمات الشمسية، لكنه لا يزيل الأشعة الكونية عالية الطاقة. لذلك تُدار الجرعة ولا يُدّعى إلغاء الخطر.",
+      sources: [{ label: "خطر الإشعاع الفضائي، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-space-radiation/" }, { label: "مراقبة الإشعاع وجرعات الطاقم، NASA", url: "https://www.nasa.gov/directorates/esdmd/hhp/space-radiation/" }, { label: "مخاطر الإشعاع الصحية، NASA HRP", url: "https://www.nasa.gov/hrp/radiation/space-radiation-risks/" }] },
+    { key: "thermal", title: "الحرارة المتطرفة", icon: "◒", target: "القمر · المريخ · البدلة والمأوى",
+      problem: "يسجل خط استواء القمر مدى حرارة نهاريًا واسعًا يقارب 95–390 كلفن، ويواجه المريخ درجات متغيرة وغلافًا رقيقًا لا يحتفظ بالحرارة جيدًا. تتغير الأحمال بين الإضاءة والظل، ما يهدد اتزان حرارة الجسم وكفاءة البطاريات والإلكترونيات والمواد.",
+      status: "تحكم حراري عامل في بدلات EVA؛ أنظمة السطح تُصمّم لكل مهمة",
+      solution: "تستخدم بدلات السير الحالية طبقات عزل وطبقة خارجية عاكسة وملابس تمر فيها مياه لتبريد الجسم، مع تدفئة للأجزاء الباردة. وتحتاج المركبات والمساكن إلى عزل ومشعات وسخانات وتحكم نشط مصمم لموقع المهمة ودورة الليل والنهار؛ لا تكفي بدلة محطة الفضاء وحدها لإثبات نظام صالح لسطح القمر أو المريخ.",
+      sources: [{ label: "مدى الحرارة القمري، NASA NSSDCA", url: "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html" }, { label: "حقائق الغلاف الجوي والحرارة على المريخ، NASA Science", url: "https://science.nasa.gov/mars/facts/" }, { label: "طبقات التبريد والعزل في بدلات EVA، NASA", url: "https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" }] },
+    { key: "atmosphere", title: "غلاف المريخ وضغطه المنخفض", icon: "◉", target: "المريخ",
+      problem: "غلاف المريخ رقيق جدًا ويتكوّن معظمه من ثاني أكسيد الكربون، ولا يوفر ضغطًا جزئيًا للأكسجين يسمح بالتنفس البشري. لذلك لا يستطيع الرائد التنفس خارجه، كما لا يمكن لمأوى غير مضغوط حماية الجسم أو الماء السائل على السطح.",
+      status: "دعم حياة مغلق مطلوب؛ إنتاج الأكسجين على المريخ عُرض تجريبيًا فقط",
+      solution: "يتطلب المأوى ضغطًا وحرارة مضبوطين، وإمداد أكسجين وإزالة ثاني أكسيد الكربون وتجديدًا موثوقًا للهواء. استخرج جهاز MOXIE الأكسجين من CO₂ المريخي في تجربة على عربة Perseverance وأكمل مهمته التقنية؛ لكنه ليس مولدًا بالحجم أو السعة اللازمة لتنفس طاقم، ولا نظام دعم حياة مأهولًا.",
+      sources: [{ label: "حقائق الغلاف الجوي للمريخ، NASA Science", url: "https://science.nasa.gov/mars/facts/" }, { label: "حصيلة تجربة MOXIE وحدودها، NASA/JPL", url: "https://www.nasa.gov/missions/mars-2020-perseverance/perseverance-rover/nasas-oxygen-generating-experiment-moxie-completes-mars-mission/" }, { label: "نظام دعم الحياة وإعادة تدوير الماء على ISS، NASA", url: "https://www.nasa.gov/missions/station/iss-research/nasa-achieves-water-recovery-milestone-on-international-space-station/" }] },
+    { key: "mars-dust", title: "العواصف والغبار المريخي", icon: "≋", target: "المريخ",
+      problem: "ترفع الرياح غبارًا دقيقًا وقد تتسع العواصف لتغطي مناطق واسعة أو معظم الكوكب، ويبقى بعض الغبار معلقًا مدة طويلة. يخفض الغبار الواصل إلى الألواح الشمسية الطاقة المتاحة، ويحد من الرؤية ويلتصق بالأسطح؛ وقد كشفت قياسات Perseverance جسيمات دقيقة جدًا على عينات مواد بدلات تجريبية.",
+      status: "التخطيط للطاقة والمواد ممكن؛ التنظيف النشط ما زال قيد التطوير",
+      solution: "تُصمم المهمة بهامش طاقة وتخزين يناسبان انخفاض الإضاءة، وتُختبر المواد والأسطح وطرق الحد من تراكم الغبار. قيس غبار المريخ مباشرة على مواد محمولة على Perseverance، لكن هذا لا يعني وجود منظومة مأهولة جاهزة لتنظيف الألواح أو منع استنشاق الغبار. درع EDS الذي نجح على القمر يحتاج تقييمًا منفصلًا قبل تعميمه على بيئة المريخ.",
+      sources: [{ label: "الطقس والعواصف على المريخ، NASA Science", url: "https://science.nasa.gov/mars/facts/" }, { label: "عاصفة الغبار وانتهاء مهمة Opportunity، NASA", url: "https://www.nasa.gov/solar-system/nasas-opportunity-rover-mission-on-mars-comes-to-an-end/" }, { label: "قياسات غبار المريخ وحماية الطواقم، NASA/JPL (2026)", url: "https://www.nasa.gov/missions/mars-2020-perseverance/nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust/" }] },
+    { key: "perchlorates", title: "أملاح البيركلورات في تربة المريخ", icon: "⚗", target: "المريخ · التربة والعينات",
+      problem: "كشف المسبار Phoenix بيركلورات في عينة تربة من موقع هبوطه، ورُصدت هذه الأملاح أيضًا في بيانات بعثات أخرى. وجودها مهم لأن تركيزها وتركيبها يؤثران في تفسير القياسات الكيميائية، وقد يسبب التعرض أو ابتلاع الغبار مخاطر صحية؛ ولا يعني ذلك أن كل تربة المريخ لها التركيز نفسه.",
+      status: "الكشف والتحليل مستخدمان روبوتيًا؛ المعالجة البشرية لم تُعتمد",
+      solution: "تُجمع العينات بأدوات نظيفة وتُحفظ منفصلة، ثم تُقاس أنواع الأملاح وتركيزاتها قبل تفسير النتائج أو استخدام التربة. أي معالجة مستقبلية للماء أو المواد المحلية يجب أن تتضمن فصل البيركلورات أو تحويلها بعملية مختبرة مع مراقبة النواتج؛ لا توجد عملية مأهولة على المريخ أثبتت إزالة هذه الأملاح على نطاق إنتاجي.",
+      sources: [{ label: "نتائج تحليل تربة Phoenix، NASA (2008)", url: "https://www.nasa.gov/mission_pages/phoenix/news/phoenix-20080626.html" }, { label: "تجربة Phoenix وأملاح البيركلورات، Science (بحث محكّم)", url: "https://doi.org/10.1126/science.1172466" }, { label: "مركبات تفاعلية في غبار المريخ، NASA/JPL (2026)", url: "https://www.nasa.gov/missions/mars-2020-perseverance/nasas-perseverance-offers-clues-to-protect-crews-from-mars-dust/" }] },
+    { key: "landing", title: "تضاريس الهبوط", icon: "⌖", target: "القمر · المريخ",
+      problem: "قد تحتوي منطقة الهبوط على صخور كبيرة ومنحدرات وحفر أو تربة غير مناسبة؛ وخطأ صغير قرب السطح قد يتلف المركبة أو يمنع الوصول إلى موقع المهمة. لذلك يجب اختيار منطقة تحقق متطلبات السلامة والعلم معًا، لا الاكتفاء بصورة عامة للمنطقة.",
+      status: "ملاحة نسبية للتضاريس استُخدمت في هبوط Perseverance؛ تطبيق البشر يحتاج اعتمادًا خاصًا",
+      solution: "تُحلل خرائط المدار قبل المهمة لاختيار منطقة مناسبة. وخلال الهبوط يستطيع نظام ملاحة نسبية للتضاريس مطابقة صور السطح مع خرائط مخزنة، ثم توجيه المركبة بعيدًا عن الأخطار ضمن حدودها. استخدمت Perseverance هذه القدرة الروبوتية؛ أما هبوط طاقم بشري على القمر أو المريخ فيتطلب مركبة ونظام تجنب أخطار مؤهلين للمهمة، وليس مجرد نقل التقنية آليًا.",
+      sources: [{ label: "هبوط Perseverance وتقنيات الملاحة، NASA (2021)", url: "https://www.nasa.gov/news-release/touchdown-nasa-mars-perseverance-rover-safely-lands-on-red-planet/" }, { label: "مهمة Perseverance وموقع الهبوط، NASA Science", url: "https://science.nasa.gov/mission/mars-2020-perseverance/" }, { label: "تجنب أخطار الهبوط، NASA Technology", url: "https://www.nasa.gov/technology/robotics/" }] },
+    { key: "communications", title: "تأخر الاتصال بالأرض", icon: "⌁", target: "القمر · المريخ",
+      problem: "يتغير زمن انتقال الإشارة مع المسافة؛ وقد يبلغ التأخر بين المريخ والأرض نحو 20 دقيقة في اتجاه واحد. لذلك لا يمكن لمركز التحكم قيادة كل خطوة لحظيًا، وقد يتعين على الطاقم تشخيص عطل أو اتخاذ قرار قبل وصول الرد.",
+      status: "التأخير فيزيائي؛ إجراءات استقلال الطاقم للمهمات البعيدة قيد الإعداد",
+      solution: "تُرسل الخطط والأوامر والبيانات على دفعات، ويُدرّب الطاقم على تنفيذ إجراءات محددة واتخاذ قرارات ضمن صلاحيات واضحة من دون انتظار رد فوري. كما تُصمم الأنظمة لتشخيص الأعطال وإيقاف العمليات الخطرة بأمان؛ ولا ينبغي وصف نظام ذكاء اصطناعي غير معتمد بأنه بديل عن مراقبة المهمة أو قرار الطاقم.",
+      sources: [{ label: "خطر المسافة وتأخر الاتصال، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-distance-from-earth/" }, { label: "الاتصال مع المهمات الفضائية، NASA", url: "https://www.nasa.gov/communicating-with-missions/" }, { label: "تدريب HERA على تأخر الاتصال، NASA", url: "https://www.nasa.gov/humans-in-space/houston-do-you-copy-hera-crew-navigates-communications-delays/" }] },
+    { key: "isolation", title: "العزلة والعمل في حيز مغلق", icon: "◷", target: "المهمات القمرية الطويلة · المريخ",
+      problem: "تجمع الرحلات الطويلة بين البعد عن الأسرة، والعيش في حيز محدود، وجدول عمل متكرر، وتأخر الدعم الأرضي. وقد يتفاعل ذلك مع اضطراب النوم والضغط النفسي والخلافات، بما يؤثر في الانتباه والتعاون والأداء الآمن.",
+      status: "إجراءات دعم ومحاكاة مستخدمة؛ بيئة المريخ الفعلية لم تُختبر بطاقم",
+      solution: "تشمل التدابير اختيار الطواقم وتدريبها، وروتين النوم والعمل، واتصالًا مجدولًا، ودعمًا سلوكيًا ومراقبة عبء العمل. تختبر NASA عناصر من هذه التدابير في مهمات المحاكاة الأرضية مثل HERA وCHAPEA؛ وهي لا تثبت وحدها أن الحلول كافية لمهمة مريخ حقيقية متعددة السنوات.",
+      sources: [{ label: "مخاطر العزلة والحصر، NASA HRP", url: "https://www.nasa.gov/hrp/hazard-isolation-and-confinement/" }, { label: "برنامج CHAPEA لمحاكاة مهمة مريخية، NASA", url: "https://www.nasa.gov/humans-in-space/chapea/" }, { label: "برنامج HERA للأبحاث السلوكية، NASA", url: "https://www.nasa.gov/mission/hera/" }] }
   ];
-  return `${heading("مخاطر الرحلات البشرية", "ماذا يواجه رواد الفضاء؟", "مراجعة علمية لعشرة مخاطر تشغيلية وصحية في الرحلات البشرية، مع فصل الإجراءات المستخدمة اليوم عن التقنيات التي ما زالت قيد البحث.")}
+  return `${heading("تحديات استكشاف القمر والمريخ", "مشكلات وحلول رواد الفضاء", "تسع بطاقات عن أخطار حقيقية على القمر والمريخ، مع توضيح أثر كل خطر وحالة الحلول الهندسية والعلمية.")}
   <section class="panel problems-page-panel">
     <div class="problems-intro">
-      <p>المواقع الأرضية الستة في المنصة تساعد على اختبار جوانب محددة من الجيولوجيا أو الحركة أو الأدوات فقط؛ لا تحاكي جاذبية القمر أو المريخ ولا إشعاع الفضاء أو ضغطه. ما زالت الرحلات البشرية إلى سطح المريخ مستقبلية، لذلك نميّز أدناه بين الخبرة التشغيلية على محطة الفضاء الدولية أو Apollo وبين البحث والتطوير للبعثات القادمة.</p>
+      <p>تُفصل هنا بين ما جرى استخدامه أو عرضه في اختبار موثق، وما لا يزال تصميمًا أو بحثًا. لا تُعد تجارب محطة الفضاء أو المركبات الروبوتية إثباتًا جاهزًا لنظام مأهول على سطح القمر أو المريخ.</p>
     </div>
     <div class="problems-grid">
       ${problems.map(item => `
@@ -2001,38 +1966,31 @@ function problemsPage() {
             <h2>${escapeHtml(item.title)}</h2>
             <div class="problem-pair">
               <div class="problem-box problem-box-problem">
-                <span class="problem-label">المشكلة وسببها</span>
+                <span class="problem-label">المشكلة وأثرها</span>
                 <p>${escapeHtml(item.problem)}</p>
               </div>
-              <div class="problem-box risk-impact">
-                <span class="problem-label">الأثر على الطاقم والمهمة</span>
-                <p>${escapeHtml(item.effect)}</p>
-              </div>
-              <div class="problem-box risk-current">
-                <span class="problem-label">إجراءات مستخدمة حاليًا</span>
-                <p>${escapeHtml(item.current)}</p>
-              </div>
-              <div class="problem-box risk-research">
-                <span class="problem-label">قيد البحث أو التطوير</span>
-                <p>${escapeHtml(item.research)}</p>
+              <div class="problem-box problem-box-solution">
+                <span class="problem-label">الحل · ${escapeHtml(item.status)}</span>
+                <p>${escapeHtml(item.solution)}</p>
               </div>
             </div>
-            <p class="problem-example"><strong>مثال وحدود المقارنة:</strong> ${escapeHtml(item.example)}</p>
-            <div class="problem-sources"><strong>مصادر NASA</strong>${item.sources.map(source => `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)} ↗</a>`).join("")}</div>
+            <div class="problem-sources"><strong>مصادر موثوقة</strong>${item.sources.map(source => `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)} ↗</a>`).join("")}</div>
           </div>
         </article>
       `).join("")}
     </div>
   </section>
   <section class="panel risk-reference-panel" aria-labelledby="risk-references-title">
-    <div><span class="eyebrow">المراجع العلمية</span><h2 id="risk-references-title">مصادر NASA المستخدمة</h2><p>روابط مباشرة إلى صفحات NASA ومراجعها الفنية؛ قد تتغير حالة برامج التطوير بمرور الوقت.</p></div>
+    <div><span class="eyebrow">المراجع العلمية</span><h2 id="risk-references-title">مصادر NASA والأبحاث المحكمة</h2><p>تُذكر حالة التقنية كما تصفها الجهة أو الدراسة؛ العرض التجريبي لا يعني اعتماد التقنية تشغيليًا لكل مهمة.</p></div>
     <div class="risk-reference-links">
-      <a href="https://www.nasa.gov/hrp/hazards/" target="_blank" rel="noopener noreferrer">أخطار الرحلات البشرية <span>↗</span></a>
-      <a href="https://www.nasa.gov/hrp/risks/" target="_blank" rel="noopener noreferrer">مخاطر صحة الإنسان <span>↗</span></a>
-      <a href="https://www.nasa.gov/humans-in-space/what-is-a-spacesuit/" target="_blank" rel="noopener noreferrer">ما هي بدلة الفضاء؟ <span>↗</span></a>
-      <a href="https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" target="_blank" rel="noopener noreferrer">أساسيات بدلة السير الفضائي <span>↗</span></a>
-      <a href="https://science.nasa.gov/moon/moon-dust/" target="_blank" rel="noopener noreferrer">الغبار القمري <span>↗</span></a>
-      <a href="https://ntrs.nasa.gov/" target="_blank" rel="noopener noreferrer">مستودع الأبحاث الفنية NTRS <span>↗</span></a>
+      <a href="https://science.nasa.gov/moon/moon-dust/" target="_blank" rel="noopener noreferrer">الغبار القمري، NASA Science <span>↗</span></a>
+      <a href="https://www.nasa.gov/hrp/hazard-space-radiation/" target="_blank" rel="noopener noreferrer">الإشعاع الفضائي، NASA HRP <span>↗</span></a>
+      <a href="https://www.nasa.gov/centers-and-facilities/johnson/spacewalk-spacesuit-basics/" target="_blank" rel="noopener noreferrer">أنظمة التبريد والعزل في بدلات EVA، NASA <span>↗</span></a>
+      <a href="https://science.nasa.gov/mars/facts/" target="_blank" rel="noopener noreferrer">حقائق المريخ والطقس، NASA Science <span>↗</span></a>
+      <a href="https://doi.org/10.1126/science.1172466" target="_blank" rel="noopener noreferrer">تحليل البيركلورات في تربة المريخ، Science <span>↗</span></a>
+      <a href="https://www.nasa.gov/image-article/nasas-dust-shield-successfully-repels-lunar-regolith-on-moon/" target="_blank" rel="noopener noreferrer">اختبار درع الغبار EDS، NASA <span>↗</span></a>
+      <a href="https://www.nasa.gov/hrp/hazard-distance-from-earth/" target="_blank" rel="noopener noreferrer">المسافة وتأخر الاتصال، NASA HRP <span>↗</span></a>
+      <a href="https://www.nasa.gov/hrp/hazard-isolation-and-confinement/" target="_blank" rel="noopener noreferrer">العزلة والحصر، NASA HRP <span>↗</span></a>
     </div>
   </section>
   <div class="page-actions" style="margin-top:24px;text-align:center;">

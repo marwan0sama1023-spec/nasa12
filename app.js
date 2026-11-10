@@ -1134,6 +1134,7 @@ function mountGameEquipmentControls(container) {
   if (!spaceGame.equipment.length) return;
   if (!shell.querySelector(".game-health-meter")) shell.querySelector(".game-hud-bottom")?.insertAdjacentHTML("beforeend", `<div class="game-health-meter" aria-label="سلامة البدلة"><span aria-hidden="true">♥</span><div><small>سلامة البدلة</small><strong id="game-health-value">100%</strong><div class="game-health-bar"><span id="game-health-fill"></span></div></div></div>`);
   if (!shell.querySelector("#game-environment-alert")) shell.insertAdjacentHTML("beforeend", `<div class="game-environment-alert" id="game-environment-alert" role="status" aria-live="polite" hidden></div>`);
+  if (!shell.querySelector('.game-hud-actions [data-engine-action="equipment"]')) shell.querySelector(".game-hud-actions")?.insertAdjacentHTML("beforeend", `<button class="game-icon-control" type="button" data-engine-action="equipment" aria-label="معدات الرحلة" title="استخدام معدات الرحلة">⚒</button>`);
 }
 function getActiveGameWorld() {
   if (!spaceGame.destination) return null;
@@ -1169,7 +1170,7 @@ function gamePlanetStripMarkup(world) {
   const currentWorld = isAstronaut ? destination : world;
   const info = {
     moon: { name: "القمر", img: "assets/moon-apollo-11.jpg", gravity: "0.16g", note: "فراغ كوني تام" },
-    mars: { name: "المريخ", img: "assets/mars-hubble-globe.jpg", gravity: "0.38g", note: "ضغط 6.1 hPa · 95% CO₂" },
+    mars: { name: "المريخ", img: "assets/mars-hubble-globe.jpg", gravity: "0.38g", note: "95% CO₂" },
     earth: { name: "الأرض", img: "assets/earth-blue-marble.jpg", gravity: "1.0g", note: "غلاف جوي طبيعي" }
   }[currentWorld] || { name: "الأرض", img: "assets/earth-blue-marble.jpg", gravity: "1.0g", note: "غلاف جوي طبيعي" };
   return `<div class="game-solar-strip" aria-label="الموقع الحالي">${isAstronaut ? `<div class="game-solar-body current"><img src="${info.img}" class="game-solar-planet-img current-img" alt="${info.name}"><span class="game-solar-label current-label">${info.name}</span></div>` : `<div class="game-solar-body current"><img src="${info.img}" class="game-solar-planet-img current-img" alt="${info.name}"><span class="game-solar-label current-label">${info.name}</span></div>`}</div>`;
@@ -1246,10 +1247,11 @@ function spaceGameMapScreen() {
     </div>`;
   const astronautCompletionMarkup = spaceGame.character === "astronaut" ? `<div class="game-stage-complete" id="game-final-mission" ${astronautMissionComplete ? "" : "hidden"}><section class="game-stage-card"><span class="game-step">انتهت المهمة بنجاح ✦</span><h2>${spaceGame.destination === "moon" ? "اكتمل استكشاف سطح القمر!" : "اكتمل استكشاف سطح المريخ!"}</h2><figure class="game-planet-summary-image"><img src="${destinationImage.src}" alt="${destinationImage.alt}" loading="eager"><figcaption>${destinationImage.credit}</figcaption></figure><div class="game-stage-stats"><span><strong>${collected}/${sampleGoal}</strong> عينات تم جمعها</span><span><strong>100%</strong> اكتمال الجمع</span><span><strong>${spaceGame.xp}</strong> XP رحلة</span></div>${spaceGame.destination === "moon" ? moonCharacteristicsMarkup : marsCharacteristicsMarkup}<p>انتهت اللعبة بعد جمع العينات من ${spaceGame.destination === "moon" ? "سطح القمر" : "سطح المريخ"}. هل ترغب في الانتقال لاستكشاف ${otherDestinationName}؟</p><div class="game-stage-actions"><button class="button primary glow-btn" type="button" data-game-action="${nextAstronautAction}">${nextAstronautLabel}</button></div></section></div>` : "";
   const locKey = spaceGame.character === "astronaut" ? spaceGame.destination : world;
-  const locInfo = { moon:{name:"القمر",gravity:"0.16g",note:"فراغ كوني تام"}, mars:{name:"المريخ",gravity:"0.38g",note:"ضغط 6.1 hPa · 95% CO₂"}, earth:{name:"الأرض",gravity:"1.0g",note:"غلاف جوي طبيعي"} }[locKey] || {name:"الأرض",gravity:"1.0g",note:"غلاف جوي طبيعي"};
+  const locInfo = { moon:{name:"القمر",gravity:"0.16g",note:"فراغ كوني تام"}, mars:{name:"المريخ",gravity:"0.38g",note:"95% CO₂"}, earth:{name:"الأرض",gravity:"1.0g",note:"غلاف جوي طبيعي"} }[locKey] || {name:"الأرض",gravity:"1.0g",note:"غلاف جوي طبيعي"};
+  const locationIcon = spaceGame.character === "astronaut" ? "" : `<span class="game-location-icon">🌍</span>`;
   const locationBar = stageSite
-    ? `<div class="game-location-bar"><span class="game-location-icon">🌍</span><span class="game-location-text">الأرض · ${escapeHtml(stageSite.type)} · وصف نوعي، لا قياسات آنية${["devon", "mcmurdo"].includes(stageSite.id) ? " · حركة أبطأ توضيحيًا على السطح البارد" : ""}</span></div>`
-    : `<div class="game-location-bar"><span class="game-location-icon">🌍</span><span class="game-location-text">${locInfo.name} · ${locInfo.gravity} · ${locInfo.note}</span></div>`;
+    ? `<div class="game-location-bar">${locationIcon}<span class="game-location-text">الأرض · ${escapeHtml(stageSite.type)} · وصف نوعي، لا قياسات آنية${["devon", "mcmurdo"].includes(stageSite.id) ? " · حركة أبطأ توضيحيًا على السطح البارد" : ""}</span></div>`
+    : `<div class="game-location-bar">${locationIcon}<span class="game-location-text">${locInfo.name} · ${locInfo.gravity} · ${locInfo.note}</span></div>`;
   return `<div class="game-screen game-world-screen">
     <div class="game-world-shell${spaceGame.character === "alien" ? " alien-game" : ""}">
       <div class="game-canvas-host" id="game-canvas-host"></div>
@@ -1312,7 +1314,7 @@ async function startSpaceGameScene() {
   if (!container) return;
   mountGameEquipmentControls(container);
   try {
-    spaceGameEngine ||= await import("./vendor/space-game.js?v=game-render-fix-20261110");
+    spaceGameEngine ||= await import("./vendor/space-game.js?v=gameplay-ui-fix-20261110");
     if (!container.isConnected || route().split("/")[0] !== "game") return;
     const world = spaceGame.character === "alien" ? "earth" : spaceGame.destination;
     const target = spaceGame.destination === "moon" ? "القمر" : "المريخ";

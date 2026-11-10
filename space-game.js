@@ -240,7 +240,7 @@ const worldLooks = {
     jumpHeight: 1.65,
     sunIntensity: 1.45,
     dust: 0xd66838,
-    envName: "سطح المريخ · الجاذبية 0.38g · الضغط 6.1 hPa · 95% CO₂"
+    envName: "سطح المريخ · الجاذبية 0.38g · 95% CO₂"
   },
   moon: {
     label: "سطح القمر الحقيقي (بحر السكون / المرتفعات)",

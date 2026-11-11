@@ -6559,13 +6559,13 @@ body.game-session-active #guide-panel { display: none !important; }
 .game-hud-actions { position: absolute; z-index: 9; top: 12px; right: auto; left: 12px; max-width: min(48%, 420px); pointer-events: auto; }
 .game-hud-top .game-oxygen-meter { position: absolute; top: 180px; right: 12px; left: auto; width: min(220px, 32vw); min-width: 0; max-width: 220px; margin: 0; flex: none; }
 .game-crew-roster { top: 180px; }
-.game-action-buttons { grid-template-columns: repeat(3, clamp(42px, min(6vw, 8vh), 54px)); grid-template-rows: repeat(2, clamp(42px, min(6vw, 8vh), 54px)); }
+.game-action-buttons { grid-template-columns: repeat(4, clamp(42px, min(6vw, 8vh), 54px)); grid-template-rows: repeat(2, clamp(42px, min(6vw, 8vh), 54px)); }
 .game-action-buttons button[data-engine-button="inventory"] { grid-column: 1; grid-row: 1; }
 .game-action-buttons button[data-engine-button="camera"] { grid-column: 2; grid-row: 1; }
 .game-action-buttons button[data-engine-button="interact"] { grid-column: 3; grid-row: 1; }
 .game-action-buttons button[data-engine-button="run"] { grid-column: 2; grid-row: 2; }
 .game-action-buttons button[data-engine-button="jump"] { grid-column: 3; grid-row: 2; }
-.game-action-buttons button[data-engine-button="equipment"],.game-action-buttons button[data-engine-button="rover"] { display: none !important; }
+.game-action-buttons button[data-engine-button="rover"] { display: none !important; }
 .game-beacon-solo { top: 140px; }
 
 @media (max-width: 1024px) {

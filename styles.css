@@ -6594,3 +6594,25 @@ body.game-session-active #guide-panel { display: none !important; }
   .game-crew-name { font-size: 8px; }
   .game-crew-role { font-size: 6px; }
 }
+
+.game-hud-actions [data-engine-action="settings"] { order: 0; }
+.game-hud-actions [data-engine-action="inventory"] { order: 1; }
+.game-hud-actions [data-engine-action="equipment"] { order: 2; }
+.game-hud-actions [data-engine-action="solar-system"] { order: 3; }
+.game-hud-actions [data-engine-action="camera"] { order: 4; }
+.game-hud-actions [data-engine-action="pause"] { order: 5; }
+.game-hud-actions [data-game-exit] { order: 6; }
+
+@media (pointer: coarse), (max-width: 780px) {
+  .game-hud-actions [data-engine-action="inventory"],
+  .game-hud-actions [data-engine-action="equipment"] { display: grid !important; }
+  .game-action-buttons button[data-engine-button="inventory"],
+  .game-action-buttons button[data-engine-button="equipment"] { display: none !important; }
+}
+
+@media (pointer: coarse) and (orientation: landscape), (orientation: landscape) and (max-height: 520px) {
+  .game-hud-actions [data-engine-action="inventory"],
+  .game-hud-actions [data-engine-action="equipment"] { display: grid !important; }
+  .game-action-buttons button[data-engine-button="inventory"],
+  .game-action-buttons button[data-engine-button="equipment"] { display: none !important; }
+}

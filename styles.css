@@ -4974,8 +4974,8 @@ body.team-view-active .team-project-panel {
 .game-action-buttons button small { color: #dceae7; font-size: 8px; line-height: 1; }
 .game-action-buttons button[data-engine-button="inventory"] { grid-column: 1; grid-row: 1; }
 .game-action-buttons button[data-engine-button="camera"] { grid-column: 2; grid-row: 1; }
-.game-action-buttons button[data-engine-button="equipment"] { grid-column: 3; grid-row: 1; }
-.game-action-buttons button[data-engine-button="equipment"] { grid-column: 3; grid-row: 1; }
+.game-action-buttons button[data-engine-button="equipment"] { grid-column: 1; grid-row: 2; }
+.game-action-buttons button[data-engine-button="equipment"] { grid-column: 1; grid-row: 2; }
 .game-action-buttons button[data-engine-button="interact"] { grid-column: 4; grid-row: 1; }
 .game-action-buttons button[data-engine-button="rover"] { grid-column: 1; grid-row: 2; }
 .game-action-buttons button[data-engine-button="run"] { grid-column: 2; grid-row: 2; }

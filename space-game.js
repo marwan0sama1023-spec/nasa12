@@ -3051,7 +3051,7 @@ class SpaceWorld {
   toggleEquipmentPanel(force) {
     const panel = this.hud.querySelector("#game-equipment-panel");
     if (!panel) return;
-    const open = typeof force === "boolean" ? force : panel.hidden;
+    const open = typeof force === "boolean" ? force : panel.hidden; if (open && (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world))) { this.toast("المعدات متاحة لرائد الفضاء على القمر أو المريخ فقط."); return; }
     panel.hidden = !open;
     if (open) {
       this.equipmentPanelWasPaused = !this.paused;
@@ -3063,7 +3063,7 @@ class SpaceWorld {
     }
   }
 
-  useEquipment(itemId) {
+  useEquipment(itemId) { if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world)) { this.toast("المعدات متاحة لرائد الفضاء على القمر أو المريخ فقط."); return; }
     if (!this.equipment.includes(itemId)) {
       this.toast("هذه القطعة غير موجودة في عتاد رحلتك.");
       return;
@@ -3236,7 +3236,7 @@ class SpaceWorld {
   toggleSettings(force) {
     const panel = this.hud.querySelector("#game-settings-panel");
     if (!panel) return;
-    const open = typeof force === "boolean" ? force : panel.hidden;
+    const open = typeof force === "boolean" ? force : panel.hidden; if (open && (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world))) { this.toast("المعدات متاحة لرائد الفضاء على القمر أو المريخ فقط."); return; }
     panel.hidden = !open;
     if (open && !this.paused) {
       this.settingsPausedWorld = true;

@@ -1117,20 +1117,20 @@ function mountGameEquipmentControls(container) {
   if (!["astronaut", "alien"].includes(spaceGame.character)) return;
   const shell = container.closest(".game-world-shell");
   if (!shell) return;
-  shell.querySelector('[data-engine-button="equipment"]')?.remove();
+  const canUseEquipment = spaceGame.character === "astronaut" && ["moon", "mars"].includes(spaceGame.destination) && spaceGame.equipment.length > 0; if (!canUseEquipment) shell.querySelector('[data-engine-button="equipment"]')?.remove();
   shell.querySelector('[data-engine-button="rover"]')?.remove();
   if (!shell.querySelector(".game-crew-roster")) {
     shell.insertAdjacentHTML("beforeend", gameCrewRosterMarkup());
     shell.classList.add("has-game-crew");
   }
   const pauseMenu = shell.querySelector(".game-pause-overlay .game-menu-panel");
-  if (pauseMenu && spaceGame.character === "astronaut" && spaceGame.equipment.length && !pauseMenu.querySelector('[data-engine-action="equipment"]')) {
+  if (pauseMenu && canUseEquipment && !pauseMenu.querySelector('[data-engine-action="equipment"]')) {
     pauseMenu.insertAdjacentHTML("afterbegin", `<button class="game-menu-secondary" type="button" data-engine-action="equipment">فتح العتاد</button>`);
   }
   if (pauseMenu && spaceGame.character === "alien" && spaceGame.selectedSite && !pauseMenu.querySelector('[data-engine-action="field-log"]')) {
     pauseMenu.insertAdjacentHTML("afterbegin", `<button class="game-menu-secondary" type="button" data-engine-action="field-log">ملاحظات الموقع</button>`);
   }
-  if (spaceGame.character !== "astronaut") return;
+  if (spaceGame.character !== "astronaut" || !canUseEquipment) return;
   if (spaceGame.equipment.length && !shell.querySelector("#game-equipment-panel")) shell.insertAdjacentHTML("beforeend", gameEquipmentPanelMarkup());
   if (!spaceGame.equipment.length) return;
   if (!shell.querySelector(".game-health-meter")) shell.querySelector(".game-hud-bottom")?.insertAdjacentHTML("beforeend", `<div class="game-health-meter" aria-label="سلامة البدلة"><span aria-hidden="true">♥</span><div><small>سلامة البدلة</small><strong id="game-health-value">100%</strong><div class="game-health-bar"><span id="game-health-fill"></span></div></div></div>`);
@@ -1317,7 +1317,7 @@ async function startSpaceGameScene() {
   if (!container) return;
   mountGameEquipmentControls(container);
   try {
-    spaceGameEngine ||= await import("./vendor/space-game.js?v=gameplay-ui-fix-20261110");
+    spaceGameEngine ||= await import("./vendor/space-game.js?v=astronaut-equipment-controls-20261111");
     if (!container.isConnected || route().split("/")[0] !== "game") return;
     const world = spaceGame.character === "alien" ? "earth" : spaceGame.destination;
     const target = spaceGame.destination === "moon" ? "القمر" : "المريخ";
@@ -1727,7 +1727,7 @@ async function startGamePresentation(mode = "new") {
   } else {
     void fullscreenRequest;
   }
-  const engineReady = import("./vendor/space-game.js?v=game-render-fix-20261110").then(engine => {
+  const engineReady = import("./vendor/space-game.js?v=astronaut-equipment-controls-20261111").then(engine => {
     spaceGameEngine ||= engine;
     return true;
   }).catch(error => {

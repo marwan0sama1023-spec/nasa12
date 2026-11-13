@@ -1,6 +1,6 @@
 # Planetary Exploration
 
-A bilingual science-exploration site about six Earth analog locations used to study specific lunar and Martian terrain questions. The site distinguishes documented observations from illustrative game content and approximate map points.
+An English-language science-exploration site about six Earth analog locations used to study specific lunar and Martian terrain questions. The site distinguishes documented observations from illustrative game content and approximate map points.
 
 ## Project layout
 
@@ -33,10 +33,11 @@ npm start
 ```
 
 Open `http://localhost:4173`. NASA GIBS map imagery and web fonts require an internet connection. Leaflet and the bundled game engine are served locally; `node_modules` is not deployed.
+The development server binds to `127.0.0.1` by default and serves only the app entry point and public asset folders.
 
 ## Language and accessibility
 
-Use the language button to switch the interface and game between Arabic and English. The setting is saved in the browser. The in-game control remains available during missions and while game panels are open. Page images, map labels, dialogs, and game sample reports are localized alongside visible text.
+The interface and game can switch between Arabic and English without reloading or restarting a mission. The language setting is saved in the browser, and the game localizes its live HUD, equipment, sample reports, alerts, and mission screens. The local assistant handles common greetings, small talk, and simple arithmetic; science answers use the project's local records and do not rely on an external AI service or live web search.
 
 ## Science and data limits
 

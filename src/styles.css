@@ -5955,6 +5955,12 @@ body.game-session-active #guide-panel { display: none !important; }
   padding: 24px 24px 8px;
   margin: 0;
 }
+.game-gear-screen .game-screen-language-toggle {
+  position: absolute;
+  top: 16px;
+  inset-inline-end: 16px;
+  z-index: 2;
+}
 .game-gear-screen .game-gear-grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 18px;

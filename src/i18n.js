@@ -280,6 +280,7 @@
     "تبديل النهار والليل": "Toggle day and night",
     "تبديل إلى الليل": "Switch to night",
     "تبديل إلى النهار": "Switch to day",
+    "سجل الملاحظات العلمية": "Scientific field notes",
     "حقيبة العينات": "Sample bag",
     "حقيبة العينات الميدانية (R)": "Field sample bag (R)",
     "رؤية المجموعة الشمسية": "View the solar system",
@@ -295,6 +296,49 @@
     "سجل الاستكشاف الميداني": "Field exploration log",
     "إغلاق السجل": "Close log",
     "قفز / دفع نفاث": "Jump / jetpack",
+    "البدلة": "Suit",
+    "المركبة": "Spacecraft",
+    "العتاد": "Equipment",
+    "بدلة القمر": "Lunar suit",
+    "بدلة المريخ": "Mars suit",
+    "بدلة قياسية": "Standard suit",
+    "مركبة هبوط القمر": "Lunar lander",
+    "مركبة هبوط المريخ": "Mars lander",
+    "مركبة قياسية": "Standard spacecraft",
+    "خزان أكسجين، thermal-layer، وحدة اتصال، حقيبة إسعاف": "Oxygen tank, thermal layer, communication unit, first-aid kit",
+    "حقيبة أدوات": "Tool kit",
+    "حقيبة إسعاف": "First-aid kit",
+    "حقيبة عينات": "Sample bag",
+    "طبقة حرارية": "Thermal layer",
+    "الأكسجين": "Oxygen",
+    "فراغ كوني تام": "Near-total vacuum",
+    "غلاف جوي طبيعي": "Natural atmosphere",
+    "-- م": "-- m",
+    "كاميرا": "Camera",
+    "دفع": "Thrust",
+    "قائد المهمة": "Mission commander",
+    "الملاحة والاتصال": "Navigation and communications",
+    "الأنظمة والمعدات": "Systems and equipment",
+    "العينات والجيولوجيا": "Samples and geology",
+    "الصحة والسلامة": "Health and safety",
+    "خزان أكسجين، طبقة حرارية، وحدة اتصال، حقيبة إسعاف": "Oxygen tank, thermal layer, communication unit, first-aid kit",
+    "خزان أكسجين، مرشح غبار، وحدة اتصال، حقيبة إسعاف": "Oxygen tank, dust filter, communication unit, first-aid kit",
+    "عناصر تحكم اللمس": "Touch controls",
+    "عينات": "Samples",
+    "معدات": "Equipment",
+    "تفاعل": "Interact",
+    "عربة": "Rover",
+    "جري": "Run",
+    "سلامة البدلة": "Suit integrity",
+    "مهمة الموقع · جمع العينات": "Site objective · Collect samples",
+    "المهمة 01 · تحدي 03:00": "Mission 01 · 03:00 challenge",
+    "اجمع %d عينات": "Collect %d samples",
+    "عينات محاكاة": "Simulated samples",
+    "إشارة العينة": "Sample beacon",
+    "معدات الرحلة": "Mission equipment",
+    "استخدام معدات الرحلة": "Use mission equipment",
+    "إغلاق المعدات": "Close equipment",
+    "سطح القمر وآثار أقدام رواد أبولو 11": "Lunar surface and Apollo 11 astronaut footprints",
     "إغلاق حقيبة العينات": "Close sample bag",
     "سجل أحداث الرحلة": "Journey event log",
     "رحلتك الاستكشافية تبدأ هنا": "Your exploration begins here",
@@ -346,7 +390,12 @@
     "تعذر تهيئة العرض ثلاثي الأبعاد. تحقق من دعم WebGL واتصال الملفات المحلية.": "Could not initialize 3D graphics. Check WebGL support and local files.",
       "أدر الهاتف أفقيًا": "Rotate your device to landscape",
       "لن يبدأ اللعب حتى تدوير الجهاز إلى الوضع الأفقي.": "The game will not start until your device is in landscape.",
+      "سيبدأ الاستكشاف فور تدوير الجهاز.": "Exploration begins as soon as you rotate your device.",
       "إلغاء والعودة": "Cancel and return",
+    "جيم أوفر": "Game over",
+    "انتهت المهمة": "Mission ended",
+    "لم تتمكن من جمع العينات قبل انتهاء الوقت.": "You did not collect the samples before time ran out.",
+    "محاولة مرة أخرى": "Try again",
     "إعادة المحاولة": "Retry",
     "بيئات مشابهة للقمر": "Lunar analog environments",
     "بيئات مشابهة للمريخ": "Mars analog environments",
@@ -915,6 +964,29 @@
     "تم إرسال تقرير الموقع إلى مركز التحكم.": "Location report sent to mission control.",
     "تم تضميد الإصابة واستعادة 40 نقطة سلامة.": "Injury treated; 40 health restored.",
     "هبوط قوي؛ استخدم حقيبة الإسعاف عند الحاجة.": "Hard landing; use the first-aid kit if needed.",
+    "تعذر قفل المؤشر. اضغط على سطح اللعب لإعادة المحاولة.": "Could not lock the pointer. Click the play area to try again.",
+    "🔭 رصد فلكي: استعراض كواكب المجموعة الشمسية والقمر من سطح المريخ": "🔭 Sky view: explore the planets and moons from the Martian surface.",
+    "🔭 رصد فلكي: استعراض كوكب الأرض وترتيب كواكب المجموعة الشمسية من سطح القمر": "🔭 Sky view: observe Earth and the order of the planets from the lunar surface.",
+    "🔭 رصد فلكي: رؤية القمر في سماء الأرض النهارية": "🔭 Sky view: find the Moon in Earth's daytime sky.",
+    "بلغت موقع الفوهة بنجاح! اكتملت استكشافات البيئة الميدانية ✦ +80 XP": "Crater reached! Field exploration complete ✦ +80 XP",
+    "أنت عند فوهة الاصطدام. يمكنك القيادة والتجول بحرية.": "You have reached the impact crater. You can now explore freely.",
+    "اقترب من إشارة عينة أو موقع الاستكشاف.": "Move closer to a sample beacon or exploration site.",
+    "✅ اكتملت العينات! اكتمل المسح الميداني.": "✅ Samples complete! Field survey finished.",
+    "اكتمل الاستكشاف الميداني بنجاح": "Field exploration complete",
+    "اتبع المنارة إلى فوهة الاصطدام": "Follow the beacon to the impact crater",
+    "اتبع الإشارة إلى الفوهة ✦ +80 XP": "Follow the signal to the crater ✦ +80 XP",
+    "المهمة مكتملة": "Mission complete",
+    "المعدات متاحة لرائد الفضاء على القمر أو المريخ فقط.": "Equipment is available only to astronauts on the Moon or Mars.",
+    "هذه القطعة غير موجودة في عتاد رحلتك.": "This item is not in your mission gear.",
+    "تم تنشيط مرشح الغبار؛ الرؤية محمية لمدة 15 ثانية.": "Dust filter enabled; visibility protected for 15 seconds.",
+    "استخدمت حقيبة الإسعاف في هذه المهمة.": "The first-aid kit has already been used on this mission.",
+    "سلامتك كاملة؛ احتفظ بحقيبة الإسعاف لحين الحاجة.": "Your health is full; save the first-aid kit for later.",
+    "تم تضميد الإصابة واستعادة 40 نقطة سلامة.": "Injury treated; 40 health restored.",
+    "انتهى الوقت": "Time ran out",
+    "لم تتمكن من جمع العينات قبل انتهاء الوقت المحدد.": "You did not collect the samples before time ran out.",
+    "انتهى وقت التحدي الزمني؛ واصل استكشافك وجمع العينات.": "The timed challenge has ended. Keep exploring and collecting samples.",
+    "نفد الأكسجين": "Oxygen depleted",
+    "انتهت المهمة لأن الأكسجين نفد بعد دقيقتين.": "Mission ended because the oxygen supply ran out after two minutes.",
     "إصابة حرجة": "Critical injury",
     "أدر الهاتف أفقيًا": "Rotate your device to landscape",
     "جارٍ تدوير الشاشة تلقائيًا": "Rotating screen to landscape",
@@ -1020,7 +1092,82 @@
 
   const originalText = new WeakMap();
   const originalAttributes = new WeakMap();
-  let language = localStorage.getItem(languageKey) === '"en"' ? "en" : "ar";
+  const englishToArabic = Object.fromEntries(Object.entries(translations).map(([arabic, english]) => [english, arabic]));
+  const englishOverrides = {
+    "Apply English to the site and game": "تطبيق الإنجليزية على الموقع واللعبة",
+    "Switch to English": "التبديل إلى الإنجليزية",
+    "Switch to Arabic": "التبديل إلى العربية",
+    "Mission preparation": "استعداد الرحلة",
+    "Earth explorer": "مستكشف الأرض",
+    "Explore Earth analog sites without a space suit or planetary lander.": "استكشف المواقع الأرضية النظيرة دون حاجة إلى بدلة فضائية أو مركبة هبوط كوكبية.",
+    "Selected character: alien explorer · This mission does not require space gear.": "الشخصية المختارة: المستكشف الفضائي · لا تتطلب هذه الرحلة عتادًا فضائيًا.",
+    "03 · Required mission gear": "03 · العتاد الإلزامي للرحلة",
+    "All items below are required and are assigned automatically for your destination.": "جميع القطع أدناه إلزامية، ويتم تجهيزها تلقائيًا وفقًا للوجهة المختارة.",
+    "Lunar surface suit": "بدلة القمر",
+    "Mars surface suit": "بدلة المريخ",
+    "Standard suit": "بدلة قياسية",
+    "Required space suit": "بدلة فضائية إلزامية",
+    "Required lander": "مركبة هبوط إلزامية",
+    "Each item has an in-world function": "كل قطعة مرتبطة بوظيفة داخل العالم",
+    "Start exploration": "ابدأ الاستكشاف الآن",
+    "Start exploring ✦": "ابدأ الاستكشاف ✦",
+    "Protection from the vacuum of space": "حماية من الفراغ الكوني التام",
+    "Active thermal control (-130°C to +120°C)": "نظام تحكم حراري نشط (-130°C إلى +120°C)",
+    "Designed for low gravity (1/6 of Earth's gravity)": "مصممة للجاذبية المنخفضة (1/6 من جاذبية الأرض)",
+    "Helmet with reflective visor": "خوذة مع visor عاكس",
+    "Stable landing legs for the lunar surface": "أرجل هبوط ثابتة للفراغ الكوني",
+    "No parachutes required (no atmosphere)": "لا تحتاج مظلات (لا غلاف جوي)",
+    "Integrated life-support system": "نظام دعم حياة مدمج",
+    "Designed to land on the Moon": "مصممة للهبوط على سطح القمر",
+    "Carbon dioxide filtration system": "نظام ترشيح ثاني أكسيد الكربون",
+    "Protection from fine Martian dust": "حماية من الغبار المريخي الناعم",
+    "Designed for 0.38g gravity": "مصممة لجاذبية 0.38g",
+    "Sealed for the thin atmosphere": "ختم محكم للغلاف الجوي الرقيق",
+    "Parachutes for the thin atmosphere": "مظلات هبوط للغلاف الجوي الرقيق",
+    "Heat shield for atmospheric entry": "درع حراري ضد الاحتكاك",
+    "Active cooling system": "نظام تبريد نشط",
+    "Designed to land on Mars": "مصممة للهبوط على سطح المريخ",
+    "Breathing supply outside Earth's atmosphere": "تنفس خارج الغلاف الجوي الأرضي",
+    "Breathing supply in the thin atmosphere (95% CO2)": "تنفس في الغلاف الجوي الرقيق (95% CO2)",
+    "Contact mission control": "تواصل مع مركز التحكم الأرضي",
+    "Treat landing injuries": "علاج الإصابات الطارئة",
+    "Mission complete ✦": "انتهت المهمة بنجاح ✦",
+    "Lunar surface exploration complete": "اكتمل استكشاف سطح القمر!",
+    "Martian surface exploration complete": "اكتمل استكشاف سطح المريخ!",
+    "samples collected": "عينات تم جمعها",
+    "collection complete": "اكتمال الجمع",
+    "mission XP": "XP رحلة",
+    "Lunar science context for the collected samples": "خصائص القمر العلمية بناءً على العينات المجمعة:",
+    "Mars science context for the collected samples": "خصائص المريخ العلمية بناءً على العينات المجمعة:",
+    "Anorthosite:": "صخور الأنورثوسيت (Anorthosite):",
+    "Mare basalts:": "بازلت بحار القمر (Mare Basalts):",
+    "Regolith and impact breccia:": "الريغوليث القمري وحطام الصدم (Impact Breccia):",
+    "Environmental context:": "البيئة التناظرية:",
+    "Bright, ancient highland crust rich in calcium, silicon, and aluminum; it records the early cooling of the Moon's magma ocean about 4.5 billion years ago.": "تمثل قشرة المرتفعات القمرية الفاتحة القديمة الغنية بالكالسيوم والسيليكون والألومنيوم، وهي دليل على تجمد محيط الصهارة القمري البدائي قبل نحو 4.5 مليار عام.",
+    "Titanium- and iron-rich volcanic rocks that filled large lunar impact basins.": "صخور غنية بالتيتانيوم والحديد انسكبت من باطن القمر البركاني القديم لتملأ الأحواض النيزكية الكبرى.",
+    "Fragmented soil and glass shaped by billions of years of impacts in an environment without liquid water or wind.": "تربة فتاتية وزجاج بركاني نتجا عن مليارات السنين من قصف النيازك في بيئة خالية من الماء والرياح.",
+    "Near-total vacuum, about one-sixth of Earth's gravity, and extreme day-night temperatures from about +120°C to -130°C.": "فراغ كوني شبه تام، وجاذبية منخفضة (نحو سدس جاذبية الأرض)، وتفاوت حراري كبير بين النهار والليل (+120°C إلى -130°C).",
+    "Hematite and iron oxides:": "معادن الهيماتيت وأكاسيد الحديد (Iron Oxides):",
+    "Sulfates and clays:": "معادن الكبريتات والصلصال الطيني (Sulfates & Clays):",
+    "Olivine basalt:": "البازلت الأوليفيني البركاني (Olivine Basalt):",
+    "These minerals give Mars its rusty color and record past oxidation processes involving water and the surface environment.": "تمنح هذه المعادن المريخ لونه الصدئ المميز، وتسجل عمليات أكسدة ماضية ارتبطت بالماء والبيئة السطحية.",
+    "These minerals preserve evidence of past liquid water, including streams and ancient lake deposits such as those in Jezero Crater.": "تحفظ هذه المعادن أدلة على وجود مياه سائلة قديمًا، ومنها الجداول ورواسب البحيرات مثل فوهة جيزيرو.",
+    "Dark volcanic rock that records Mars' volcanic history, including large volcanoes such as Olympus Mons.": "صخور بركانية داكنة توثق تاريخ النشاط البركاني على المريخ، بما فيه براكين ضخمة مثل أوليمبوس مونز.",
+    "A thin atmosphere made mostly of carbon dioxide, about 38% of Earth's gravity, extreme cold, and planet-wide dust storms.": "غلاف جوي رقيق يتكون معظمه من ثاني أكسيد الكربون، وجاذبية تبلغ نحو 38% من جاذبية الأرض، وبرد شديد وعواصف ترابية كوكبية.",
+    "All mission samples have been collected from the lunar surface. Continue to explore Mars?": "انتهت اللعبة بعد جمع العينات من سطح القمر. هل ترغب في الانتقال لاستكشاف المريخ؟",
+    "All mission samples have been collected from the Martian surface. Continue to explore Moon?": "انتهت اللعبة بعد جمع العينات من سطح المريخ. هل ترغب في الانتقال لاستكشاف القمر؟",
+    "Continue to Mars": "الانتقال لاستكشاف المريخ 🚀",
+    "Continue to Moon": "الانتقال لاستكشاف القمر 🌕",
+    "Sample collection complete": "اكتمل جمع العينات",
+    "Sample collection is complete for this site. In-game samples are educational models, not real samples or field measurements.": "اكتمل جمع العينات لهذا الموقع. العينات داخل اللعبة نماذج تعليمية وليست عينات حقيقية أو قياسات ميدانية.",
+    "Earth analog sites help researchers study specific questions; they do not fully reproduce the Moon or Mars.": "تساعد المواقع الأرضية النظيرة الباحثين على دراسة أسئلة محددة، لكنها لا تحاكي القمر أو المريخ بالكامل.",
+    "Field imagery for this Earth analog site.": "صور ميدانية للموقع الأرضي النظير.",
+    "Science context": "عن المكان",
+    "View journey log": "عرض المسار",
+    "View mission summary": "عرض ملخص الرحلة",
+    "Continue to next site": "الانتقال إلى الموقع التالي"
+  };
+  let language = localStorage.getItem(languageKey) === '"ar"' ? "ar" : "en";
   let mutationObserver = null;
   let gameSampleTranslations = null;
 
@@ -1057,6 +1204,29 @@
     return `${leading}${translated}${trailing}`;
   }
 
+  function translateToArabic(value) {
+    const trimmed = value.trim();
+    const translated = englishOverrides[trimmed] || englishToArabic[trimmed] || translateEnglishDynamic(trimmed);
+    if (!translated) return value;
+    const leading = value.match(/^\s*/)?.[0] || "";
+    const trailing = value.match(/\s*$/)?.[0] || "";
+    return `${leading}${translated}${trailing}`;
+  }
+
+  function translateEnglishDynamic(value) {
+    const gearTitle = value.match(/^Mission gear for (Moon|Mars)$/);
+    if (gearTitle) return `عتاد رحلتك إلى ${gearTitle[1] === "Moon" ? "القمر" : "المريخ"}`;
+    const collectionProgress = value.match(/^Sample collection complete · site (\d+) of (\d+)$/);
+    if (collectionProgress) return `اكتمل جمع العينات · الموقع ${collectionProgress[1]} من ${collectionProgress[2]}`;
+    const fieldImage = value.match(/^(.+) field image (\d+)$/);
+    if (fieldImage) return `${translateToArabic(fieldImage[1]).trim()} · صورة ميدانية ${fieldImage[2]}`;
+    return "";
+  }
+
+  function localizeValue(value) {
+    return language === "en" ? translateValue(value) : translateToArabic(value);
+  }
+
   function translateDynamic(value) {
     const location = value.match(/^الأرض · (.+) · وصف نوعي، لا قياسات آنية( · حركة أبطأ توضيحيًا على السطح البارد)?$/);
     if (location) return `Earth · ${translateValue(location[1])} · qualitative description, not live measurements${location[2] ? " · movement is slower over the cold terrain (illustrative)" : ""}`;
@@ -1084,6 +1254,11 @@
       [/^اجمع (\d+) عينات علمية$/, "Collect $1 scientific samples"],
       [/^اجمع (\d+) عينات ميدانية$/, "Collect $1 field samples"],
       [/^اجمع (\d+) عينات$/, "Collect $1 samples"],
+      [/^تم جمع (.+) سابقاً · R لعرض حقيبة العينات$/, (_fullMatch, name) => {
+        const translatedName = translateValue(name).trim();
+        const englishName = /[\u0600-\u06FF]/.test(translatedName) ? "this sample" : translatedName;
+        return `Already collected: ${englishName} · Press R to open the sample bag`;
+      }],
       [/^(\d+)\/(\d+) عينات$/, "$1/$2 samples"],
       [/^(\d+) م$/, "$1 m"],
       [/^E · جمع (.+)$/, (_, item) => `E · Collect ${translateValue(item).trim()}`],
@@ -1130,7 +1305,7 @@
     while ((node = walker.nextNode())) {
       if (!originalText.has(node)) originalText.set(node, node.nodeValue);
       const original = originalText.get(node);
-      const translated = english ? translateValue(original) : original;
+      const translated = localizeValue(original);
       if (node.nodeValue !== translated) node.nodeValue = translated;
     }
 
@@ -1143,7 +1318,10 @@
     });
 
     const attributeNames = ["aria-label", "title", "placeholder", "alt"];
-    root.querySelectorAll?.("*").forEach(element => {
+    const attributeElements = [];
+    if (root.nodeType === Node.ELEMENT_NODE && attributeNames.some(name => root.hasAttribute(name))) attributeElements.push(root);
+    root.querySelectorAll?.("[aria-label], [title], [placeholder], [alt]").forEach(element => attributeElements.push(element));
+    attributeElements.forEach(element => {
       let saved = originalAttributes.get(element);
       if (!saved) {
         saved = {};
@@ -1153,29 +1331,29 @@
         if (!element.hasAttribute(name)) return;
         if (!(name in saved)) saved[name] = element.getAttribute(name);
         const original = saved[name];
-        const translated = english ? translateValue(original) : original;
+        const translated = localizeValue(original);
         if (element.getAttribute(name) !== translated) element.setAttribute(name, translated);
       });
     });
 
     document.querySelectorAll(".language-toggle").forEach(button => {
-      button.textContent = english ? "Arabic" : "الإنجليزية";
-      button.setAttribute("aria-label", english ? "Switch the site to Arabic" : "تبديل لغة الموقع إلى الإنجليزية");
-      button.title = english ? "Switch language to Arabic" : "تبديل اللغة إلى الإنجليزية";
+      button.textContent = english ? "Arabic" : "English";
+      button.setAttribute("aria-label", english ? "Switch to Arabic" : "Switch to English");
+      button.title = english ? "Switch to Arabic" : "Switch to English";
     });
 
     if (document.body) {
       mutationObserver ||= new MutationObserver(records => {
-        if (language !== "en") return;
         records.forEach(record => {
           if (record.type === "childList") record.addedNodes.forEach(added => {
-            if (added.nodeType === Node.ELEMENT_NODE && !added.closest("#language-toggle")) apply(added);
-            else if (added.nodeType === Node.TEXT_NODE && added.parentElement && !added.parentElement.closest("#language-toggle")) apply(added.parentElement);
+            if (added.nodeType === Node.ELEMENT_NODE) apply(added);
+            else if (added.nodeType === Node.TEXT_NODE && added.parentElement) apply(added.parentElement);
           });
-          if (record.type === "characterData" && !record.target.parentElement?.closest("#language-toggle")) apply(record.target.parentElement || document.body);
+          if (record.type === "characterData") apply(record.target.parentElement || document.body);
+          if (record.type === "attributes") apply(record.target);
         });
       });
-      mutationObserver.observe(document.body, { childList: true, characterData: true, subtree: true });
+      mutationObserver.observe(document.body, { childList: true, characterData: true, attributes: true, subtree: true });
     }
   }
 
@@ -1187,5 +1365,5 @@
     return language;
   }
 
-  window.siteI18n = { apply, toggle, translateValue, get language() { return language; } };
+  window.siteI18n = { apply, toggle, translateValue, localizeValue, get language() { return language; } };
 })();

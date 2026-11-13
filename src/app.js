@@ -501,7 +501,6 @@ function sitePhoto(site) {
 }
 function photoViewerMarkup() {
   return `<dialog class="photo-viewer" data-photo-viewer aria-label="عارض صور المواقع">
-    <button class="language-toggle viewer-language-toggle" type="button" aria-label="Switch the site to English" title="Switch language to English">English</button>
     <button class="photo-viewer-close" type="button" data-photo-close aria-label="إغلاق عارض الصور">×</button>
     <button class="photo-viewer-arrow photo-viewer-prev" type="button" data-photo-step="-1" aria-label="الصورة السابقة">‹</button>
     <figure><img data-photo-viewer-image alt=""><figcaption><strong data-photo-viewer-title></strong><span data-photo-viewer-caption></span><small data-photo-viewer-count></small></figcaption></figure>
@@ -874,7 +873,7 @@ function spaceGameHeader() {
       <h1 data-i18n-ar="رحلة تبدأ بسؤال علمي" data-i18n-en="A journey begins with a scientific question">${english ? "A journey begins with a scientific question" : "رحلة تبدأ بسؤال علمي"}</h1>
       <p data-i18n-ar="استكشف مواقع أرضية حقيقية، واكتشف ما يمكن مقارنته بعوالم القمر والمريخ وما لا يمكن." data-i18n-en="Explore real Earth sites, compare them with lunar and Martian terrain, and learn where those comparisons end.">${english ? "Explore real Earth sites, compare them with lunar and Martian terrain, and learn where those comparisons end." : "استكشف مواقع أرضية حقيقية، واكتشف ما يمكن مقارنته بعوالم القمر والمريخ وما لا يمكن."}</p>
     </div>
-    <div class="game-header-actions"><div class="game-xp-panel"><span class="game-xp-icon">✦</span><strong><span class="game-xp-value">${spaceGame.xp}</span> XP</strong><small data-i18n-ar="رصيد الرحلة" data-i18n-en="Mission XP">${english ? "Mission XP" : "رصيد الرحلة"}</small></div><button class="language-toggle game-language-toggle" type="button" aria-label="Switch the site to English" title="Switch language to English">EN</button></div>
+    <div class="game-header-actions"><div class="game-xp-panel"><span class="game-xp-icon">✦</span><strong><span class="game-xp-value">${spaceGame.xp}</span> XP</strong><small data-i18n-ar="رصيد الرحلة" data-i18n-en="Mission XP">${english ? "Mission XP" : "رصيد الرحلة"}</small></div></div>
   </header>`;
 }
 function campaignSites(destination) {
@@ -1010,33 +1009,32 @@ function spaceGearSummaryScreen() {
   const destination = spaceGame.destination;
   const isAstronaut = spaceGame.character === "astronaut";
   const isMoon = destination === "moon";
-  const target = isMoon ? "القمر" : "المريخ";
   const targetEn = isMoon ? "Moon" : "Mars";
 
   const gear = isAstronaut
     ? (isMoon
       ? {
-          suit: { id: "moon-suit", name: "بدلة القمر", color: "#e8ecf0", trim: "#7a8aa8", icon: "🌕",
-            props: ["حماية من الفراغ الكوني التام", "نظام تحكم حراري نشط (-130°C إلى +120°C)", "مصممة للجاذبية المنخفضة (1/6 من جاذبية الأرض)", "خوذة مع visor عاكس"] },
-          craft: { id: "lunar-lander", name: "مركبة هبوط القمر", icon: "🚀",
-            props: ["أرجل هبوط ثابتة للفراغ الكوني", "لا تحتاج مظلات (لا غلاف جوي)", "نظام دعم حياة مدمج", "مصممة للهبوط على سطح القمر"] },
+          suit: { id: "moon-suit", name: "Lunar surface suit", color: "#e8ecf0", trim: "#7a8aa8", icon: "🌕",
+            props: ["Protection from the vacuum of space", "Active thermal control (-130°C to +120°C)", "Designed for low gravity (1/6 of Earth's gravity)", "Helmet with reflective visor"] },
+          craft: { id: "lunar-lander", name: "Lunar lander", icon: "🚀",
+            props: ["Stable landing legs for the lunar surface", "No parachutes required (no atmosphere)", "Integrated life-support system", "Designed to land on the Moon"] },
           equipment: [
-            { id: "oxygen-tank", name: "خزان أكسجين", icon: "🫁", desc: "تنفس خارج الغلاف الجوي الأرضي" },
-            { id: "thermal-layer", name: "طبقة حرارية إضافية", icon: "🧥", desc: "حماية من التقلبات الحرارية الشديدة" },
-            { id: "comms-unit", name: "وحدة اتصال", icon: "📡", desc: "تواصل مع مركز التحكم الأرضي" },
-            { id: "med-kit", name: "حقيبة إسعاف أولي", icon: "🩹", desc: "علاج الإصابات الطارئة" }
+            { id: "oxygen-tank", name: "Oxygen tank", icon: "🫁", desc: "Breathing supply outside Earth's atmosphere" },
+            { id: "thermal-layer", name: "Thermal layer", icon: "🧥", desc: "Protection from extreme temperature swings" },
+            { id: "comms-unit", name: "Communication unit", icon: "📡", desc: "Contact mission control" },
+            { id: "med-kit", name: "First-aid kit", icon: "🩹", desc: "Treat landing injuries" }
           ]
         }
       : {
-          suit: { id: "mars-suit", name: "بدلة المريخ", color: "#ff8e6e", trim: "#5a3a2e", icon: "🔴",
-            props: ["نظام ترشيح ثاني أكسيد الكربون", "حماية من الغبار المريخي الناعم", "مصممة لجاذبية 0.38g", "ختم محكم للغلاف الجوي الرقيق"] },
-          craft: { id: "mars-lander", name: "مركبة هبوط المريخ", icon: "🛬",
-            props: ["مظلات هبوط للغلاف الجوي الرقيق", "درع حراري ضد الاحتكاك", "نظام تبريد نشط", "مصممة للهبوط على سطح المريخ"] },
+          suit: { id: "mars-suit", name: "Mars surface suit", color: "#ff8e6e", trim: "#5a3a2e", icon: "🔴",
+            props: ["Carbon dioxide filtration system", "Protection from fine Martian dust", "Designed for 0.38g gravity", "Sealed for the thin atmosphere"] },
+          craft: { id: "mars-lander", name: "Mars lander", icon: "🛬",
+            props: ["Parachutes for the thin atmosphere", "Heat shield for atmospheric entry", "Active cooling system", "Designed to land on Mars"] },
           equipment: [
-            { id: "oxygen-tank", name: "خزان أكسجين", icon: "🫁", desc: "تنفس في الغلاف الجوي الرقيق (95% CO2)" },
-            { id: "dust-filter", name: "مرشح غبار", icon: "😷", desc: "منع تسرب الغبار المريخي إلى البدلة" },
-            { id: "comms-unit", name: "وحدة اتصال", icon: "📡", desc: "تواصل مع مركز التحكم الأرضي" },
-            { id: "med-kit", name: "حقيبة إسعاف أولي", icon: "🩹", desc: "علاج الإصابات الطارئة" }
+            { id: "oxygen-tank", name: "Oxygen tank", icon: "🫁", desc: "Breathing supply in the thin atmosphere (95% CO2)" },
+            { id: "dust-filter", name: "Dust filter", icon: "😷", desc: "Keeps Martian dust out of the suit" },
+            { id: "comms-unit", name: "Communication unit", icon: "📡", desc: "Contact mission control" },
+            { id: "med-kit", name: "First-aid kit", icon: "🩹", desc: "Treat landing injuries" }
           ]
         })
     : null;
@@ -1048,9 +1046,10 @@ function spaceGearSummaryScreen() {
 
   if (!isAstronaut) {
     return `<div class="game-screen game-gear-screen">
-      <div class="game-screen-heading"><span class="game-step">استعداد الرحلة</span><h2>مستكشف فضائي - الأرض</h2><p>ستستكشف مواقع أرضية تناظرية دون حاجة لبدلة فضائية أو مركبة هبوط كوكبية.</p></div>
-      <div class="game-gear-note">الشخصية المختارة: الفضائي · لا تتطلب هذه الرحلة عتاداً فضائياً.</div>
-      <button class="button primary glow-btn" type="button" data-game-action="start-mission">ابدأ الاستكشاف ✦</button>
+      <button class="language-toggle game-screen-language-toggle" type="button" aria-label="Switch to English" title="Switch to English">English</button>
+      <div class="game-screen-heading"><span class="game-step">Mission preparation</span><h2>Earth explorer</h2><p>Explore Earth analog sites without a space suit or planetary lander.</p></div>
+      <div class="game-gear-note">Selected character: alien explorer · This mission does not require space gear.</div>
+      <button class="button primary glow-btn" type="button" data-game-action="start-mission">Start exploring ✦</button>
     </div>`;
   }
 
@@ -1077,14 +1076,15 @@ function spaceGearSummaryScreen() {
   }).join("");
 
   return `<div class="game-screen game-gear-screen">
-    <div class="game-screen-heading"><span class="game-step">03 · العتاد الإلزامي للرحلة</span><h2>عتاد رحلتك إلى ${target}</h2><p>جميع القطع أدناه إلزامية للرحلة. يتم تجهيزها تلقائياً وفقاً للوجهة المختارة.</p></div>
+    <button class="language-toggle game-screen-language-toggle" type="button" aria-label="Switch to English" title="Switch to English">English</button>
+    <div class="game-screen-heading"><span class="game-step">03 · Required mission gear</span><h2>Mission gear for ${targetEn}</h2><p>All items below are required and are assigned automatically for your destination.</p></div>
 
     <div class="game-gear-grid">
       <div class="game-gear-card game-gear-suit">
         ${suitVisual}
         <div class="game-gear-copy">
           <strong style="color:${suitColor}">${escapeHtml(gear.suit.name)}</strong>
-          <div class="game-gear-type">بدلة فضائية إلزامية</div>
+          <div class="game-gear-type">Required space suit</div>
           <ul class="game-gear-props">${gear.suit.props.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
         </div>
       </div>
@@ -1093,21 +1093,21 @@ function spaceGearSummaryScreen() {
         ${craftVisual}
         <div class="game-gear-copy">
           <strong>${escapeHtml(gear.craft.name)}</strong>
-          <div class="game-gear-type">مركبة هبوط إلزامية</div>
+          <div class="game-gear-type">Required lander</div>
           <ul class="game-gear-props">${gear.craft.props.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
         </div>
       </div>
 
       <div class="game-gear-card game-gear-equipment">
         <div class="game-gear-copy">
-          <strong>معدات المهمة</strong>
-          <div class="game-gear-type">كل قطعة مرتبطة بوظيفة داخل العالم</div>
+          <strong>Mission equipment</strong>
+          <div class="game-gear-type">Each item has an in-world function</div>
         </div>
         <div class="game-gear-equipment-grid">${equipmentVisuals}</div>
       </div>
     </div>
 
-    <button class="button primary glow-btn" type="button" data-game-action="start-mission">ابدأ الاستكشاف الآن</button>
+    <button class="button primary glow-btn" type="button" data-game-action="start-mission">Start exploration</button>
   </div>`;
 }
 function gameEquipmentPanelMarkup() {
@@ -1141,7 +1141,7 @@ function mountGameEquipmentControls(container) {
   if (!["astronaut", "alien"].includes(spaceGame.character)) return;
   const shell = container.closest(".game-world-shell");
   if (!shell) return;
-  if (!shell.querySelector(".game-world-language-toggle")) shell.insertAdjacentHTML("beforeend", `<button class="language-toggle game-language-toggle game-world-language-toggle" type="button" aria-label="Switch the site to English" title="Switch language to English">EN</button>`);
+  if (!shell.querySelector(".game-world-language-toggle")) shell.insertAdjacentHTML("beforeend", `<button class="language-toggle game-language-toggle game-world-language-toggle" type="button" aria-label="Apply English to the game" title="Apply English to the game">English</button>`);
   const canUseEquipment = spaceGame.character === "astronaut" && ["moon", "mars"].includes(spaceGame.destination) && spaceGame.equipment.length > 0; if (!canUseEquipment) shell.querySelector('[data-engine-button="equipment"]')?.remove();
   shell.querySelector('[data-engine-button="rover"]')?.remove();
   if (!shell.querySelector(".game-crew-roster")) {
@@ -1233,12 +1233,12 @@ function alienSiteCompleteMarkup(gameWorld) {
   const photos = stageSite.gallery || [stageSite.image];
   return `<div class="game-stage-complete" id="game-stage-complete" ${missionComplete ? "" : "hidden"}>
     <section class="game-stage-card">
-      <span class="game-step">اكتمل جمع العينات · الموقع ${stageIndex + 1} من ${stageCount}</span>
-      <h2>${escapeHtml(stageSite.ar)}</h2>
-      <div class="game-stage-photos">${photos.map(photo => `<figure><img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" loading="eager"><figcaption><strong>${escapeHtml(photo.title)}</strong><span>${escapeHtml(photo.caption)}</span></figcaption></figure>`).join("")}</div>
-      <p>${escapeHtml(stageSite.guide.summary)}</p>
-      <div><strong>عن المكان</strong><p>${escapeHtml(stageSite.guide.similarity)}</p></div>
-      <div class="game-stage-actions"><button class="game-menu-secondary" type="button" data-game-action="show-journey-log">عرض المسار</button><button class="button primary" type="button" data-game-action="${lastStage ? "show-campaign-summary" : "next-site"}">${lastStage ? "عرض ملخص الرحلة" : "الانتقال إلى الموقع التالي"}</button></div>
+      <span class="game-step">Sample collection complete · site ${stageIndex + 1} of ${stageCount}</span>
+      <h2>${escapeHtml(stageSite.en)}</h2>
+      <div class="game-stage-photos">${photos.map((photo, index) => `<figure><img src="${escapeHtml(photo.src)}" alt="${escapeHtml(stageSite.en)} field image ${index + 1}" loading="eager"><figcaption><strong>${escapeHtml(stageSite.en)} field image ${index + 1}</strong><span>Field imagery for this Earth analog site.</span></figcaption></figure>`).join("")}</div>
+      <p>Sample collection is complete for this site. In-game samples are educational models, not real samples or field measurements.</p>
+      <div><strong>Science context</strong><p>Earth analog sites help researchers study specific questions; they do not fully reproduce the Moon or Mars.</p></div>
+      <div class="game-stage-actions"><button class="game-menu-secondary" type="button" data-game-action="show-journey-log">View journey log</button><button class="button primary" type="button" data-game-action="${lastStage ? "show-campaign-summary" : "next-site"}">${lastStage ? "View mission summary" : "Continue to next site"}</button></div>
       <div class="game-stage-journey-log" hidden>${journeyLogMarkup()}</div>
     </section>
   </div>`;
@@ -1252,37 +1252,34 @@ function spaceGameMapScreen() {
       : "فوبوس وديموس يظهران كنماذج مدارية تقريبية، لا محاكاة فلكية عالية الدقة.";
   const astronautMissionComplete = spaceGame.character === "astronaut" && (missionComplete || (sampleGoal > 0 && collected >= sampleGoal));
   const otherDestination = spaceGame.destination === "moon" ? "mars" : "moon";
-  const otherDestinationName = otherDestination === "moon" ? "القمر" : "المريخ";
+  const otherDestinationName = otherDestination === "moon" ? "Moon" : "Mars";
   const otherDestinationComplete = spaceGame.character === "astronaut" && isAstronautDestinationComplete(otherDestination);
   const nextAstronautAction = otherDestinationComplete ? "astronaut-show-summary" : `astronaut-switch-${otherDestination}`;
-  const nextAstronautLabel = otherDestinationComplete
-    ? "عرض ملخص الرحلة"
-    : otherDestination === "mars" ? "الانتقال لاستكشاف المريخ 🚀" : "الانتقال لاستكشاف القمر 🌕";
   const destinationImage = spaceGame.destination === "moon"
     ? { src: "assets/moon-apollo-11.jpg", alt: "سطح القمر وآثار أقدام رواد أبولو 11", credit: "NASA · Apollo 11" }
     : { src: "assets/mars-hubble-globe.jpg", alt: "المريخ كما رصده تلسكوب هابل", credit: "NASA · Hubble" };
   const stageCompletionMarkup = stageSite ? alienSiteCompleteMarkup(gameWorld) : "";
   const moonCharacteristicsMarkup = `
     <div class="game-planet-characteristics">
-      <h3>خصائص القمر العلمية بناءً على العينات المجمعة:</h3>
+      <h3>Lunar science context for the collected samples</h3>
       <ul>
-        <li><strong>صخور الأنورثوسيت (Anorthosite):</strong> تمثل قشرة المرتفعات القمرية الفاتحة القديمة الغنية بالكالسيوم والسيليكون والألومنيوم، وهي دليل حي على تجمد محيط الصهارة القمري البدائي قبل 4.5 مليار عام.</li>
-        <li><strong>بازلت بحار القمر (Mare Basalts):</strong> صخور غنية بعنصر التيتانيوم والحديد انسكبت من باطن القمر البركاني القديم لتملأ الأحواض النيزكية الكبرى.</li>
-        <li><strong>الريغوليث القمري وحطام الصدم (Impact Breccia):</strong> تربة فتاتية خشنة وزجاج بركاني نتجت عن مليارات السنين من قصف النيازك الدقيقة المستمر في بيئة خالية تماماً من الماء والرياح.</li>
-        <li><strong>البيئة التناظرية:</strong> فراغ كوني شبه تام، جاذبية منخفضة (1/6 من جاذبية الأرض)، وتفاوت حراري هائل بين النهار والليل (+120°C إلى -130°C).</li>
+        <li><strong>Anorthosite:</strong> Bright, ancient highland crust rich in calcium, silicon, and aluminum; it records the early cooling of the Moon's magma ocean about 4.5 billion years ago.</li>
+        <li><strong>Mare basalts:</strong> Titanium- and iron-rich volcanic rocks that filled large lunar impact basins.</li>
+        <li><strong>Regolith and impact breccia:</strong> Fragmented soil and glass shaped by billions of years of impacts in an environment without liquid water or wind.</li>
+        <li><strong>Environmental context:</strong> Near-total vacuum, about one-sixth of Earth's gravity, and extreme day-night temperatures from about +120°C to -130°C.</li>
       </ul>
     </div>`;
   const marsCharacteristicsMarkup = `
     <div class="game-planet-characteristics">
-      <h3>خصائص المريخ العلمية بناءً على العينات المجمعة:</h3>
+      <h3>Mars science context for the collected samples</h3>
       <ul>
-        <li><strong>معادن الهيماتيت وأكاسيد الحديد (Iron Oxides):</strong> تمنح الكوكب لونه الصدئ المميز وتؤكد حدوث عمليات أكسدة كيميائية مائية وسطحية عميقة في ماضي المريخ.</li>
-        <li><strong>معادن الكبريتات والصلصال الطيني (Sulfates & Clays):</strong> أدلة جيولوجية لا تقبل الشك على وجود مياه سائلة متدفقة وبحيرات قديمة سكنتها رواسب هادئة مثل فوهة جيزيرو.</li>
-        <li><strong>البازلت الأوليفيني البركاني (Olivine Basalt):</strong> صخور بركانية داكنة تدل على تاريخ نشاط بركاني جبار أنتج براكين عملاقة كبركان أوليمبوس مونز.</li>
-        <li><strong>البيئة التناظرية:</strong> غلاف جوي رقيق جداً (95% CO2، ضغط 0.6% من الأرض)، جاذبية 38% من الأرض، طقس جاف فائق البرودة وعواصف ترابية كوكبية.</li>
+        <li><strong>Hematite and iron oxides:</strong> These minerals give Mars its rusty color and record past oxidation processes involving water and the surface environment.</li>
+        <li><strong>Sulfates and clays:</strong> These minerals preserve evidence of past liquid water, including streams and ancient lake deposits such as those in Jezero Crater.</li>
+        <li><strong>Olivine basalt:</strong> Dark volcanic rock that records Mars' volcanic history, including large volcanoes such as Olympus Mons.</li>
+        <li><strong>Environmental context:</strong> A thin atmosphere made mostly of carbon dioxide, about 38% of Earth's gravity, extreme cold, and planet-wide dust storms.</li>
       </ul>
     </div>`;
-  const astronautCompletionMarkup = spaceGame.character === "astronaut" ? `<div class="game-stage-complete" id="game-final-mission" ${astronautMissionComplete ? "" : "hidden"}><section class="game-stage-card"><span class="game-step">انتهت المهمة بنجاح ✦</span><h2>${spaceGame.destination === "moon" ? "اكتمل استكشاف سطح القمر!" : "اكتمل استكشاف سطح المريخ!"}</h2><figure class="game-planet-summary-image"><img src="${destinationImage.src}" alt="${destinationImage.alt}" loading="eager"><figcaption>${destinationImage.credit}</figcaption></figure><div class="game-stage-stats"><span><strong>${collected}/${sampleGoal}</strong> عينات تم جمعها</span><span><strong>100%</strong> اكتمال الجمع</span><span><strong>${spaceGame.xp}</strong> XP رحلة</span></div>${spaceGame.destination === "moon" ? moonCharacteristicsMarkup : marsCharacteristicsMarkup}<p>انتهت اللعبة بعد جمع العينات من ${spaceGame.destination === "moon" ? "سطح القمر" : "سطح المريخ"}. هل ترغب في الانتقال لاستكشاف ${otherDestinationName}؟</p><div class="game-stage-actions"><button class="button primary glow-btn" type="button" data-game-action="${nextAstronautAction}">${nextAstronautLabel}</button></div></section></div>` : "";
+  const astronautCompletionMarkup = spaceGame.character === "astronaut" ? `<div class="game-stage-complete" id="game-final-mission" ${astronautMissionComplete ? "" : "hidden"}><section class="game-stage-card"><span class="game-step">Mission complete ✦</span><h2>${spaceGame.destination === "moon" ? "Lunar surface exploration complete" : "Martian surface exploration complete"}</h2><figure class="game-planet-summary-image"><img src="${destinationImage.src}" alt="${spaceGame.destination === "moon" ? "Lunar surface and Apollo 11 astronaut footprints" : "Mars as seen by the Hubble Space Telescope"}" loading="eager"><figcaption>${destinationImage.credit}</figcaption></figure><div class="game-stage-stats"><span><strong>${collected}/${sampleGoal}</strong> samples collected</span><span><strong>100%</strong> collection complete</span><span><strong>${spaceGame.xp}</strong> mission XP</span></div>${spaceGame.destination === "moon" ? moonCharacteristicsMarkup : marsCharacteristicsMarkup}<p>All mission samples have been collected from the ${spaceGame.destination === "moon" ? "lunar" : "Martian"} surface. Continue to explore ${otherDestinationName}?</p><div class="game-stage-actions"><button class="button primary glow-btn" type="button" data-game-action="${nextAstronautAction}">${otherDestinationComplete ? "View mission summary" : `Continue to ${otherDestinationName}`}</button></div></section></div>` : "";
   const locKey = spaceGame.character === "astronaut" ? spaceGame.destination : world;
   const locInfo = { moon:{name:"القمر",gravity:"0.16g",note:"فراغ كوني تام"}, mars:{name:"المريخ",gravity:"0.38g",note:"95% CO₂"}, earth:{name:"الأرض",gravity:"1.0g",note:"غلاف جوي طبيعي"} }[locKey] || {name:"الأرض",gravity:"1.0g",note:"غلاف جوي طبيعي"};
   const locationIcon = spaceGame.character === "astronaut" ? "" : `<span class="game-location-icon">🌍</span>`;
@@ -1294,7 +1291,7 @@ function spaceGameMapScreen() {
       <div class="game-canvas-host" id="game-canvas-host"></div>
       ${gamePlanetStripMarkup(world)}
       <div class="game-arrival-title" id="game-arrival-title"><span>بدء المسح الميداني</span><strong>${worldName}</strong>${stageSite ? `<small>${escapeHtml(stageSite.science.task)}</small>` : ""}</div>
-      ${spaceGame.character === "astronaut" ? `<div class="game-mission-kit"><div class="game-kit-item"><span class="game-kit-label">البدلة</span><strong>${spaceGame.suit === "moon-suit" ? "بدلة القمر" : spaceGame.suit === "mars-suit" ? "بدلة المريخ" : "بدلة قياسية"}</strong></div><div class="game-kit-item"><span class="game-kit-label">المركبة</span><strong>${spaceGame.spacecraft === "lunar-lander" ? "مركبة هبوط القمر" : spaceGame.spacecraft === "mars-lander" ? "مركبة هبوط المريخ" : "مركبة قياسية"}</strong></div><div class="game-kit-item"><span class="game-kit-label">العتاد</span><strong>${spaceGame.equipment.length ? spaceGame.equipment.map(id => ({ "oxygen-tank": "خزان أكسجين", "tool-kit": "حقيبة أدوات", "med-kit": "حقيبة إسعاف", "sample-bag": "حقيبة عينات", "comms-unit": "وحدة اتصال", "thermal-suit": "طبقة حرارية" }[id] || id)).join("، ") : "غير محدد"}</strong></div></div>` : ""}
+      ${spaceGame.character === "astronaut" ? `<div class="game-mission-kit"><div class="game-kit-item"><span class="game-kit-label">البدلة</span><strong>${spaceGame.suit === "moon-suit" ? "بدلة القمر" : spaceGame.suit === "mars-suit" ? "بدلة المريخ" : "بدلة قياسية"}</strong></div><div class="game-kit-item"><span class="game-kit-label">المركبة</span><strong>${spaceGame.spacecraft === "lunar-lander" ? "مركبة هبوط القمر" : spaceGame.spacecraft === "mars-lander" ? "مركبة هبوط المريخ" : "مركبة قياسية"}</strong></div><div class="game-kit-item"><span class="game-kit-label">العتاد</span><strong>${spaceGame.equipment.length ? spaceGame.equipment.map(id => ({ "oxygen-tank": "خزان أكسجين", "tool-kit": "حقيبة أدوات", "med-kit": "حقيبة إسعاف", "sample-bag": "حقيبة عينات", "comms-unit": "وحدة اتصال", "thermal-layer": "طبقة حرارية" }[id] || id)).join("، ") : "غير محدد"}</strong></div></div>` : ""}
       <div class="game-hud game-hud-top"><div class="game-objective-status"><span class="game-mission-index">${stageSite ? "مهمة الموقع · جمع العينات" : "المهمة 01 · تحدي 03:00"}</span><strong id="game-mission-title">${stageSite ? missionComplete ? "اكتملت العينات" : `اجمع ${sampleGoal} عينات` : missionComplete ? "اتبع المنارة إلى فوهة الاصطدام" : `اجمع ${sampleGoal} عينات افتراضية`}</strong><small id="game-mission-count">${stageSite ? `${collected}/${sampleGoal} عينات` : missionComplete ? "اتبع الإشارة إلى الفوهة" : `${collected}/${sampleGoal} عينات مجمعة`}</small><span class="game-mission-clock" id="game-timer">03:00</span></div>${spaceGame.character === "astronaut" ? `<div class="game-oxygen-meter"><span class="game-oxygen-icon">🫁</span><div><small>الأكسجين</small><strong id="game-oxygen-time">02:00</strong></div><div class="game-oxygen-bar"><div id="game-oxygen-fill" style="width:100%"></div></div></div>` : ""}<div class="game-hud-actions"><button class="game-icon-control" type="button" data-engine-action="inventory" aria-label="حقيبة العينات" title="حقيبة العينات الميدانية (R)">🎒</button><button class="game-icon-control" type="button" data-engine-action="solar-system" aria-label="رؤية المجموعة الشمسية" title="رصد المجموعة الشمسية والنجوم">🪐</button><button class="game-icon-control" type="button" data-engine-action="camera" aria-label="تبديل زاوية الكاميرا" title="تبديل الكاميرا (شخص ثالث / قناع الخوذة / طائرة استطلاع)">📷</button><button class="game-icon-control" type="button" data-engine-action="settings" aria-label="إعدادات اللعبة" title="الإعدادات">⚙</button><button class="game-icon-control" type="button" data-engine-action="pause" aria-label="إيقاف مؤقت" title="إيقاف مؤقت">Ⅱ</button><button class="game-icon-control" type="button" data-game-exit aria-label="الخروج من اللعبة" title="الخروج من اللعبة">×</button></div></div>${locationBar}
       <div class="game-beacon-solo" id="game-beacon-solo">${missionComplete ? '' : `<span class="game-beacon-solo-shell" aria-hidden="true"><svg id="game-beacon-arrow" viewBox="0 0 24 24" fill="none"><path d="M12 2.5L4.5 20.5L12 16.5L19.5 20.5L12 2.5Z" fill="#ffcf56" stroke="#fff1b8" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="game-beacon-solo-label">إشارة العينة</span><strong id="game-beacon-distance-solo" class="game-beacon-solo-dist">-- م</strong>`}</div>
       <div class="game-helmet-visor" id="game-helmet-visor" hidden aria-hidden="true"><div class="visor-reflection"></div><div class="visor-hud-reticle"></div></div>
@@ -3121,12 +3118,12 @@ const GUIDE_CREW_PROBLEMS = [
 ];
 
 const GUIDE_SITE_ENGLISH = {
-  atacama: { environment: "Hyper-arid desert", location: "Chile · near Yungay", subsite: "Yungay area", summary: "NASA imagery documents a dry streambed on an alluvial fan in northern Chile. NASA's ARADS field campaigns tested rover drilling and life-detection workflows at an Atacama analog site.", geology: "The project record describes dry channels, alluvial fans, exposed hills, salts, and mixed sediment grain sizes. The NASA image is regional imagery, not a local soil assay.", advantage: "A useful setting for planning soil and rover tests when the exact location and supporting data are specified.", limit: "Hyperaridity can challenge biosignature detection, but Earth pressure, atmosphere, gravity, and radiation differ from Mars." },
-  hawaii: { environment: "Volcanic lava terrain", location: "Hawaii, United States", subsite: "Mauna Loa", summary: "NASA ASTER imagery covers Mauna Loa and regional volcanic flows. It supports regional surface interpretation, not wheel-scale hazard mapping.", geology: "The image has 15–90 m spatial resolution depending on band, so it can map regional flow patterns but cannot identify every wheel-scale crack or rock.", advantage: "NASA Terra ASTER imagery provides multispectral context for Mauna Loa's lava flows; it is not a field analysis of a rock sample.", limit: "Any rover traverse would need a permitted, close-range survey. The project does not claim a NASA crew or rover test at this exact point." },
-  "death-valley": { environment: "Hot desert basin and salt flat", location: "California, United States", subsite: "Badwater Basin", summary: "NASA ASTER documented Badwater Basin before and after the temporary lake formed following Hurricane Hilary in 2023.", geology: "Badwater is a closed desert basin with salt flats, dunes, and surrounding mountains; surface conditions change after episodic flooding.", advantage: "Dated ASTER images show how Badwater's surface changed, including after temporary flooding; they are not field measurements.", limit: "Surface conditions can change after rare floods; this is an Earth field-planning issue, not Martian weather." },
-  mcmurdo: { environment: "Cold polar desert", location: "Antarctica", subsite: "McMurdo Dry Valleys", summary: "NASA tested engineering models of Phoenix soil instruments and collected sterile samples in the McMurdo Dry Valleys; NASA ASTEP also developed a subsurface corer concept there.", geology: "The region combines extremely dry exposed ground with localized buried ice, glaciers, and ice-covered lakes; a surface sample alone may not represent the subsurface.", advantage: "NASA field campaigns tested soil instruments and sterile sample handling in a cold, remote environment; those were engineering tests, not flight-ready systems.", limit: "Dry exposed ground can coexist with localized buried ice. The campaign tests sampling methods, not a flight-ready system or the whole Martian environment." },
-  devon: { environment: "Arctic impact crater", location: "Nunavut, Canada", subsite: "Haughton Crater", summary: "NASA tested robotic drilling and remote exploration operations at Haughton Crater on Devon Island.", geology: "The site combines an impact structure, rocky terrain, and permafrost. NASA's TRIDENT tests encountered ice-cemented breccia and drill cuttings that could choke or bind the auger.", advantage: "Geological-structure studies can be paired with robotic operations planning in a remote polar environment.", limit: "Ice-cemented impact breccia and permafrost caused drill binding; this informs robotic hardware and field procedures, not actual astronaut activity on Mars." },
-  "meteor-crater": { environment: "Impact crater in a high desert", location: "Arizona, United States", subsite: "Meteor Crater (Barringer Crater)", summary: "NASA identifies Meteor Crater in Arizona as an impact site about 4,000 feet across and roughly 50,000 years old.", geology: "Its rim, interior wall, basin, and ejecta provide a terrestrial impact-crater morphology for comparison with orbital images.", advantage: "A defined geological target for testing terrain interpretation and crater-image analysis.", limit: "NASA's image record confirms the site; it does not establish a NASA astronaut-training campaign there. Use it for morphology comparisons only." }
+  atacama: { environment: "Hyper-arid desert", location: "Chile · near Yungay", subsite: "Yungay area", summary: "NASA imagery documents a dry streambed on an alluvial fan in northern Chile. NASA's ARADS field campaigns tested rover drilling and life-detection workflows at an Atacama analog site.", geology: "The project record describes dry channels, alluvial fans, exposed hills, salts, and mixed sediment grain sizes. The NASA image is regional imagery, not a local soil assay.", climate: "An extremely arid region; this project records no local, time-stamped weather measurements.", water: "Liquid water is scarce and irregular in the hyper-arid area; the project records no site-specific water measurements.", advantage: "A useful setting for planning soil and rover tests when the exact location and supporting data are specified.", limit: "Hyperaridity can challenge biosignature detection, but Earth pressure, atmosphere, gravity, and radiation differ from Mars." },
+  hawaii: { environment: "Volcanic lava terrain", location: "Hawaii, United States", subsite: "Mauna Loa", summary: "NASA ASTER imagery covers Mauna Loa and regional volcanic flows. It supports regional surface interpretation, not wheel-scale hazard mapping.", geology: "The image has 15–90 m spatial resolution depending on band, so it can map regional flow patterns but cannot identify every wheel-scale crack or rock.", climate: "Conditions vary with elevation, aspect, and location; the project records no single representative local measurement.", water: "Water availability varies across the islands and is not specified for the lava-flow site in this project record.", advantage: "NASA Terra ASTER imagery provides multispectral context for Mauna Loa's lava flows; it is not a field analysis of a rock sample.", limit: "Any rover traverse would need a permitted, close-range survey. The project does not claim a NASA crew or rover test at this exact point." },
+  "death-valley": { environment: "Hot desert basin and salt flat", location: "California, United States", subsite: "Badwater Basin", summary: "NASA ASTER documented Badwater Basin before and after the temporary lake formed following Hurricane Hilary in 2023.", geology: "Badwater is a closed desert basin with salt flats, dunes, and surrounding mountains; surface conditions change after episodic flooding.", climate: "An extremely hot desert; this project records no current or site-specific weather measurements.", water: "Surface water is episodic and conditions change over time, including after rare storms; the project records no local water measurements.", advantage: "Dated ASTER images show how Badwater's surface changed, including after temporary flooding; they are not field measurements.", limit: "Surface conditions can change after rare floods; this is an Earth field-planning issue, not Martian weather." },
+  mcmurdo: { environment: "Cold polar desert", location: "Antarctica", subsite: "McMurdo Dry Valleys", summary: "NASA tested engineering models of Phoenix soil instruments and collected sterile samples in the McMurdo Dry Valleys; NASA ASTEP also developed a subsurface corer concept there.", geology: "The region combines extremely dry exposed ground with localized buried ice, glaciers, and ice-covered lakes; a surface sample alone may not represent the subsurface.", climate: "A very cold, dry polar environment with strong katabatic winds and limited seasonal melt; no live weather measurements are shown here.", water: "The region includes ice-covered lakes and limited seasonal meltwater; availability and salinity vary by location.", advantage: "NASA field campaigns tested soil instruments and sterile sample handling in a cold, remote environment; those were engineering tests, not flight-ready systems.", limit: "Dry exposed ground can coexist with localized buried ice. The campaign tests sampling methods, not a flight-ready system or the whole Martian environment." },
+  devon: { environment: "Arctic impact crater", location: "Nunavut, Canada", subsite: "Haughton Crater", summary: "NASA tested robotic drilling and remote exploration operations at Haughton Crater on Devon Island.", geology: "The site combines an impact structure, rocky terrain, and permafrost. NASA's TRIDENT tests encountered ice-cemented breccia and drill cuttings that could choke or bind the auger.", climate: "A cold polar environment; this project records no current, site-specific weather measurements.", water: "Water is present as ice and seasonal melt; the project does not establish a local supply of usable liquid water.", advantage: "Geological-structure studies can be paired with robotic operations planning in a remote polar environment.", limit: "Ice-cemented impact breccia and permafrost caused drill binding; this informs robotic hardware and field procedures, not actual astronaut activity on Mars." },
+  "meteor-crater": { environment: "Impact crater in a high desert", location: "Arizona, United States", subsite: "Meteor Crater (Barringer Crater)", summary: "NASA identifies Meteor Crater in Arizona as an impact site about 4,000 feet across and roughly 50,000 years old.", geology: "Its rim, interior wall, basin, and ejecta provide a terrestrial impact-crater morphology for comparison with orbital images.", climate: "A semi-arid environment; this project records no local, time-stamped weather measurements.", water: "No permanent surface-water source is documented in this project's site record.", advantage: "A defined geological target for testing terrain interpretation and crater-image analysis.", limit: "NASA's image record confirms the site; it does not establish a NASA astronaut-training campaign there. Use it for morphology comparisons only." }
 };
 
 const GUIDE_PROBLEM_ENGLISH_TITLES = {
@@ -3395,9 +3392,9 @@ function formatGuideSite(document, language, topics) {
   if (language === "en") {
     const english = GUIDE_SITE_ENGLISH[site.id] || {};
     const lines = [`## ${site.en} — ${english.environment || "Earth analog site"}`, `Location: ${english.location || site.country}${english.subsite ? `; subsite: ${english.subsite}` : ""}.`, english.summary || site.guide.summary];
-    if (topics.includes("geology") || topics.includes("soil")) lines.push(english.geology || `Geology / terrain: ${science.geology || science.terrain || "The project has no site-specific field measurement for this topic."}`);
-    if (topics.includes("water")) lines.push(`Water: ${science.water || "The project has no verified local water measurement for this site."}`);
-    if (topics.includes("climate")) lines.push(`Climate: ${science.climate || "No local, time-stamped weather measurement is recorded in this project."}`);
+    if (topics.includes("geology") || topics.includes("soil")) lines.push(english.geology || "The project has no site-specific field measurement for this topic.");
+    if (topics.includes("water")) lines.push(`Water: ${english.water || "The project has no verified local water measurement for this site."}`);
+    if (topics.includes("climate")) lines.push(`Climate: ${english.climate || "No local, time-stamped weather measurement is recorded in this project."}`);
     if (topics.includes("analog") || topics.includes("methodology") || topics.includes("comparison")) lines.push(`Analog use and limits: ${english.advantage || window.siteI18n?.translateValue(site.guide.advantage) || site.guide.advantage} ${english.limit || site.guide.difference}`);
     return `${lines.join("\n\n")}${guideCitations(document.sources, language)}`;
   }
@@ -3450,10 +3447,55 @@ function formatGuideCrewOverview(language) {
   return `${language === "en" ? "## Main crew risks and engineering responses" : "## أبرز مخاطر الطاقم والاستجابات الهندسية"}\n${sections}\n\n${language === "en" ? "These controls are mission-specific. ISS experience cannot be assumed to solve Mars communication, resupply, radiation, or surface risks; proposed and demonstration technologies are not operational systems." : "تختلف الضوابط حسب المهمة؛ لا تُنقل حلول محطة الفضاء الدولية تلقائيًا إلى مخاطر الاتصالات والإمداد والإشعاع والعمل السطحي على المريخ. العروض التقنية والمقترحات ليست أنظمة تشغيلية مكتملة."}${guideCitations(sources, language)}`;
 }
 
+function getGuideLanguage() {
+  return window.siteI18n?.language === "en" ? "en" : "ar";
+}
+
+function answerGeneralConversation(question, language) {
+  const normalized = normalizeGuideText(question);
+  const has = (...phrases) => phrases.some(phrase => guideHasWholePhrase(normalized, phrase));
+  const english = language === "en";
+
+  if (has("how are you", "how are you doing", "how is it going", "ازيك", "عامل ايه", "عامله ايه", "اخبارك ايه")) {
+    return english ? "I'm doing well, thanks for asking. What would you like to talk about?" : "أنا بخير، شكرًا لسؤالك. تحب نتكلم عن إيه؟";
+  }
+  if (has("hello", "hi", "hey", "مرحبا", "اهلا", "السلام عليكم", "صباح الخير", "مساء الخير", "ازيك")) {
+    return english ? "Hi! How can I help? We can chat, or explore the project's science together." : "أهلًا! أقدر أساعدك في سؤال عادي أو نستكشف معلومات المشروع سوا.";
+  }
+  if (has("thank you", "thanks", "شكرا", "متشكر", "تسلم")) {
+    return english ? "You're welcome!" : "العفو!";
+  }
+  if (has("goodbye", "bye", "see you", "مع السلامه", "سلام", "اشوفك بعدين")) {
+    return english ? "Goodbye! Come back whenever you'd like to continue." : "مع السلامة! ارجع وقت ما تحب نكمل.";
+  }
+  if (has("who are you", "what is your name", "what's your name", "are you an ai", "هل انت ذكاء اصطناعي", "اسمك ايه", "من انت")) {
+    return english ? "I'm the Planetary Exploration project assistant. I answer from the project's local records; I'm not connected to a general-purpose AI service." : "أنا مساعد مشروع استكشاف الكواكب. أجيب من سجلات المشروع المحلية، ولست متصلًا بخدمة ذكاء اصطناعي عامة.";
+  }
+  if (has("what can you do", "how can you help", "help me", "ماذا تستطيع", "تقدر تعمل ايه", "ممكن تساعدني", "ساعدني")) {
+    return english ? "I can chat about common topics, explain the project's sites and NASA references, compare analog environments, and answer simple arithmetic. I don't have live web access." : "أقدر أجاوب على التحيات والأسئلة البسيطة، وأشرح مواقع المشروع ومراجع NASA وأقارن البيئات، وكمان أحل عمليات حسابية بسيطة. ما عنديش اتصال مباشر بالويب.";
+  }
+  return null;
+}
+
+function answerGuideArithmetic(question, language) {
+  const match = String(question).match(/(-?\d+(?:\.\d+)?)\s*([+\-*/×÷])\s*(-?\d+(?:\.\d+)?)/);
+  if (!match) return null;
+  const first = Number(match[1]);
+  const second = Number(match[3]);
+  const operations = { "+": () => first + second, "-": () => first - second, "*": () => first * second, "/": () => first / second, "×": () => first * second, "÷": () => first / second };
+  const result = operations[match[2]]();
+  if (!Number.isFinite(result)) return language === "en" ? "Division by zero is undefined." : "لا يمكن القسمة على صفر.";
+  return language === "en" ? `The result is **${result}**.` : `الناتج هو **${result}**.`;
+}
+
 function answerQuestion(question) {
   const trimmed = String(question || "").trim();
   if (!trimmed) return "";
-  if (/(-?\d+(?:\.\d+)?)\s*([+\-*/×÷])\s*(-?\d+(?:\.\d+)?)/.test(trimmed)) return answerQuestionLegacy(trimmed);
+  const language = getGuideLanguage();
+  const generalReply = answerGeneralConversation(trimmed, language);
+  if (generalReply) return generalReply;
+  const arithmeticReply = answerGuideArithmetic(trimmed, language);
+  if (arithmeticReply) return arithmeticReply;
   const analysis = analyzeGuideQuestion(trimmed);
   const previous = guideContext && typeof guideContext === "object" ? guideContext : {};
   const previousSiteIds = previous.siteIds || (previous.siteId ? [previous.siteId] : []);
@@ -3478,13 +3520,16 @@ function answerQuestion(question) {
     guideContext = { siteIds, worlds, topics: contextTopics, lastQuestion: trimmed, updatedAt: Date.now() };
     writeStore("atlas-guide-context", guideContext);
   }
-  const language = analysis.language;
   const normalized = analysis.normalized;
   const has = (...phrases) => phrases.some(phrase => normalized.includes(normalizeGuideText(phrase)));
   const asksForAllCrewRisks = (contextTopics.includes("crew") && contextTopics.includes("problem") && !contextTopics.includes("comparison"))
     || has("مشاكل رواد الفضاء", "مشكلات رواد الفضاء", "تحديات رواد الفضاء", "كل مشاكل الطاقم", "جميع مشكلات الطاقم", "all astronaut problems", "all crew risks", "all challenges astronauts");
   const asksAboutUnprotectedMarsExposure = has("بدون بدلة", "من غير بدلة", "دون بدلة", "without a suit", "without spacesuit", "breathe on mars", "live on mars");
-  if (has("فريق", "اعضاء", "من انتم", "team", "who are you", "trinexus")) return answerQuestionLegacy(trimmed);
+  if (has("فريق", "اعضاء", "من انتم", "team", "trinexus")) {
+    return language === "en"
+      ? "Analog TriNexus is the project team led by Marwan Osama Mohamed, with Alaa Ramadan, Martina Mounir Labib, Menna Ahmed, and Hanin Khairy Ezz El-Din. The project explores how Earth analog environments can support specific lunar and Mars research questions."
+      : "فريق Analog TriNexus بقيادة مروان أسامة محمد، ويضم آلاء رمضان ومارتينا منير لبيب ومنة أحمد وحنين خيري عز الدين. يدرس المشروع كيف تدعم البيئات الأرضية أسئلة بحثية محددة عن القمر والمريخ.";
+  }
   if (contextTopics.includes("game")) {
     const gameDocument = getGuideCorpus().find(document => document.id === "project-game");
     if (gameDocument) return formatGuideReference(gameDocument, language);
@@ -3564,9 +3609,6 @@ function answerQuestion(question) {
     return top.map(item => formatGuideReference(item.document, language)).join("\n\n---\n\n");
   }
 
-  const legacyTopics = ["game", "sources", "methodology"].some(topic => contextTopics.includes(topic));
-  const greeting = has("مرحبا", "اهلا", "السلام", "ازيك", "hello", "hi", "help");
-  if (legacyTopics || greeting) return answerQuestionLegacy(trimmed);
   if (ranked.ranked.length && ranked.ranked[0].score >= 1.2) {
     const top = ranked.ranked.slice(0, 2);
     return top.map(item => formatGuideReference(item.document, language)).join("\n\n---\n\n");
@@ -3574,6 +3616,8 @@ function answerQuestion(question) {
   if (analysis.followUp && !siteIds.length && !worlds.length && !previousSiteIds.length && !(previous.worlds || []).length) {
     return language === "en" ? "What site or topic should I continue with?" : "عن أي موقع أو موضوع تريد أن أتابع؟";
   }
+  const legacyTopics = ["game", "sources", "methodology"].some(topic => contextTopics.includes(topic));
+  if (legacyTopics && language === "ar") return answerQuestionLegacy(trimmed);
   return language === "en"
     ? "I could not find a well-supported answer in the project’s local NASA knowledge records. Please specify a planet, site, mission, or topic; I do not have a live external AI or web search connection."
     : "لم أجد إجابة موثقة كافية في قاعدة المعرفة المحلية للمشروع. حدّد كوكبًا أو موقعًا أو مهمة أو موضوعًا؛ لا أستخدم نموذجًا خارجيًا أو بحث ويب مباشرًا.";
@@ -3801,15 +3845,16 @@ function sendGuideMessage(question) {
   const input = document.getElementById("guide-input");
   const sendButton = document.querySelector(".guide-form button");
   const messages = document.getElementById("guide-messages");
+  const english = getGuideLanguage() === "en";
   guideBusy = true;
   if (input) input.disabled = true;
   if (sendButton) sendButton.disabled = true;
   const userMessage = addMessage(question.trim(), "user");
-  appendMessageStatus(userMessage, "جارٍ الإرسال", "is-sending");
+  appendMessageStatus(userMessage, english ? "Sending" : "جارٍ الإرسال", "is-sending");
   const thinking = document.createElement("div");
   thinking.className = "guide-thinking";
   thinking.setAttribute("role", "status");
-  thinking.innerHTML = '<span class="guide-thinking-label">جارٍ التفكير في محتوى المشروع</span><span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+  thinking.innerHTML = `<span class="guide-thinking-label">${english ? "Thinking" : "جارٍ التفكير"}</span><span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span>`;
   const stickBeforeThinking = isNearLatestMessage(messages);
   messages.append(thinking);
   if (stickBeforeThinking) messages.scrollTop = messages.scrollHeight;
@@ -3817,7 +3862,7 @@ function sendGuideMessage(question) {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       const reply = answerQuestion(question.trim());
-      appendMessageStatus(userMessage, "تم الإرسال");
+      appendMessageStatus(userMessage, english ? "Sent" : "تم الإرسال");
       playGuideTone("user");
       thinking.remove();
       const shouldStick = isNearLatestMessage(messages);
@@ -3827,10 +3872,10 @@ function sendGuideMessage(question) {
       await revealAssistantReply(reply, assistantMessage);
     } catch {
       thinking.remove();
-      const errorMessage = addMessage("تعذر تجهيز الإجابة محليًا. حاول مرة أخرى؛ لا يوجد اتصال بخدمة خارجية.", "assistant");
+      const errorMessage = addMessage(english ? "I couldn't prepare a local answer. Please try again; no external service is connected." : "تعذر تجهيز الإجابة محليًا. حاول مرة أخرى؛ لا يوجد اتصال بخدمة خارجية.", "assistant");
       errorMessage.classList.add("is-error");
-      appendMessageStatus(errorMessage, "تعذر الرد", "is-error");
-      appendMessageStatus(userMessage, "لم يكتمل الإرسال", "is-error");
+      appendMessageStatus(errorMessage, english ? "Could not reply" : "تعذر الرد", "is-error");
+      appendMessageStatus(userMessage, english ? "Not sent" : "لم يكتمل الإرسال", "is-error");
     } finally {
       guideBusy = false;
       if (input) { input.disabled = false; input.focus(); }
@@ -3891,7 +3936,9 @@ function startGuide() {
   guideStarted = true;
   const box = document.getElementById("guide-messages");
   if (guideHistory.length) refreshGuideConversation();
-  else addMessage(`مرحبًا! أستطيع شرح المواقع الـ${sites.length} وحدود المقارنة العلمية.`);
+  else addMessage(getGuideLanguage() === "en"
+    ? `Hello! I can explain the project's ${sites.length} sites and the limits of each scientific comparison.`
+    : `مرحبًا! أستطيع شرح المواقع الـ${sites.length} وحدود المقارنة العلمية.`);
   updateGuidePrompts();
 }
 
@@ -3913,7 +3960,7 @@ function refreshGuideConversation() {
       return item;
     }
     if (!pendingQuestion) {
-      return { text: english ? "Hello! I can explain the six sites and the limits of each scientific comparison." : `مرحبًا! أستطيع شرح المواقع الـ${sites.length} وحدود المقارنة العلمية.`, kind: "assistant" };
+      return { text: english ? `Hello! I can explain the project's ${sites.length} sites and the limits of each scientific comparison.` : `مرحبًا! أستطيع شرح المواقع الـ${sites.length} وحدود المقارنة العلمية.`, kind: "assistant" };
     }
     const text = answerQuestion(pendingQuestion);
     pendingQuestion = null;

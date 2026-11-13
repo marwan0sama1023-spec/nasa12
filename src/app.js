@@ -1496,6 +1496,7 @@ function saveSpaceGameResumeState() {
   saveSpaceGame();
 }
 function showAlienWarpScreen(onFinish) {
+  const english = window.siteI18n?.language === "en";
   const overlay = document.createElement("div");
   overlay.className = "alien-ufo-warp-screen";
   overlay.innerHTML = `
@@ -1516,8 +1517,8 @@ function showAlienWarpScreen(onFinish) {
         <circle cx="60" cy="9" r="3" fill="#fef08a"/>
       </svg>
     </div>
-    <h2 class="alien-ufo-warp-title">انتقال فضائي فائق بالطبق الطائر 🛸</h2>
-    <p class="alien-ufo-warp-sub">جاري القفز عبر الزمكان إلى الموقع التالي بسرعة الضوء…</p>
+    <h2 class="alien-ufo-warp-title">${english ? "UFO hyperspace transit 🛸" : "انتقال فضائي فائق بالطبق الطائر 🛸"}</h2>
+    <p class="alien-ufo-warp-sub">${english ? "Jumping through spacetime to the next site at the speed of light…" : "جاري القفز عبر الزمكان إلى الموقع التالي بسرعة الضوء…"}</p>
     <div class="alien-ufo-warp-bar"><div class="alien-ufo-warp-fill"></div></div>
   `;
   document.body.appendChild(overlay);
@@ -1735,14 +1736,10 @@ async function startGamePresentation(mode = "new") {
   clearInterval(gameResumeSaveTimer);
   gameResumeSaveTimer = window.setInterval(saveSpaceGameResumeState, 2000);
   stopSpaceGameScene();
+  const english = window.siteI18n?.language === "en";
   const layer = document.createElement("div");
   layer.id = "game-launch-layer";
-  layer.innerHTML = `<div class="game-launch-content"></div><div class="game-countdown" role="status" aria-live="assertive"><div class="game-countdown-orbit" aria-hidden="true"><i></i><i></i><i></i></div><p>جارٍ تجهيز مركبة الاستكشاف...</p><strong id="game-countdown-number">3</strong><small id="game-loading-status" hidden>جارٍ تجهيز العالم ثلاثي الأبعاد...</small></div><div class="game-orientation-gate" role="status" aria-live="polite"><div><span aria-hidden="true">▯</span><strong>أدر الهاتف أفقيًا</strong><p>لن يبدأ اللعب حتى تدوير الجهاز إلى الوضع الأفقي.</p><button class="game-menu-secondary" type="button" data-game-exit>إلغاء والعودة</button></div></div>`;
-  const orientationGate = layer.querySelector(".game-orientation-gate");
-  if (orientationGate) {
-    orientationGate.querySelector("strong").textContent = "جارٍ تدوير الشاشة تلقائيًا";
-    orientationGate.querySelector("p").textContent = "لن يبدأ اللعب قبل اكتمال الوضع الأفقي.";
-  }
+  layer.innerHTML = `<button class="language-toggle game-session-language-toggle" type="button" aria-label="Switch to English" title="Switch to English">English</button><div class="game-launch-content"></div><div class="game-countdown" role="status" aria-live="assertive"><div class="game-countdown-orbit" aria-hidden="true"><i></i><i></i><i></i></div><p>${english ? "Preparing the exploration vehicle..." : "جارٍ تجهيز مركبة الاستكشاف..."}</p><strong id="game-countdown-number">3</strong><small id="game-loading-status" hidden>${english ? "Preparing the 3D world..." : "جارٍ تجهيز العالم ثلاثي الأبعاد..."}</small></div><div class="game-orientation-gate" role="status" aria-live="polite"><div><span aria-hidden="true">▯</span><strong>${english ? "Switching to landscape mode" : "جارٍ تدوير الشاشة تلقائيًا"}</strong><p>${english ? "The game will begin when landscape mode is ready." : "لن يبدأ اللعب قبل اكتمال الوضع الأفقي."}</p><button class="game-menu-secondary" type="button" data-game-exit>${english ? "Cancel and return" : "إلغاء والعودة"}</button></div></div>`;
   gamePresentation.layer = layer;
   gamePresentation.content = layer.querySelector(".game-launch-content");
   document.body.append(layer);

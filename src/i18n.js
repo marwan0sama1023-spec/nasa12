@@ -1,6 +1,20 @@
 (() => {
   const languageKey = "planetary-interface-language";
   const translations = {
+    "استكشاف الكواكب": "Planetary Exploration",
+    "علوم الكواكب · استكشاف البيئات النظيرة": "PLANETARY SCIENCE · ANALOG EXPLORATION",
+    "NASA · البيئات النظيرة للكواكب": "NASA · PLANETARY ANALOGS",
+    "الصور:": "Imagery:",
+    "بيئات نظيرة للقمر · 03 مواقع": "Moon Analogues · 03 sites",
+    "بيئات نظيرة للمريخ · 03 مواقع": "Mars Analogues · 03 sites",
+    "مربعات صور NASA GIBS المباشرة": "NASA GIBS Live Tiles",
+    "جاهز للاستكشاف": "READY FOR DISCOVERY",
+    "منصة القيادة المدارية": "ORBITAL FLIGHT DECK",
+    "الحالة: مستقرة ✦ 0.42c": "STATUS: NOMINAL ✦ 0.42c",
+    "نظام القياس عن بعد": "TELEMETRY SYSTEM",
+    "المدار: القمر والمريخ": "ORBIT: MOON & MARS",
+    "◱ [المتجه: 184° · الميل +0.2°]": "◱ [VECTOR: 184° · TILT +0.2°]",
+    "[الدفع: محرك أيوني] ◲": "[THRUST: IONIC DRIVE] ◲",
     "الصفحة الرئيسية": "Home page",
     "منصة استكشاف علمية تفاعلية": "Interactive planetary exploration platform",
     "التنقل الرئيسي": "Main navigation",
@@ -82,7 +96,6 @@
     "خريطة المواقع التفاعلية": "Interactive site map",
     "رصد مواقع الاختبار الأرضية عبر صور الأقمار الصناعية من NASA GIBS.": "Explore Earth test sites with NASA GIBS satellite imagery.",
     "تكبير الخريطة ↗": "Expand map ↗",
-    "NASA GIBS Live Tiles": "NASA GIBS live tiles",
     "لماذا تهمنا هذه البيئات؟": "Why these environments matter",
     "أهمية الدراسات التناظرية": "Why analog research matters",
     "توفر البيئات الأرضية الشبيهة فرصة لا تعوض لرواد الفضاء والمهندسين لاختبار تقنيات الاستكشاف قبل الانطلاق إلى الفضاء السحيق.": "Earth analog environments give astronauts and engineers a valuable opportunity to test exploration technologies before deep-space missions.",
@@ -256,6 +269,34 @@
     "شرح حدود الاستدلال": "Explain the limits of this comparison",
     "استمع للشرح الصوتي": "Listen to audio explanation",
     "Space Explorer · مستكشف الفضاء": "SPACE EXPLORER",
+    "مستكشف الفضاء": "SPACE EXPLORER",
+    "الموقع الحالي": "Current location",
+    "سجل ميداني": "Field notes",
+    "الملاحظات المكتشفة": "Discovered notes",
+    "الجيولوجيا:": "Geology:",
+    "المناخ:": "Climate:",
+    "المياه:": "Water:",
+    "حدود المقارنة:": "Comparison limits:",
+    "تبديل النهار والليل": "Toggle day and night",
+    "تبديل إلى الليل": "Switch to night",
+    "تبديل إلى النهار": "Switch to day",
+    "حقيبة العينات": "Sample bag",
+    "حقيبة العينات الميدانية (R)": "Field sample bag (R)",
+    "رؤية المجموعة الشمسية": "View the solar system",
+    "رصد المجموعة الشمسية والنجوم": "View the solar system and stars",
+    "تبديل زاوية الكاميرا": "Change camera view",
+    "تبديل الكاميرا (شخص ثالث / قناع الخوذة / طائرة استطلاع)": "Change camera view (third person / helmet / scout drone)",
+    "اهتزاز الكاميرا الخفيف": "Subtle camera shake",
+    "حساسية الماوس": "Mouse sensitivity",
+    "العينات المجمعة": "Collected samples",
+    "لم تجمع أي عينات بعد ✦ استخدم E للجمع": "No samples collected yet ✦ Press E to collect",
+    "تُرقّم العينات حسب أسبقية جمعها.": "Samples are numbered in the order they are collected.",
+    "W A S D للحركة · الماوس لتوجيه الكاميرا · مفتاح المسافة للقفز والدفع النفاث · مفتاح التبديل للجري · E للتفاعل · R لحقيبة العينات · C للكاميرا": "W A S D move · Mouse look · Space jump/jetpack · Shift run · E interact · R sample bag · C camera",
+    "سجل الاستكشاف الميداني": "Field exploration log",
+    "إغلاق السجل": "Close log",
+    "قفز / دفع نفاث": "Jump / jetpack",
+    "إغلاق حقيبة العينات": "Close sample bag",
+    "سجل أحداث الرحلة": "Journey event log",
     "رحلتك الاستكشافية تبدأ هنا": "Your exploration begins here",
     "انطلق إلى تضاريس القمر أو المريخ، واجمع العينات واكتشف العالم ثلاثي الأبعاد.": "Explore lunar or Martian terrain, collect samples, and discover a 3D world.",
     "🚀 ادخل إلى عالم الاستكشاف": "🚀 Enter the exploration world",
@@ -376,6 +417,7 @@
     "نونافوت · كندا": "Nunavut · Canada",
     "القارة القطبية الجنوبية": "Antarctica",
     "فوهة بارينجر (Meteor Crater)": "Barringer Crater (Meteor Crater)",
+    "فوهة بارينجر": "Barringer Crater",
     "محيط يونغاي، شمال تشيلي": "Near Yungay, northern Chile",
     "مركز تقريبي للفوهة؛ يلزم اعتماد مرجع إحداثي موثق": "Approximate crater center; a documented reference is needed",
     "نقطة مرجعية تقريبية؛ يلزم تثبيت حدود الدراسة": "Approximate reference point; study boundaries need confirmation",
@@ -731,8 +773,93 @@
     "نقاط الخريطة تمثل مواقع على الأرض فقط.": "Map points represent locations on Earth only.",
     "الصفحة الرئيسية": "Home page",
     "استكشف الموقع باللغة الإنجليزية": "Explore the site in English",
-    "Moon Analogues · 03 مواقع": "Moon Analogues · 03 sites",
-    "Mars Analogues · 03 مواقع": "Mars Analogues · 03 sites",
+    "صورة ميدانية رفعها المستخدم": "User-submitted field photo",
+    "تاريخ الالتقاط غير متاح": "Capture date unavailable",
+    "ملخص ميداني": "Field summary",
+    "قراءة علمية سريعة": "Science at a glance",
+    "الخصائص الجيولوجية": "Geology",
+    "الصخور والمعادن": "Rocks and minerals",
+    "التضاريس": "Terrain",
+    "المياه والموارد": "Water and resources",
+    "أهمية الموقع البحثية": "Research relevance",
+    "مهمة الاستكشاف": "Exploration task",
+    "أوجه الشبه بالقمر": "Similarities with the Moon",
+    "أوجه الشبه بالمريخ": "Similarities with Mars",
+    "الخريطة المدارية": "Site map",
+    "موقع": "Site",
+    "نقطة مرجعية": "Reference point",
+    "مساعد الاستكشاف المحلي": "Local exploration guide",
+    "أريزونا": "Arizona",
+    "كاليفورنيا": "California",
+    "تشيلي": "Chile",
+    "أمريكا الجنوبية": "South America",
+    "نونافوت": "Nunavut",
+    "كندا": "Canada",
+    "الخصائص الجيولوجية": "Geology",
+    "فوهة اصطدام قطرها نحو 1.2 كم وعمقها الحالي نحو 170–180 م، تشكلت قبل قرابة 50 ألف سنة بفعل جسم غني بالحديد والنيكل. تحيط بها مواد مقذوفة وصخور متكسرة بالصدمة.": "Meteor Crater is about 1.2 km wide and 170–180 m deep. It formed roughly 50,000 years ago when an iron-nickel-rich object struck the area, leaving ejecta and impact-fractured rock.",
+    "بيئة شبه صحراوية؛ لا تعرض المنصة قياسات محلية للحرارة أو الهطول.": "A semi-arid setting. This site record does not include local temperature or precipitation measurements.",
+    "حجر رملي وحجر جيري وصخور متكسرة بفعل الاصطدام؛ الجسم المصطدم غني بالحديد والنيكل.": "The site includes sandstone, limestone, and impact-fractured rock; the impactor was rich in iron and nickel.",
+    "حافة مرتفعة، جدار داخلي منحدر، حوض الفوهة وغطاء من المواد المقذوفة.": "The terrain includes a raised rim, steep inner wall, crater floor, and ejecta deposits.",
+    "لا توجد موارد مائية سطحية دائمة موثقة ضمن سجل هذه الصفحة.": "This page has no documented record of permanent surface-water resources.",
+    "تتيح مقارنة شكل فوهة اصطدام وموادها بصور الفوهات المريخية، ولا تمثل مناخ المريخ أو غلافه الجوي.": "Its impact-crater shape and ejecta can be compared with images of Martian craters; the site does not represent Mars's climate or atmosphere.",
+    "دراسة عمليات الاصطدام وتكوّن الفوهات وتوزع الصخور والمواد المقذوفة.": "Study impact processes, crater formation, and the distribution of rocks and ejecta.",
+    "صحراء فائقة الجفاف تضم رواسب ملحية ومراوح غرينية وأودية جافة، مع صخور بركانية ورسوبية.": "A hyper-arid desert of salt deposits, alluvial fans, dry valleys, and volcanic and sedimentary rock.",
+    "من أشد المناطق غير القطبية جفافًا؛ قد تمر سنوات بلا هطول يُذكر في بعض أجزائها. الرطوبة الداخلية منخفضة والإشعاع الشمسي قوي، من دون أرقام محلية معروضة هنا.": "One of the driest non-polar regions on Earth; some areas can go years with little measurable rainfall. Interior humidity is low and solar exposure is strong, though this page provides no local measurements.",
+    "رواسب وأملاح تشمل الجبس والهاليت، إلى جانب صخور بركانية ورسوبية.": "Deposits include salts such as gypsum and halite, along with volcanic and sedimentary rocks.",
+    "أحواض جافة، مراوح غرينية، مجارٍ قديمة وتلال صخرية مكشوفة.": "The terrain includes dry basins, alluvial fans, ancient channels, and exposed rocky hills.",
+    "الماء السائل نادر وغير منتظم في المناطق شديدة الجفاف؛ لا تمثل الرواسب الملحية مورد ماء متاحًا.": "Liquid water is scarce and intermittent in the hyper-arid areas; salt deposits are not an available water supply.",
+    "الجفاف والتربة والاختبارات الميدانية تفيد تطوير أدوات البحث عن الحياة، لكنها لا تحاكي ضغط المريخ أو غلافه الجوي.": "Aridity, soils, and field testing can inform life-detection tools, but do not reproduce Martian pressure or atmosphere.",
+    "اختبار أجهزة البحث عن الحياة وتحليل التربة، ودراسة حدود كشف الإشارات الحيوية في بيئة جافة.": "Test life-detection instruments and soil analysis, and study the limits of detecting biosignatures in a dry environment.",
+    "مجال مناسب لتصميم اختبارات تربة وجوالات، مع بيانات وموقع فرعي محددين.": "A useful setting for designing soil and rover tests when the exact site and supporting data are specified.",
+    "حوض مغلق شديد الحرارة يضم Badwater Basin، الذي يقع نحو 86 م تحت مستوى سطح البحر، ومسطحات ملحية وكثبان Mesquite Flat.": "A hot, closed basin containing Badwater Basin, about 86 m below sea level, as well as salt flats and the Mesquite Flat Dunes.",
+    "بيئة صحراوية شديدة الحرارة؛ تتباين الظروف بحسب الموسم والموقع. لا تعرض الصفحة حرارة آنية أو قياسًا ميدانيًا.": "An extremely hot desert whose conditions vary by season and location. This page provides no live temperature or field measurement.",
+    "تكوينات صخرية ورسوبية ومعادن شائعة تشمل الهاليت والجبس والكالسيت.": "Rock and sediment formations include common minerals such as halite, gypsum, and calcite.",
+    "حوض ملحي وكثبان رملية وجبال وأودية وطبقات صخرية مكشوفة.": "The terrain includes a salt basin, sand dunes, mountains, valleys, and exposed rock layers.",
+    "تترسب الأملاح مع تبخر المياه في الحوض؛ تظهر المياه أو آثار الجريان مؤقتًا وتتغير بمرور الزمن.": "Evaporation leaves salt deposits in the basin. Water and runoff traces can appear temporarily, so conditions change over time.",
+    "تتيح دراسة التعرية والرواسب وتفسير الأسطح الجافة، لكنها لا تحاكي الضغط أو الغلاف الجوي المريخي.": "The site supports studies of erosion, sediment, and dry-surface interpretation, but does not reproduce Martian pressure or atmosphere.",
+    "دراسة التبخر والتعرية وتكوّن الرواسب الملحية وتغير تضاريس الحوض.": "Study evaporation, erosion, salt-deposit formation, and changes in the basin's terrain.",
+    "السهول الجافة والرواسب والتغير السطحي الموثق بصور مؤرخة تتيح أسئلة عن الملاحة وقراءة الصور.": "Dry plains, sediments, and dated imagery of surface change support questions about navigation and image interpretation.",
+    "توثق صور NASA ASTER مشهدين مؤرخين لبادووتر، أحدهما بعد امتلاء مؤقت بالمياه؛ لا تمثل هذه الصور قياسات ميدانية.": "NASA ASTER images document Badwater on two dates, including one after temporary flooding; they are not field measurements.",
+    "الماء السطحي متغير زمنيًا، والجاذبية والغلاف الجوي والمناخ الأرضي لا تماثل المريخ؛ الصور لا تثبت كيمياء الرواسب.": "Surface water changes over time, and Earth's gravity, atmosphere, and climate differ from Mars. Imagery does not establish sediment chemistry.",
+    "نقطة مرجعية تقريبية لحوض بادووتر": "Approximate reference point for Badwater Basin",
+    "تضم الوديان الجافة مكاشف صخرية وتربة حصوية ورملية، إضافة إلى أنهار جليدية وبحيرات مغطاة بالجليد.": "The Dry Valleys contain exposed bedrock, gravelly and sandy soils, glaciers, and ice-covered lakes.",
+    "من أشد البيئات القطبية جفافًا وبرودة؛ تهب رياح كاتاباتية قوية، ويحدث ذوبان موسمي محدود. لا تعرض الصفحة قياسات آنية.": "Among the coldest and driest polar environments, with strong katabatic winds and limited seasonal melt. This page provides no live measurements.",
+    "صخور مكشوفة ورواسب حصوية ورملية ومواضع ترسب ملحي.": "Exposed rock, gravel and sand deposits, and localized salt deposits.",
+    "تشمل وديان Taylor وWright وVictoria، ومجاري ذوبان موسمية وأنهارًا جليدية.": "The region includes the Taylor, Wright, and Victoria valleys, seasonal meltwater channels, and glaciers.",
+    "بحيرات تحت/مغطاة بالجليد، منها Lake Bonney وLake Fryxell وLake Hoare؛ الملوحة والظروف تختلف بين المواقع.": "The region includes subglacial or ice-covered lakes such as Bonney, Fryxell, and Hoare; salinity and conditions vary by site.",
+    "تفيد في دراسة الأحياء الدقيقة والماء في ظروف قاسية واختبار معدات الاستكشاف؛ الجليد والجو الأرضي لا يطابقان المريخ.": "The valleys support research on microbes and water in extreme conditions and testing of exploration equipment; their ice and terrestrial atmosphere do not match Mars.",
+    "دراسة الحياة الميكروبية والماء والذوبان الموسمي في البيئات شديدة البرودة والجفاف.": "Study microbial life, water, and seasonal melt in extremely cold, dry environments.",
+    "بيئة بركانية في الجزيرة الكبرى، مع التركيز على كيلاويا وماونا لوا وتدفقات حمم متجمدة وشقوق وفوهات بركانية.": "A volcanic setting on Hawaiʻi Island, focused on Kīlauea and Mauna Loa, hardened lava flows, fissures, and volcanic craters.",
+    "الظروف تختلف مع الارتفاع والاتجاه والموقع؛ لا تُعرض هنا قيمة مناخية واحدة للأرخبيل.": "Conditions vary with elevation, exposure, and location; no single climate value represents the islands.",
+    "تسود الصخور البازلتية. تشمل أشكال تدفق الحمم Pāhoehoe الناعمة نسبيًا وʻAʻā الوعرة، مع أنابيب حمم.": "Basalt is common. Lava forms include relatively smooth pāhoehoe, rough ʻaʻā, and lava tubes.",
+    "حقول حمم قديمة، فوهات وشقوق بركانية وأنابيب حمم؛ المشهد ليس كله نشطًا أو خطيرًا.": "The terrain includes older lava fields, craters, volcanic fissures, and lava tubes; not all areas are active or hazardous.",
+    "الماء متغير مكانيًا ومناخيًا؛ لا تُعد الحمم البركانية موردًا مائيًا.": "Water availability varies by location and climate; volcanic lava is not a water resource.",
+    "تدعم دراسة الصخور البركانية والروبوتات واختبارات العمل الميداني مثل NASA BASALT؛ الأنابيب قد تكون ذات أهمية لاستكشاف المريخ، دون افتراض تطابقها.": "The site supports volcanic-rock research, robotics, and field studies such as NASA BASALT. Lava tubes may inform Mars exploration, but are not assumed to be equivalent.",
+    "فهم الصخور البركانية وتطوير تقنيات الاستطلاع والعمل الميداني في تضاريس وعرة.": "Study volcanic rocks and develop reconnaissance and field methods for rugged terrain.",
+    "تضم جزيرة ديفون فوهة هوتون ذات قطر يقارب 20 كم وعمر يقارب 38 مليون سنة، مع صخور متأثرة بالاصطدام.": "Devon Island contains Haughton Crater, about 20 km across and 38 million years old, with impact-affected rocks.",
+    "بيئة قطبية باردة وجافة؛ الغطاء النباتي محدود للغاية ولا تُعرض قياسات طقس آنية.": "A cold, dry polar environment with very sparse vegetation; no live weather measurements are shown.",
+    "صخور مكشوفة ومواد متكسرة مرتبطة بالفوهة، مع تربة دائمة التجمد (Permafrost).": "Exposed rock and crater-related breccia occur alongside permafrost.",
+    "تضاريس صخرية وجليدية واسعة حول فوهة هوتون، مع أرض متجمدة وعزلة ميدانية.": "The area around Haughton Crater has broad rocky and icy terrain, frozen ground, and remote field conditions.",
+    "يوجد جليد وماء متجمد موسميًا؛ لا تفترض اللعبة توفر ماء سائل صالح للاستخدام.": "Ice and seasonally frozen water are present; the game does not imply that usable liquid water is available.",
+    "استُخدمت المنطقة لمحاكاة عمليات استكشاف المريخ واختبار الروبوتات وجمع العينات؛ التشابه عملياتي وجيولوجي محدود.": "The region has supported Mars-analog operations, robotics, and sample-collection tests; the operational and geological similarities are limited.",
+    "اختبار حركة الروبوتات والاستطلاع وأخذ العينات في بيئة قطبية معزولة.": "Test rover mobility, reconnaissance, and sample collection in a remote polar environment.",
+    "المناخ": "Climate",
+    "تضاريس بركانية وتدفقات حمم": "Volcanic terrain and lava flows",
+    "تُظهر صورة NASA ASTER من القمر Terra تدفقات الحمم وتباين الإشارات متعددة الأطياف؛ وهي ملاحظة استشعار عن بعد وليست تحليلًا لعينة صخرية.": "NASA Terra's ASTER image shows lava flows and variations in multispectral signals. It is a remote-sensing observation, not an analysis of a rock sample.",
+    "مركز تقريبي للفوهة؛ يلزم تثبيت موقع الدراسة وحدودها": "Approximate crater center; the study location and boundaries need confirmation",
+    "فوهة الاصطدام والتضاريس الصخرية تتيح مقارنة أشكال الفوهات واختبار عمليات الاستطلاع الميداني.": "The impact crater and rocky terrain support crater comparisons and field-reconnaissance testing.",
+    "يمكن ربط دراسة البنية الجيولوجية بتخطيط عمليات روبوتية في بيئة قطبية.": "Geological-structure studies can be paired with robotic operations planning in a polar environment.",
+    "الجاذبية والغلاف الجوي والمناخ القطبي والأنظمة البيئية الأرضية تختلف عن القمر؛ التشابه جيولوجي وعملياتي محدود.": "Earth's gravity and atmosphere, polar climate, and ecosystems differ from the Moon; similarities are limited to geology and operations.",
+    "تقع فوهة هوتون في جزيرة ديفون بنونافوت، كندا، ضمن بيئة قطبية صخرية قاسية. تجمع المنطقة بين تضاريس الاصطدام والعزلة الميدانية، وقد دعمت تجارب للمركبات والروبوتات. يمكن مقارنة بعض أشكال الفوهات واختبار عمليات الاستطلاع، لكن البيئة لا تحاكي جاذبية القمر أو فراغه أو إضاءته.": "Haughton Crater lies on Devon Island in Nunavut, Canada, in a rugged polar environment. The region combines impact terrain with field isolation and has supported rover and robotics trials. Some crater forms can be compared and reconnaissance operations tested, but the environment does not reproduce lunar gravity, vacuum, or lighting.",
+    "توثق صور NASA ASTER مشهدين مؤرخين لحوض بادووتر، أحدهما بعد امتلاء مؤقت بالمياه. تفيد المقارنة في دراسة تغير السطح وقراءة الصور، لكنها لا تقدم قياسات مناخية أو كيميائية ولا تجعل وادي الموت بديلًا مطابقًا للمريخ.": "NASA ASTER images document Badwater Basin on two dates, including one after temporary flooding. Comparing them can help study surface change and image interpretation, but they provide no climate or chemistry measurements and do not make Death Valley an exact Mars analog.",
+    "الخريطة المدارية لموقع فوهة ميتيور": "Map view of Meteor Crater",
+    "الخريطة المدارية لموقع صحراء أتاكاما": "Map view of the Atacama Desert",
+    "الخريطة المدارية لموقع وادي الموت": "Map view of Death Valley",
+    "الخريطة المدارية لموقع الوديان الجافة في ماكموردو": "Map view of the McMurdo Dry Valleys",
+    "الخريطة المدارية لموقع جزيرة ديفون": "Map view of Devon Island",
+    "الخريطة المدارية لموقع جزر هاواي": "Map view of the Hawaiian Islands",
+    "الموقع الأرضي نموذج لدراسة خصائص محددة، وليس نسخة مطابقة للقمر. الإحداثيات المعروضة نقاط مرجعية تقريبية، ومؤشرات اللعبة لا تمثل قياسات ميدانية.": "This Earth site is used to study specific features; it is not a replica of the Moon. Coordinates are approximate reference points, and game markers are not field measurements.",
+    "الموقع الأرضي نموذج لدراسة خصائص محددة، وليس نسخة مطابقة للمريخ. الإحداثيات المعروضة نقاط مرجعية تقريبية، ومؤشرات اللعبة لا تمثل قياسات ميدانية.": "This Earth site is used to study specific features; it is not a replica of Mars. Coordinates are approximate reference points, and game markers are not field measurements.",
     "يشير المشروع إلى جزء محدد قرب سويل سان رافاييل. تعرض الصفحة مشهد NASA MODIS إقليميًا فقط؛ لا تتوفر هنا بيانات NASA ميدانية تثبت نوع صخوره أو تربته.": "This project focuses on a specific area near San Rafael Swell. The page shows only a regional NASA MODIS scene; no NASA field data here establish its rock or soil type.",
     "GIS · الرصد المداري": "GIS · Orbital observation",
     "جارٍ تحميل صور NASA GIBS…": "Loading NASA GIBS imagery...",
@@ -792,13 +919,134 @@
     "أدر الهاتف أفقيًا": "Rotate your device to landscape",
     "جارٍ تدوير الشاشة تلقائيًا": "Rotating screen to landscape",
     "لن يبدأ اللعب قبل اكتمال الوضع الأفقي.": "The game will start once landscape orientation is ready.",
-    "أعد المحاولة": "Try again"
+    "أعد المحاولة": "Try again",
+    "تستكشف المنصة ستة مواقع أرضية وتوضح أوجه المقارنة المحددة مع القمر والمريخ، من دون اعتبارها بدائل مطابقة في الجاذبية أو الغلاف الجوي أو الإشعاع.": "Explore six sites on Earth and see how they can help answer specific questions about the Moon and Mars. They are not exact stand-ins for either world's gravity, atmosphere, or radiation environment.",
+    "اكتشف أوجه الشبه والاختلاف بين ستة مواقع أرضية وعوالم القمر والمريخ بمراجع NASA.": "Compare six Earth sites with the Moon and Mars using NASA references, and see where the similarities end.",
+    "تضاريس بازلتية وفوهات وأنفاق حمم لدراسة الجيولوجيا البركانية واختبار أدوات الاستكشاف القمري.": "Explore basalt terrain, impact craters, and lava tubes used to study volcanic geology and test tools for lunar exploration.",
+    "صحاري وتضاريس جافة تساعد على اختبار قراءة السطح وأدوات العمل الميداني، لا مناخ المريخ أو غلافه الجوي.": "Study how teams read dry terrain and operate in the field. These deserts do not reproduce Mars's climate or atmosphere.",
+    "ستة مواقع أرضية موثقة بمراجع وصور NASA، ولكل منها حدود مقارنة مختلفة.": "Six Earth sites documented with NASA references and imagery, each with its own limits as an analog.",
+    "تجمع جزيرة ديفون القطبية في كندا بين تضاريس صخرية وفوهة هوتون. يمكن دراسة بنية الاصطدام والاستطلاع الروبوتي فيها، لا اعتبارها نسخة من سطح القمر.": "Canada's polar Devon Island combines rugged terrain with Haughton Crater. It offers a setting for studying impact geology and robotic fieldwork, but it is not a replica of the lunar surface.",
+    "كاليفورنيا · الولايات المتحدة الأمريكية · حوض بادووتر": "Badwater Basin · California, United States",
+    "حوض بادووتر في وادي الموت حوض صحراوي وسبخة ملحية تتغير ملامحها مع الأحداث المطرية؛ صور ASTER المتاحة توثق مشاهد مؤرخة لا ظروفًا دائمة.": "Badwater Basin in Death Valley is a desert salt flat whose appearance changes after rain. The available ASTER images document specific dates, not permanent conditions.",
+    "عرض تفاعلي للمواقع وخصائصها وأوجه الشبه والاختلاف بينها.": "An interactive look at each site, its features, and the ways it differs from other analog environments.",
+    "خريطة تفاعلية، وأدلة صوتية، ومساعد محلي يجيب اعتمادًا على محتوى المشروع.": "An interactive map, audio guides, and an on-device assistant that answers using project content.",
+    "التأكيد الدائم على أن المواقع الأرضية تخدم أهداف اختبار محددة ولا تدعي تطابقًا تامًا مع الفضاء.": "A clear comparison method: Earth sites support specific tests; none is presented as an exact match for another world.",
+    "مواقع أرضية لدراسة خصائص قمرية محددة": "Earth sites for studying specific lunar features",
+    "مواقع أرضية لدراسة خصائص مريخية محددة": "Earth sites for studying specific Martian features",
+    "البيئات المشابهة للقمر": "Lunar analog environments",
+    "البيئات المشابهة للمريخ": "Mars analog environments",
+    "مشاكل وحلول رواد الفضاء": "Astronaut challenges and solutions",
+    "مرحبًا! أستطيع شرح المواقع الـ6 وحدود المقارنة العلمية.": "Hello! I can explain the six sites and the limits of each scientific comparison.",
+    "يلزم تفعيل JavaScript لاستخدام الخريطة التفاعلية والتنقل.": "JavaScript is required to use the interactive map and site navigation.",
+    "تم الإرسال": "Sent",
+    "اكتمل الرد": "Response complete",
+    "خريطة مصغرة لمواقع الاستكشاف": "Overview map of exploration sites",
+    "خريطة تفاعلية لصور NASA GIBS ومواقع الاستكشاف الستة": "Interactive map of NASA GIBS imagery and the six exploration sites",
+    "سديم نجمي في مشهد فضائي": "A nebula in a deep-space scene",
+    "المريخ كما رصده تلسكوب هابل": "Mars as seen by the Hubble Space Telescope",
+    "العودة إلى النهار": "Return to daytime",
+    "تبديل إلى الليل": "Switch to night",
+    "الكاميرا: منظور الشخص الثالث ✦": "Camera: third-person view ✦",
+    "الكاميرا: قناع الخوذة (منظور أول) ✦": "Camera: helmet view (first person) ✦",
+    "الكاميرا: مدار استطلاعي سينمائي ✦": "Camera: cinematic scout orbit ✦",
+    "🔭 رصد فلكي: استعراض كواكب المجموعة الشمسية والقمر من سطح المريخ": "🔭 Sky view: the planets and Moon as seen from Mars",
+    "🔭 رصد فلكي: استعراض كوكب الأرض وترتيب كواكب المجموعة الشمسية من سطح القمر": "🔭 Sky view: Earth and the planets as seen from the Moon",
+    "🔭 رصد فلكي: رؤية القمر في سماء الأرض النهارية": "🔭 Sky view: the Moon in Earth's daytime sky",
+    "صور الأقمار الصناعية عالية الدقة (Satellite Imagery)": "High-resolution satellite imagery",
+    "طبقة مرجعية عالمية من GIBS": "Global reference layer from GIBS",
+    "تضاريس وظلال مرجعية؛ ليست بثًا حيًا أو بيانات ميدانية.": "Reference terrain and shading, not live imagery or field data.",
+    "صور ميدانية أصلية للمواقع الستة": "Original field photos from the six sites",
+    "عارض صور المواقع": "Site photo viewer",
+    "إغلاق عارض الصور": "Close photo viewer",
+    "الصورة السابقة": "Previous photo",
+    "الصورة التالية": "Next photo",
+    "مواقع الاستكشاف ونظائرها الأرضية": "Exploration sites and Earth analogs",
+    "مشكلة وحل لكل موقع": "A challenge and a response for each site",
+    "ثماني بطاقات تربط كل تحدٍ بمكانه المحدد، وتفصل بين خبرة NASA الموثقة والمقترحات الخاصة بحملات المحاكاة الأرضية.": "Eight cards connect each challenge to a specific place, distinguishing documented NASA work from proposals for Earth-analog campaigns.",
+    "مصادر موثوقة ومرتبة": "Trusted, organized sources",
+    "اختر الموضوع، اقرأ ما يدعمه المرجع، ثم افتح رابطه الأصلي.": "Choose a topic, see what its sources support, then open the original reference.",
+    "فريق Analog TriNexus": "The Analog TriNexus team",
+    "اختبار على الأرض.. قبل الرحلة إلى الفضاء": "Test on Earth before the journey to space",
+    "تتيح البيئات الأرضية للفرق العلمية وهندسة الفضاء تجربة حركة المركبات الجوالة، وأذرع جمع العينات، وأجهزة التصوير والملاحة الذاتية، وإجراءات العمل الميداني في تضاريس قاسية وصخرية. تكشف هذه الاختبارات نقاط الضعف مبكرًا وتوفر مئات الملايين من الدولارات قبل إطلاق المركبات نحو الفضاء السحيق.": "Earth analogs let science and engineering teams test rover mobility, sample-collection tools, imaging and autonomous navigation, and field procedures in rugged terrain. Finding weaknesses on Earth can avoid costly changes after a spacecraft is launched.",
+    "تجربة تحمل العجلات وأنظمة الملاحة الذاتية فوق الحصى والرمال والتضاريس المنحدرة، تمامًا كما وثقت ناسا تجارب عربات K-10 في فوهة هوتون بكندا.": "Test wheel durability and autonomous navigation on gravel, sand, and slopes. NASA has documented K-10 rover field tests at Haughton Crater in Canada.",
+    "معايرة كاميرات الأشعة تحت الحمراء وأجهزة قياس الأطياف الصخرية واختبار آليات الحفر وأخذ اللباب في مواقع جافة؛ لا تعيد هذه الاختبارات إنتاج جاذبية الكواكب أو غلافها الجوي.": "Calibrate infrared cameras and rock spectrometers, and test drilling and core-sampling tools in dry terrain. These tests do not reproduce another world's gravity or atmosphere.",
+    "حافة فوهة ميتور": "Meteor Crater rim",
+    "مشهد ميداني يوضح الحافة الدائرية ومواد السطح حول فوهة الاصطدام.": "A field view of the crater's circular rim and surrounding impact debris.",
+    "جدار الفوهة الداخلي": "Inner crater wall",
+    "منظر من داخل الفوهة يبرز انحدار الجدار واتساع الحوض.": "A view from inside the crater showing the sloping wall and broad basin.",
+    "فوهة الاصطدام في أريزونا": "Impact crater in Arizona",
+    "منظر واسع للفوهة ضمن البيئة شبه الصحراوية المحيطة.": "A wide view of the crater and its semi-arid surroundings.",
+    "تضاريس صحراء أتاكاما": "Atacama Desert terrain",
+    "مشهد جوي للأحواض الجافة والتلال المكشوفة في شمال تشيلي.": "An aerial view of dry basins and exposed hills in northern Chile.",
+    "عربة استكشاف في أتاكاما": "Exploration rover in the Atacama",
+    "عربة روبوتية قرب نتوء صخري ضمن سهل صحراوي؛ المشهد يوضح سياق الاختبارات الميدانية.": "A robotic rover near a rocky outcrop on a desert plain, illustrating the setting for field tests.",
+    "وادي صخري في أتاكاما": "Rocky valley in the Atacama",
+    "منظر واسع لتلال وأودية جافة مكشوفة في شمال تشيلي.": "A wide view of exposed, arid hills and valleys in northern Chile.",
+    "تدفق بركاني يصل إلى الساحل": "Lava flow reaching the coast",
+    "تظهر الصورة تماس تدفق ساخن مع مياه المحيط وتكوّن بخار كثيف؛ لا تمثل موقعًا آمنًا للزيارة.": "The image shows hot lava meeting the ocean and producing dense steam. This is not a safe place to visit.",
+    "سطح تدفق حمم حديث": "Surface of a recent lava flow",
+    "تظهر قشرة داكنة مع شقوق متوهجة؛ المشهد يوثق نشاطًا بركانيًا ولا يعني أن كل تضاريس هاواي منصهرة.": "Dark crust and glowing cracks document volcanic activity; not all Hawaiian terrain is molten.",
+    "فوهة ونشاط بركاني": "Volcanic crater and activity",
+    "أبخرة ومواد متوهجة قرب فوهة بركانية؛ صورة للمقارنة البصرية وليست دعوة للاقتراب من منطقة نشطة.": "Steam and glowing material near a volcanic crater. The image is for visual comparison, not an invitation to approach an active area.",
+    "عربة استكشاف قرب فوهة هوتون": "Exploration rover near Haughton Crater",
+    "عربة ميدانية تختبر الحركة والاستطلاع في تضاريس جزيرة ديفون.": "A field rover testing mobility and reconnaissance on Devon Island.",
+    "محطة ميدانية في جزيرة ديفون": "Field station on Devon Island",
+    "منظر للمخيم البحثي المعزول في بيئة القطب الشمالي.": "A view of an isolated research camp in the Arctic.",
+    "وادي صخري قطبي": "Rocky Arctic valley",
+    "تضاريس مكشوفة واسعة ضمن البيئة الباردة والجافة لجزيرة ديفون.": "Broad areas of exposed terrain in Devon Island's cold, dry environment.",
+    "نهر تايلور الجليدي": "Taylor Glacier",
+    "نهر جليدي وبحوض صخري في الوديان الجافة بالقارة القطبية الجنوبية.": "A glacier and rocky basin in Antarctica's Dry Valleys.",
+    "أرض مكشوفة في ماكموردو": "Exposed ground in McMurdo",
+    "تربة جافة وحصى مكشوفة بين الجبال والكتل الجليدية.": "Dry soil and exposed gravel between mountains and ice masses.",
+    "الوديان الجافة من الجو": "Aerial view of the Dry Valleys",
+    "منظر إقليمي يوضح الجبال والوديان والأنهار الجليدية.": "A regional view of the mountains, valleys, and glaciers.",
+    "قشرة ملحية في وادي الموت": "Salt crust in Death Valley",
+    "أشكال متعددة الأضلاع على سطح سبخة جافة في حوض بادووتر.": "Polygonal patterns on a dry salt flat in Badwater Basin.",
+    "مسطحات بادووتر الملحية": "Badwater salt flats",
+    "منظر واسع للأملاح والجبال المحيطة بالحوض المغلق.": "A wide view of the salt flats and mountains around the closed basin.",
+    "رواسب تبخرية في الحوض": "Evaporite deposits in the basin",
+    "سطح ملحي متشقق تشكل مع تبخر المياه وتغير الظروف السطحية.": "A cracked salt surface shaped by evaporation and changing surface conditions.",
+    "فوهة ميتيور · مشهد ميداني يوضح الحافة الدائرية ومواد السطح حول فوهة الاصطدام.": "Meteor Crater · A field view of the circular rim and surrounding impact debris.",
+    "تضاريس صحراء أتاكاما · مشهد جوي للأحواض الجافة والتلال المكشوفة في شمال تشيلي.": "Atacama Desert · An aerial view of dry basins and exposed hills in northern Chile.",
+    "عربة استكشاف في أتاكاما · عربة روبوتية قرب نتوء صخري ضمن سهل صحراوي؛ المشهد يوضح سياق الاختبارات الميدانية.": "Atacama Desert · A robotic rover near a rocky outcrop on a desert plain, illustrating the setting for field tests.",
+    "وادي صخري في أتاكاما · منظر واسع لتلال وأودية جافة مكشوفة في شمال تشيلي.": "Atacama Desert · A wide view of exposed, arid hills and valleys in northern Chile.",
+    "ملف فوهة ميتيور": "Meteor Crater profile",
+    "ملف صحراء أتاكاما": "Atacama Desert profile",
+    "ملف جزر هاواي": "Hawaiian Islands profile",
+    "ملف جزيرة ديفون": "Devon Island profile",
+    "ملف الوديان الجافة في ماكموردو": "McMurdo Dry Valleys profile",
+    "ملف وادي الموت": "Death Valley profile"
   };
 
   const originalText = new WeakMap();
   const originalAttributes = new WeakMap();
   let language = localStorage.getItem(languageKey) === '"en"' ? "en" : "ar";
   let mutationObserver = null;
+  let gameSampleTranslations = null;
+
+  function getGameSampleTranslations() {
+    if (gameSampleTranslations) return gameSampleTranslations;
+    const sampleData = window.SpaceGameData;
+    if (!sampleData?.samplesFor) return null;
+    const translationsByValue = new Map();
+    const earthSites = [
+      ["meteor-crater", "moon"], ["hawaii", "moon"], ["devon", "moon"],
+      ["atacama", "mars"], ["death-valley", "mars"], ["mcmurdo", "mars"]
+    ];
+    const sampleSets = [
+      ...earthSites.map(([id, destination]) => sampleData.samplesFor({ character: "alien", destination, site: { id, ar: "" } })),
+      sampleData.samplesFor({ character: "astronaut", destination: "moon" }),
+      sampleData.samplesFor({ character: "astronaut", destination: "mars" })
+    ];
+    const fields = ["name", "type", "local", "analysis", "comparison", "limitations"];
+    sampleSets.flat().forEach(sample => fields.forEach(field => {
+      const source = sample[field];
+      const translation = sample[`${field}En`];
+      if (source && translation) translationsByValue.set(source, translation);
+    }));
+    gameSampleTranslations = translationsByValue;
+    return gameSampleTranslations;
+  }
 
   function translateValue(value) {
     const trimmed = value.trim();
@@ -812,6 +1060,26 @@
   function translateDynamic(value) {
     const location = value.match(/^الأرض · (.+) · وصف نوعي، لا قياسات آنية( · حركة أبطأ توضيحيًا على السطح البارد)?$/);
     if (location) return `Earth · ${translateValue(location[1])} · qualitative description, not live measurements${location[2] ? " · movement is slower over the cold terrain (illustrative)" : ""}`;
+    const siteMap = value.match(/^موقع (.+)$/);
+    if (siteMap) return `Site: ${translateValue(siteMap[1]).trim()}`;
+    const galleryCount = value.match(/^صور ميدانية أصلية للمواقع الستة · (\d+) صورة\.$/);
+    if (galleryCount) return `${galleryCount[1]} original field photos from the six sites.`;
+    const sitePhotos = value.match(/^صور (.+)$/);
+    if (sitePhotos) return `Photos of ${translateValue(sitePhotos[1]).trim()}`;
+    const zoomLabel = value.match(/^(?:تكبير|عرض) (.+?)(?: بحجم أكبر)?$/);
+    if (zoomLabel) return `View ${translateValue(zoomLabel[1]).trim()} larger`;
+    const journeyEvent = value.match(/^(بدء الاستكشاف|الانتقال إلى|بدء مسار المريخ|إكمال الموقع): (.+)$/);
+    if (journeyEvent) {
+      const labels = {
+        "بدء الاستكشاف": "Started exploring",
+        "الانتقال إلى": "Moved to",
+        "بدء مسار المريخ": "Started the Mars route at",
+        "إكمال الموقع": "Completed site"
+      };
+      return `${labels[journeyEvent[1]]}: ${translateValue(journeyEvent[2]).trim()}`;
+    }
+    const destinationComplete = value.match(/^إكمال استكشاف (.+)$/);
+    if (destinationComplete) return `Completed exploration of ${translateValue(destinationComplete[1]).trim()}`;
     const patterns = [
       [/^اجمع (\d+) عينات علمية$/, "Collect $1 scientific samples"],
       [/^اجمع (\d+) عينات ميدانية$/, "Collect $1 field samples"],
@@ -823,10 +1091,23 @@
       [/^تم إرسال الإشارة؛ اتبع المنارة إلى أقرب عينة على بعد (\d+) متر\.$/, "Signal sent; follow the beacon to the nearest sample, $1 meters away."],
       [/^تم إرسال تقرير الموقع إلى مركز التحكم\.$/, "Location report sent to mission control."],
       [/^اكتملت العينات ✦ أحسنت!$/, "Samples complete ✦ Great work!"],
-      [/^عربة الاستكشاف متاحة ✦ \+80 XP عند الفوهة$/, "Rover available ✦ +80 XP at the crater"]
+      [/^عربة الاستكشاف متاحة ✦ \+80 XP عند الفوهة$/, "Rover available ✦ +80 XP at the crater"],
+      [/^صور ميدانية أصلية للمواقع الستة · (\d+) صورة\.$/, "$1 original field photos from the six sites."]
     ];
     for (const [pattern, replacement] of patterns) {
       if (pattern.test(value)) return value.replace(pattern, replacement);
+    }
+    const sampleEvent = value.match(/^(اكتشاف|جمع|تحليل): (.+)$/);
+    if (sampleEvent) {
+      const verbs = { اكتشاف: "Found", جمع: "Collected", تحليل: "Analyzed" };
+      return `${verbs[sampleEvent[1]]}: ${translateValue(sampleEvent[2]).trim()}`;
+    }
+    const sampleTranslation = getGameSampleTranslations()?.get(value);
+    if (sampleTranslation) return sampleTranslation;
+    const segments = value.split(" · ");
+    if (segments.length > 1) {
+      const localized = segments.map(segment => translations[segment] || translateDynamic(segment) || segment);
+      if (localized.some((segment, index) => segment !== segments[index])) return localized.join(" · ");
     }
     return "";
   }
@@ -837,7 +1118,11 @@
     const english = language === "en";
     document.documentElement.lang = english ? "en" : "ar";
     document.documentElement.dir = english ? "ltr" : "rtl";
-    document.title = english ? "Planetary Exploration | Planetary Environments" : "Planetary Exploration | استكشاف البيئات الكوكبية";
+    document.title = english ? "Planetary Exploration | Planetary Environments" : "استكشاف الكواكب | البيئات الكوكبية";
+    const description = document.querySelector('meta[name="description"]');
+    if (description) description.content = english
+      ? "Planetary Exploration — An interactive science experience exploring Earth environments that offer specific comparisons to lunar and Martian terrain, using NASA information and imagery."
+      : "منصة علمية تفاعلية لاستكشاف البيئات الأرضية الشبيهة بالقمر والمريخ بالاستناد إلى معلومات وصور NASA.";
     document.body.classList.toggle("english-ui", english);
 
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -874,9 +1159,9 @@
     });
 
     document.querySelectorAll(".language-toggle").forEach(button => {
-      button.textContent = english ? "العربية" : "English";
-      button.setAttribute("aria-label", english ? "Switch the site to Arabic" : "Switch the site to English");
-      button.title = english ? "Switch language to Arabic" : "Switch language to English";
+      button.textContent = english ? "Arabic" : "الإنجليزية";
+      button.setAttribute("aria-label", english ? "Switch the site to Arabic" : "تبديل لغة الموقع إلى الإنجليزية");
+      button.title = english ? "Switch language to Arabic" : "تبديل اللغة إلى الإنجليزية";
     });
 
     if (document.body) {
@@ -898,6 +1183,7 @@
     language = language === "en" ? "ar" : "en";
     localStorage.setItem(languageKey, JSON.stringify(language));
     apply(document.body);
+    window.dispatchEvent(new CustomEvent("site-language-change", { detail: { language } }));
     return language;
   }
 

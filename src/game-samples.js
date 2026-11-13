@@ -1,9 +1,60 @@
 (function initializeSpaceGameData(global) {
   const lunarSource = "https://curator.jsc.nasa.gov/lunar/";
   const marsSource = "https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples/";
-  const sample = (key, name, type, form, color, size, local, analysis, comparison, limitations, source) => ({
-    key, name, type, form, color, size, local, analysis, comparison, limitations, source
-  });
+  const englishSamples = {
+    "ejecta-fragment": ["Impact ejecta fragment", "Impact-related debris"],
+    "crater-wall": ["Crater-wall fragment", "Angular rock fragment"],
+    "rim-clast": ["Crater-rim rock", "Rock clast"],
+    "impact-matrix": ["Fine crater-floor sediment", "Unclassified surface sediment"],
+    "ejecta-block": ["Large ejecta block", "Impact-related boulder"],
+    "lava-slab": ["Lava-flow slab", "Representative volcanic rock"],
+    "lava-clast": ["Angular lava fragment", "Representative volcanic fragments"],
+    "lava-rounded": ["Weathered lava block", "Representative volcanic boulder"],
+    "lava-vesicular": ["Illustrative porous lava", "Volcanic texture model"],
+    "lava-flow-edge": ["Solidified flow edge", "Representative lava-flow surface"],
+    "impact-fragment": ["Impact-related fragment", "Representative rock fragments"],
+    "haughton-breccia": ["Haughton breccia model", "Visual impact-rock model"],
+    "polar-clast": ["Polar rock clast", "Unanalyzed rock"],
+    "talus-fragment": ["Rock-slope fragment", "Slope debris"],
+    "surface-matrix": ["Frozen polar soil", "Permafrost soil model"],
+    "fan-fine-sediment": ["Fine alluvial-fan sediment", "Fine sediment"],
+    "fan-pebble": ["Alluvial-fan pebble", "Representative sedimentary pebble"],
+    "channel-gravel": ["Dry-channel gravel", "Channel sediment"],
+    "fan-layer": ["Surface salt crust", "Possible gypsum or halite model"],
+    "channel-clast": ["Channel-edge rock", "Representative sedimentary fragment"],
+    "basin-fine-sediment": ["Fine Badwater Basin sediment", "Basin sediment"],
+    "basin-crust": ["Evaporite crust", "Possible local salt-crust model"],
+    "basin-pebble": ["Basin-floor pebble", "Unclassified pebble"],
+    "wash-gravel": ["Wash-channel gravel", "Representative runoff sediment"],
+    "playa-fragment": ["Playa-surface fragment", "Unclassified surface fragment"],
+    "dry-valley-clast": ["Dry-valley rock fragment", "Unanalyzed rock fragment"],
+    "dry-valley-gravel": ["Surface gravel", "Gravel sediment"],
+    "talus-rock": ["Talus block", "Rock boulder"],
+    "dry-channel-sediment": ["Dry-channel sediment", "Channel sediment"],
+    "cold-desert-matrix": ["Ice chip from a covered lake", "Virtual ice sample"],
+    "mare-regolith": ["Lunar-plain regolith", "Representative lunar regolith"],
+    "mare-basalt": ["Lunar mare basalt", "Representative lunar basalt"],
+    "highlands-rock": ["Lunar highlands fragment", "Representative crust fragment"],
+    "impact-breccia": ["Lunar impact breccia", "Representative breccia"],
+    agglutinate: ["Regolith glass agglutinate", "Representative glassy grains"],
+    "lunar-core": ["Lunar soil core", "Representative layered soil"],
+    "jezero-igneous-a": ["Jezero floor igneous rock", "Representative Martian igneous rock"],
+    "jezero-igneous-b": ["Water-altered volcanic fragment", "Representative igneous fragment"],
+    "delta-mudstone": ["Jezero delta mudstone", "Representative sedimentary rock"],
+    "delta-sandstone": ["Jezero delta sandstone", "Representative sedimentary fragment"],
+    "jezero-regolith": ["Loose Martian regolith", "Representative Martian surface material"],
+    "delta-conglomerate": ["Jezero channel conglomerate", "Representative coarse sedimentary rock"]
+  };
+  const sample = (key, name, type, form, color, size, local, analysis, comparison, limitations, source) => {
+    const [nameEn, typeEn] = englishSamples[key] || ["Virtual sample", "Illustrative sample"];
+    return {
+      key, name, type, nameEn, typeEn, form, color, size, local, analysis, comparison, limitations, source,
+      localEn: "Illustrative virtual model based on the selected site or mission.",
+      analysisEn: "This is a teaching model, not a laboratory result. The linked NASA reference documents the site or mission, not this item's measured composition.",
+      comparisonEn: "Use the model to practice observation and sample-handling tasks; it does not reproduce another world's environment.",
+      limitationsEn: "No physical specimen or site-specific laboratory measurement is represented."
+    };
+  };
 
   const earthSamples = {
     "meteor-crater": [

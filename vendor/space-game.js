@@ -39853,7 +39853,7 @@ var endShapeContactEvent = {
   shapeB: null
 };
 
-// space-game.js
+// src/space-game.js
 var TAU = Math.PI * 2;
 var OXYGEN_LIMIT_SECONDS = 120;
 var WORLD_RADIUS = 82;
@@ -40042,6 +40042,7 @@ function createSaturnRingTexture() {
 var worldLooks = {
   earth: {
     label: "\u0633\u0637\u062D \u0627\u0644\u0623\u0631\u0636 \u0627\u0644\u0646\u0638\u064A\u0631",
+    labelEn: "Earth analog surface",
     sky: 5678306,
     fog: 9751792,
     ground: [5920581, 8811608, 10981742],
@@ -40055,10 +40056,12 @@ var worldLooks = {
     jumpHeight: 1.05,
     sunIntensity: 2.8,
     dust: 12494210,
-    envName: "\u0643\u0648\u0643\u0628 \u0627\u0644\u0623\u0631\u0636 \xB7 \u062C\u0627\u0630\u0628\u064A\u0629 1.0g (9.81 m/s\xB2) \xB7 \u0633\u0645\u0627\u0621 \u0646\u0647\u0627\u0631\u064A\u0629 \u0648\u063A\u0644\u0627\u0641 \u062C\u0648\u064A \u0637\u0628\u064A\u0639\u064A"
+    envName: "\u0643\u0648\u0643\u0628 \u0627\u0644\u0623\u0631\u0636 \xB7 \u062C\u0627\u0630\u0628\u064A\u0629 1.0g (9.81 m/s\xB2) \xB7 \u0633\u0645\u0627\u0621 \u0646\u0647\u0627\u0631\u064A\u0629 \u0648\u063A\u0644\u0627\u0641 \u062C\u0648\u064A \u0637\u0628\u064A\u0639\u064A",
+    envNameEn: "Earth \xB7 1.0g gravity (9.81 m/s\xB2) \xB7 daylight and a natural atmosphere"
   },
   mars: {
     label: "\u0633\u0637\u062D \u0627\u0644\u0645\u0631\u064A\u062E \u0627\u0644\u062D\u0642\u064A\u0642\u064A (\u0641\u0648\u0647\u0629 \u062C\u064A\u0632\u064A\u0631\u0648 / \u0633\u064A\u0646\u0627\u0621)",
+    labelEn: "Mars surface (Jezero / Sinai) \xB7 illustrative",
     sky: 4726291,
     fog: 7221535,
     ground: [5512980, 10633506, 13920314],
@@ -40072,10 +40075,12 @@ var worldLooks = {
     jumpHeight: 1.65,
     sunIntensity: 1.45,
     dust: 14051384,
-    envName: "\u0633\u0637\u062D \u0627\u0644\u0645\u0631\u064A\u062E \xB7 \u0627\u0644\u062C\u0627\u0630\u0628\u064A\u0629 0.38g \xB7 95% CO\u2082"
+    envName: "\u0633\u0637\u062D \u0627\u0644\u0645\u0631\u064A\u062E \xB7 \u0627\u0644\u062C\u0627\u0630\u0628\u064A\u0629 0.38g \xB7 95% CO\u2082",
+    envNameEn: "Mars \xB7 0.38g gravity \xB7 95% CO\u2082 atmosphere"
   },
   moon: {
     label: "\u0633\u0637\u062D \u0627\u0644\u0642\u0645\u0631 \u0627\u0644\u062D\u0642\u064A\u0642\u064A (\u0628\u062D\u0631 \u0627\u0644\u0633\u0643\u0648\u0646 / \u0627\u0644\u0645\u0631\u062A\u0641\u0639\u0627\u062A)",
+    labelEn: "Lunar surface (Mare Tranquillitatis / highlands) \xB7 illustrative",
     sky: 0,
     fog: 0,
     ground: [3158840, 7238524, 10725035],
@@ -40089,8 +40094,26 @@ var worldLooks = {
     jumpHeight: 2.9,
     sunIntensity: 3.6,
     dust: 11909053,
-    envName: "\u0633\u0637\u062D \u0627\u0644\u0642\u0645\u0631 \xB7 \u0627\u0644\u062C\u0627\u0630\u0628\u064A\u0629 0.16g \xB7 \u0641\u0631\u0627\u063A \u0643\u0648\u0646\u064A \u062A\u0627\u0645 \xB7 \u062D\u0631\u0627\u0631\u0629 -130\xB0C/+120\xB0C"
+    envName: "\u0633\u0637\u062D \u0627\u0644\u0642\u0645\u0631 \xB7 \u0627\u0644\u062C\u0627\u0630\u0628\u064A\u0629 0.16g \xB7 \u0641\u0631\u0627\u063A \u0643\u0648\u0646\u064A \u062A\u0627\u0645 \xB7 \u062D\u0631\u0627\u0631\u0629 -130\xB0C/+120\xB0C",
+    envNameEn: "Moon \xB7 0.16g gravity \xB7 vacuum \xB7 temperatures from -130\xB0C to +120\xB0C"
   }
+};
+var celestialLabelEnglish = {
+  "\u0627\u0644\u0634\u0645\u0633 \u2609": ["Sun \u2609", "Center of the solar system"],
+  "\u0639\u0637\u0627\u0631\u062F \u263F": ["Mercury \u263F", "First planet from the Sun"],
+  "\u0627\u0644\u0632\u0647\u0631\u0629 \u2640": ["Venus \u2640", "Second planet \xB7 brightest planet"],
+  "\u0643\u0648\u0643\u0628 \u0627\u0644\u0623\u0631\u0636 \u0648\u0627\u0644\u0642\u0645\u0631 \u2641": ["Earth and Moon \u2641", "Home of humanity and life"],
+  "\u0643\u0648\u0643\u0628 \u0627\u0644\u0623\u0631\u0636 \u2641": ["Earth \u2641", "Earth rotates as the Moon orbits it"],
+  "\u0627\u0644\u0623\u0631\u0636 \u2641": ["Earth \u2641", "Earth's orbit around the Sun"],
+  "\u0627\u0644\u0645\u0631\u064A\u062E \xB7 \u0645\u0648\u0642\u0639\u0643 \u0627\u0644\u062D\u0627\u0644\u064A \u2642": ["Mars \xB7 current location \u2642", "Your mission world orbits the Sun"],
+  "\u0641\u0648\u0628\u0648\u0633": ["Phobos", "Mars's faster, inner moon"],
+  "\u062F\u064A\u0645\u0648\u0633": ["Deimos", "Mars's outer moon"],
+  "\u0627\u0644\u0645\u0631\u064A\u062E \u2642": ["Mars \u2642", "Fourth planet and its moons"],
+  "\u062D\u0632\u0627\u0645 \u0627\u0644\u0643\u0648\u064A\u0643\u0628\u0627\u062A": ["Asteroid belt", "Between the orbits of Mars and Jupiter"],
+  "\u0627\u0644\u0645\u0634\u062A\u0631\u064A \u2643": ["Jupiter \u2643", "The giant planet and its four moons"],
+  "\u0632\u062D\u0644 \u2644": ["Saturn \u2644", "The jewel of the icy rings"],
+  "\u0623\u0648\u0631\u0627\u0646\u0648\u0633 \u2645": ["Uranus \u2645", "The tilted ice giant"],
+  "\u0646\u0628\u062A\u0648\u0646 \u2646": ["Neptune \u2646", "The distant blue planet"]
 };
 var siteTerrainProfiles = {
   "meteor-crater": { terrain: "impact", ground: [6839371, 9535594, 11903364], rock: [6642510, 8943198], sample: "fragment", sky: 9287896, fog: 13162460, hemiSky: 13099505, hemiGround: 5917499, sunIntensity: 2.55, audio: { droneFreqs: [58, 116, 174], windCutoff: 180, windGain: 6e-3, stepCutoff: 620, stepTone: 74 } },
@@ -40115,6 +40138,9 @@ function stopSpaceExplorer() {
   if (!activeWorld) return;
   activeWorld.dispose();
   activeWorld = null;
+}
+function setSpaceExplorerLanguage(language) {
+  if (activeWorld instanceof SpaceWorld) activeWorld.setLanguage(language);
 }
 function getSpaceExplorerResumeState() {
   if (!(activeWorld instanceof SpaceWorld) || !activeWorld.playerBody) return null;
@@ -40207,6 +40233,8 @@ var SpacePreview = class {
 var SpaceWorld = class {
   constructor(config) {
     this.config = config;
+    this.language = config.language || document.documentElement.lang || "ar";
+    this.celestialLabels = [];
     this.container = config.container;
     this.hud = config.hud || this.container.parentElement;
     this.siteProfile = siteTerrainProfiles[config.stageSite?.id] || null;
@@ -40707,7 +40735,7 @@ var SpaceWorld = class {
       });
     }
     const telemetry = this.hud.querySelector("#game-telemetry-text");
-    if (telemetry) telemetry.textContent = night ? "\u0643\u0648\u0643\u0628 \u0627\u0644\u0623\u0631\u0636 \xB7 \u0633\u0645\u0627\u0621 \u0644\u064A\u0644\u064A\u0629 \u0635\u0627\u0641\u064A\u0629 \u0648\u0646\u062C\u0648\u0645 \u0648\u0638\u0647\u0648\u0631 \u0648\u0627\u0642\u0639\u064A \u0644\u0644\u0642\u0645\u0631 \u0645\u0639 \u0625\u0636\u0627\u0621\u0629 \u0648\u0627\u0636\u062D\u0629 \u0644\u0644\u0623\u0631\u0636" : this.look.envName;
+    if (telemetry) telemetry.textContent = night ? this.language === "en" ? "Earth \xB7 clear night sky, stars, and the Moon visible in reflected light" : "\u0643\u0648\u0643\u0628 \u0627\u0644\u0623\u0631\u0636 \xB7 \u0633\u0645\u0627\u0621 \u0644\u064A\u0644\u064A\u0629 \u0635\u0627\u0641\u064A\u0629 \u0648\u0646\u062C\u0648\u0645 \u0648\u0638\u0647\u0648\u0631 \u0648\u0627\u0642\u0639\u064A \u0644\u0644\u0642\u0645\u0631 \u0645\u0639 \u0625\u0636\u0627\u0621\u0629 \u0648\u0627\u0636\u062D\u0629 \u0644\u0644\u0623\u0631\u0636" : this.language === "en" ? this.look.envNameEn : this.look.envName;
     if (this.skyDome?.material?.uniforms) {
       this.skyDome.material.uniforms.horizonColor.value.set(night ? 66834 : 10015992);
       this.skyDome.material.uniforms.zenithColor.value.set(night ? 259 : 1929412);
@@ -40722,7 +40750,7 @@ var SpaceWorld = class {
     if (button) {
       button.textContent = night ? "\u2600" : "\u263E";
       button.setAttribute("aria-pressed", String(night));
-      button.title = night ? "\u0627\u0644\u0639\u0648\u062F\u0629 \u0625\u0644\u0649 \u0627\u0644\u0646\u0647\u0627\u0631" : "\u062A\u0628\u062F\u064A\u0644 \u0625\u0644\u0649 \u0627\u0644\u0644\u064A\u0644";
+      button.title = night ? this.language === "en" ? "Return to daytime" : "\u0627\u0644\u0639\u0648\u062F\u0629 \u0625\u0644\u0649 \u0627\u0644\u0646\u0647\u0627\u0631" : this.language === "en" ? "Switch to night" : "\u062A\u0628\u062F\u064A\u0644 \u0625\u0644\u0649 \u0627\u0644\u0644\u064A\u0644";
     }
   }
   createMilkyWayBand() {
@@ -40814,34 +40842,6 @@ var SpaceWorld = class {
     canvas.width = 440;
     canvas.height = 110;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "rgba(12, 18, 38, 0.84)";
-    ctx.strokeStyle = "rgba(99, 180, 240, 0.65)";
-    ctx.lineWidth = 3;
-    const r = 24;
-    const w = 424, h = 96, x = 8, y = 7;
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 30px Tajawal, sans-serif";
-    ctx.fillText(title, 220, subtitle ? 40 : 54);
-    if (subtitle) {
-      ctx.fillStyle = "#93c5fd";
-      ctx.font = "20px Tajawal, sans-serif";
-      ctx.fillText(subtitle, 220, 74);
-    }
     const texture = new CanvasTexture(canvas);
     texture.colorSpace = SRGBColorSpace;
     const spriteMaterial = new SpriteMaterial({
@@ -40852,6 +40852,45 @@ var SpaceWorld = class {
     });
     const sprite = new Sprite(spriteMaterial);
     sprite.scale.set(42, 10.5, 1);
+    const [titleEn, subtitleEn] = celestialLabelEnglish[title] || [title, subtitle];
+    const drawLabel = (language) => {
+      const english = language === "en";
+      const labelTitle = english ? titleEn : title;
+      const labelSubtitle = english ? subtitleEn : subtitle;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(12, 18, 38, 0.84)";
+      ctx.strokeStyle = "rgba(99, 180, 240, 0.65)";
+      ctx.lineWidth = 3;
+      const radius = 24;
+      const width = 424, height = 96, left = 8, top = 7;
+      ctx.beginPath();
+      ctx.moveTo(left + radius, top);
+      ctx.lineTo(left + width - radius, top);
+      ctx.quadraticCurveTo(left + width, top, left + width, top + radius);
+      ctx.lineTo(left + width, top + height - radius);
+      ctx.quadraticCurveTo(left + width, top + height, left + width - radius, top + height);
+      ctx.lineTo(left + radius, top + height);
+      ctx.quadraticCurveTo(left, top + height, left, top + height - radius);
+      ctx.lineTo(left, top + radius);
+      ctx.quadraticCurveTo(left, top, left + radius, top);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold 30px ${english ? '"Plus Jakarta Sans"' : "Tajawal"}, sans-serif`;
+      ctx.fillText(labelTitle, 220, labelSubtitle ? 40 : 54);
+      if (labelSubtitle) {
+        ctx.fillStyle = "#93c5fd";
+        ctx.font = `20px ${english ? '"Plus Jakarta Sans"' : "Tajawal"}, sans-serif`;
+        ctx.fillText(labelSubtitle, 220, 74);
+      }
+      texture.needsUpdate = true;
+    };
+    sprite.userData.setLanguage = drawLabel;
+    this.celestialLabels.push(sprite);
+    drawLabel(this.language);
     return sprite;
   }
   createOrbitRing(center, u, v, radius, color = 5614284, opacity = 0.35) {
@@ -42245,9 +42284,9 @@ var SpaceWorld = class {
       helmetOverlay.hidden = this.cameraMode !== "first";
     }
     const labels = {
-      third: "\u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627: \u0645\u0646\u0638\u0648\u0631 \u0627\u0644\u0634\u062E\u0635 \u0627\u0644\u062B\u0627\u0644\u062B \u2726",
-      first: "\u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627: \u0642\u0646\u0627\u0639 \u0627\u0644\u062E\u0648\u0630\u0629 (\u0645\u0646\u0638\u0648\u0631 \u0623\u0648\u0644) \u2726",
-      drone: "\u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627: \u0645\u062F\u0627\u0631 \u0627\u0633\u062A\u0637\u0644\u0627\u0639\u064A \u0633\u064A\u0646\u0645\u0627\u0626\u064A \u2726"
+      third: this.language === "en" ? "Camera: third-person view \u2726" : "\u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627: \u0645\u0646\u0638\u0648\u0631 \u0627\u0644\u0634\u062E\u0635 \u0627\u0644\u062B\u0627\u0644\u062B \u2726",
+      first: this.language === "en" ? "Camera: helmet view (first person) \u2726" : "\u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627: \u0642\u0646\u0627\u0639 \u0627\u0644\u062E\u0648\u0630\u0629 (\u0645\u0646\u0638\u0648\u0631 \u0623\u0648\u0644) \u2726",
+      drone: this.language === "en" ? "Camera: cinematic scout orbit \u2726" : "\u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627: \u0645\u062F\u0627\u0631 \u0627\u0633\u062A\u0637\u0644\u0627\u0639\u064A \u0633\u064A\u0646\u0645\u0627\u0626\u064A \u2726"
     };
     this.toast(labels[this.cameraMode]);
     this.playPing(720, 0.08);
@@ -42455,8 +42494,24 @@ var SpaceWorld = class {
   updateEnvironmentalTelemetry() {
     const badge = this.hud.querySelector("#game-telemetry-text");
     if (badge) {
-      badge.textContent = this.look.envName;
+      badge.textContent = this.language === "en" ? this.look.envNameEn : this.look.envName;
     }
+  }
+  setLanguage(language) {
+    this.language = language === "en" ? "en" : "ar";
+    this.celestialLabels.forEach((label) => label.userData.setLanguage?.(this.language));
+    setText(this.hud, "#game-world-label", this.language === "en" ? this.look.labelEn : this.look.label);
+    this.updateHud();
+    this._renderInventory();
+    this.updateEnvironmentalTelemetry();
+    const toast = this.hud.querySelector("#game-toast");
+    if (toast) {
+      clearTimeout(this.toastTimeout);
+      toast.textContent = "";
+      toast.classList.remove("is-visible");
+    }
+    const dayNightButton = this.hud.querySelector('[data-engine-action="day-night"]');
+    if (dayNightButton) dayNightButton.title = this.isNight ? this.language === "en" ? "Return to daytime" : "\u0627\u0644\u0639\u0648\u062F\u0629 \u0625\u0644\u0649 \u0627\u0644\u0646\u0647\u0627\u0631" : this.language === "en" ? "Switch to night" : "\u062A\u0628\u062F\u064A\u0644 \u0625\u0644\u0649 \u0627\u0644\u0644\u064A\u0644";
   }
   /* -----------------------------------------------------------------------
      Gameplay Actions (Jump/Jetpack, Interact, Scan, Rover)
@@ -42501,8 +42556,9 @@ var SpaceWorld = class {
       this.toast("\u0627\u0642\u062A\u0631\u0628 \u0645\u0646 \u0625\u0634\u0627\u0631\u0629 \u0639\u064A\u0646\u0629 \u0623\u0648 \u0645\u0648\u0642\u0639 \u0627\u0644\u0627\u0633\u062A\u0643\u0634\u0627\u0641.");
       return;
     }
+    const sampleName = this.language === "en" ? sample.nameEn || sample.name || sample.typeEn || sample.type : sample.name || sample.type;
     if (sample.collected) {
-      this.toast(this.isAlien ? sample.name : `\u062A\u0645 \u062C\u0645\u0639 ${sample.name || sample.type} \u0633\u0627\u0628\u0642\u0627\u064B \xB7 R \u0644\u0639\u0631\u0636 \u062D\u0642\u064A\u0628\u0629 \u0627\u0644\u0639\u064A\u0646\u0627\u062A`);
+      this.toast(this.isAlien ? sampleName : this.language === "en" ? `Already collected: ${sampleName} \xB7 Press R to open the sample bag` : `\u062A\u0645 \u062C\u0645\u0639 ${sampleName} \u0633\u0627\u0628\u0642\u0627\u064B \xB7 R \u0644\u0639\u0631\u0636 \u062D\u0642\u064A\u0628\u0629 \u0627\u0644\u0639\u064A\u0646\u0627\u062A`);
       return;
     }
     sample.collected = true;
@@ -42515,7 +42571,7 @@ var SpaceWorld = class {
       this.progress.xp += 15;
     }
     this.playCollectChime();
-    this.toast(`\u2726 ${sample.name || sample.type}`);
+    this.toast(`\u2726 ${sampleName}`);
     this.syncProgress();
     this.checkSiteCompletion();
     window.setTimeout(() => this.toggleInventory(true), 420);
@@ -42592,7 +42648,11 @@ var SpaceWorld = class {
     });
     return nearest;
   }
-  toggleEquipmentPanel(force) { if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world)) { this.toast("المعدات متاحة لرائد الفضاء على القمر أو المريخ فقط."); return; }
+  toggleEquipmentPanel(force) {
+    if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world)) {
+      this.toast("\u0627\u0644\u0645\u0639\u062F\u0627\u062A \u0645\u062A\u0627\u062D\u0629 \u0644\u0631\u0627\u0626\u062F \u0627\u0644\u0641\u0636\u0627\u0621 \u0639\u0644\u0649 \u0627\u0644\u0642\u0645\u0631 \u0623\u0648 \u0627\u0644\u0645\u0631\u064A\u062E \u0641\u0642\u0637.");
+      return;
+    }
     const panel = this.hud.querySelector("#game-equipment-panel");
     if (!panel) return;
     const open = typeof force === "boolean" ? force : panel.hidden;
@@ -42606,7 +42666,11 @@ var SpaceWorld = class {
       this.paused = false;
     }
   }
-  useEquipment(itemId) { if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world)) { this.toast("المعدات متاحة لرائد الفضاء على القمر أو المريخ فقط."); return; }
+  useEquipment(itemId) {
+    if (this.config.character !== "astronaut" || !["moon", "mars"].includes(this.config.world)) {
+      this.toast("\u0627\u0644\u0645\u0639\u062F\u0627\u062A \u0645\u062A\u0627\u062D\u0629 \u0644\u0631\u0627\u0626\u062F \u0627\u0644\u0641\u0636\u0627\u0621 \u0639\u0644\u0649 \u0627\u0644\u0642\u0645\u0631 \u0623\u0648 \u0627\u0644\u0645\u0631\u064A\u062E \u0641\u0642\u0637.");
+      return;
+    }
     if (!this.equipment.includes(itemId)) {
       this.toast("\u0647\u0630\u0647 \u0627\u0644\u0642\u0637\u0639\u0629 \u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F\u0629 \u0641\u064A \u0639\u062A\u0627\u062F \u0631\u062D\u0644\u062A\u0643.");
       return;
@@ -42714,7 +42778,7 @@ var SpaceWorld = class {
   updateHud() {
     setText(this.hud, "#game-xp-value", String(this.progress.xp));
     setText(this.hud, "#game-sample-count", `${this.worldCollectedCount()}/${this.sampleGoal}`);
-    setText(this.hud, "#game-world-label", this.look.label);
+    setText(this.hud, "#game-world-label", this.language === "en" ? this.look.labelEn : this.look.label);
     const complete = this.isSampleMissionComplete();
     const craterDone = this.progress.completedMissions.includes(this.craterMissionId);
     const oxygenMeter = this.hud.querySelector(".game-oxygen-meter");
@@ -42790,17 +42854,19 @@ var SpaceWorld = class {
   _renderInventory() {
     const list = this.hud.querySelector("#game-inventory-list");
     if (!list) return;
+    const english = document.documentElement.lang === "en";
     const collectionOrder = new Map(this.progress.collectedSamples.map((id, index) => [id, index]));
     const collected = this.samples.filter((sample) => sample.collected).sort((first, second) => collectionOrder.get(first.id) - collectionOrder.get(second.id));
     if (collected.length === 0) {
-      list.innerHTML = `<p style="color:#88aabb;text-align:center;padding:28px 0;font-size:1.05rem;">\u0644\u0645 \u062A\u062C\u0645\u0639 \u0623\u064A \u0639\u064A\u0646\u0627\u062A \u0628\u0639\u062F \u2726 \u0627\u0633\u062A\u062E\u062F\u0645 E \u0644\u0644\u062C\u0645\u0639</p>`;
+      list.innerHTML = `<p style="color:#88aabb;text-align:center;padding:28px 0;font-size:1.05rem;">${english ? "No samples collected yet \u2726 Press E to collect" : "\u0644\u0645 \u062A\u062C\u0645\u0639 \u0623\u064A \u0639\u064A\u0646\u0627\u062A \u0628\u0639\u062F \u2726 \u0627\u0633\u062A\u062E\u062F\u0645 E \u0644\u0644\u062C\u0645\u0639"}</p>`;
       return;
     }
     list.innerHTML = collected.map((sample) => {
-      const nameLabel = sample.name || sample.type;
+      const nameLabel = english ? sample.nameEn || sample.name || sample.typeEn || sample.type : sample.name || sample.type;
+      const typeLabel = english ? sample.typeEn || sample.type || "Illustrative sample" : sample.type || "\u0639\u064A\u0646\u0629 \u0627\u0641\u062A\u0631\u0627\u0636\u064A\u0629";
       const sampleNumber = collectionOrder.get(sample.id) + 1;
       const analyzed = this.progress.analyzedSamples.includes(sample.id);
-      return `<article class="game-inventory-item game-analyzer-item"><div class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">\u0627\u0644\u0639\u064A\u0646\u0629 \u0631\u0642\u0645 ${sampleNumber} \xB7 ${sample.type || "\u0639\u064A\u0646\u0629 \u0627\u0641\u062A\u0631\u0627\u0636\u064A\u0629"}</small></div><button type="button" class="game-analyze-button" data-sample-analysis="${sample.id}" ${analyzed ? "disabled" : ""}>${analyzed ? "\u062A\u0645 \u0627\u0644\u062A\u062D\u0644\u064A\u0644" : "\u062A\u062D\u0644\u064A\u0644 \u0627\u0644\u0639\u064A\u0646\u0629"}</button>${analyzed ? `<div class="game-analysis-result"><strong>\u0642\u0631\u0627\u0621\u0629 \u062A\u0639\u0644\u064A\u0645\u064A\u0629 \xB7 \u0644\u064A\u0633\u062A \u0646\u062A\u064A\u062C\u0629 \u0645\u062E\u062A\u0628\u0631\u064A\u0629</strong><p>${sample.analysis}</p><small>\u0645\u0648\u0627\u062F \u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u0645\u0631\u062C\u0639\u064A\u0629: ${this.stageSite?.science?.rocks || "\u0644\u0627 \u062A\u062A\u0648\u0641\u0631 \u0628\u064A\u0627\u0646\u0627\u062A \u062A\u0631\u0643\u064A\u0628 \u0645\u062D\u062F\u062F\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0648\u0642\u0639."}</small><small>${sample.limitations}</small><a href="${sample.source}" target="_blank" rel="noopener noreferrer">\u0641\u062A\u062D \u0627\u0644\u0645\u0631\u062C\u0639 \u2197</a></div>` : ""}</article>`;
+      return `<article class="game-inventory-item game-analyzer-item"><div class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">${english ? `Sample ${sampleNumber}` : `\u0627\u0644\u0639\u064A\u0646\u0629 \u0631\u0642\u0645 ${sampleNumber}`} \xB7 ${typeLabel}</small></div><button type="button" class="game-analyze-button" data-sample-analysis="${sample.id}" ${analyzed ? "disabled" : ""}>${analyzed ? english ? "Analyzed" : "\u062A\u0645 \u0627\u0644\u062A\u062D\u0644\u064A\u0644" : english ? "Analyze sample" : "\u062A\u062D\u0644\u064A\u0644 \u0627\u0644\u0639\u064A\u0646\u0629"}</button>${analyzed ? `<div class="game-analysis-result"><strong>${english ? "Educational interpretation \xB7 Not a laboratory result" : "\u0642\u0631\u0627\u0621\u0629 \u062A\u0639\u0644\u064A\u0645\u064A\u0629 \xB7 \u0644\u064A\u0633\u062A \u0646\u062A\u064A\u062C\u0629 \u0645\u062E\u062A\u0628\u0631\u064A\u0629"}</strong><p>${english ? sample.analysisEn || "This virtual model has no laboratory result." : sample.analysis}</p><small>${english ? "Site reference materials:" : "\u0645\u0648\u0627\u062F \u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u0645\u0631\u062C\u0639\u064A\u0629:"} ${english ? this.stageSite?.science?.rocksEn || window.siteI18n?.translateValue(this.stageSite?.science?.rocks || "") || "No specific composition data is available for this site." : this.stageSite?.science?.rocks || "\u0644\u0627 \u062A\u062A\u0648\u0641\u0631 \u0628\u064A\u0627\u0646\u0627\u062A \u062A\u0631\u0643\u064A\u0628 \u0645\u062D\u062F\u062F\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0648\u0642\u0639."}</small><small>${english ? sample.limitationsEn || "No physical specimen or site-specific laboratory measurement is represented." : sample.limitations}</small><a href="${sample.source}" target="_blank" rel="noopener noreferrer">${english ? "Open reference \u2197" : "\u0641\u062A\u062D \u0627\u0644\u0645\u0631\u062C\u0639 \u2197"}</a></div>` : ""}</article>`;
     }).join("");
   }
   analyzeSample(sampleId) {
@@ -42810,7 +42876,8 @@ var SpaceWorld = class {
     this.progress.xp += 5;
     this.syncProgress();
     this._renderInventory();
-    this.toast(`\u0627\u0643\u062A\u0645\u0644 \u0627\u0644\u0641\u062D\u0635 \u0627\u0644\u062A\u0639\u0644\u064A\u0645\u064A: ${sample.name || sample.type}. \u0631\u0627\u062C\u0639 \u062D\u062F\u0648\u062F \u0627\u0644\u062A\u062D\u0644\u064A\u0644 \u0641\u064A \u0627\u0644\u062D\u0642\u064A\u0628\u0629.`);
+    const english = document.documentElement.lang === "en";
+    this.toast(english ? `Educational scan complete: ${sample.nameEn || sample.name || sample.typeEn || sample.type}. Review the analysis limits in the sample bag.` : `\u0627\u0643\u062A\u0645\u0644 \u0627\u0644\u0641\u062D\u0635 \u0627\u0644\u062A\u0639\u0644\u064A\u0645\u064A: ${sample.name || sample.type}. \u0631\u0627\u062C\u0639 \u062D\u062F\u0648\u062F \u0627\u0644\u062A\u062D\u0644\u064A\u0644 \u0641\u064A \u0627\u0644\u062D\u0642\u064A\u0628\u0629.`);
     this.playPing(860, 0.1);
   }
   resize() {
@@ -43209,8 +43276,9 @@ var SpaceWorld = class {
     const scienceCard = this.hud.querySelector("#game-science-point");
     if (scienceCard && nearestPoint) {
       scienceCard.hidden = false;
-      setText(this.hud, "#game-science-point-title", nearestPoint.title);
-      setText(this.hud, "#game-science-point-text", nearestPoint.text);
+      const localize = (value) => this.language === "en" ? window.siteI18n?.translateValue(value) || value : value;
+      setText(this.hud, "#game-science-point-title", localize(nearestPoint.title));
+      setText(this.hud, "#game-science-point-text", localize(nearestPoint.text));
       if (!nearestPoint.visited) {
         nearestPoint.visited = true;
         if (!this.progress.discoveredPoints.includes(nearestPoint.id)) {
@@ -43232,7 +43300,8 @@ var SpaceWorld = class {
       if (this.isAlien && nearest?.collected) {
         prompt.hidden = true;
       } else if (nearest && Math.hypot(this.playerBody.position.x - nearest.x, this.playerBody.position.z - nearest.z) < 3.2) {
-        prompt.textContent = nearest.collected ? `Q \xB7 \u0641\u062D\u0635 ${nearest.type}` : `E \xB7 \u062C\u0645\u0639 ${nearest.type}`;
+        const sampleType = this.language === "en" ? nearest.typeEn || nearest.type : nearest.type;
+        prompt.textContent = nearest.collected ? this.language === "en" ? `Q \xB7 Scan ${sampleType}` : `Q \xB7 \u0641\u062D\u0635 ${sampleType}` : this.language === "en" ? `E \xB7 Collect ${sampleType}` : `E \xB7 \u062C\u0645\u0639 ${sampleType}`;
         prompt.hidden = false;
       } else {
         prompt.hidden = true;
@@ -44164,6 +44233,7 @@ window.SpaceExplorer3D = { start: startSpaceExplorer, preview: startSpacePreview
 window.dispatchEvent(new Event("space-explorer-engine-ready"));
 export {
   getSpaceExplorerResumeState,
+  setSpaceExplorerLanguage,
   startSpaceExplorer,
   startSpacePreview,
   stopSpaceExplorer

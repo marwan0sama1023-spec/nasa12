@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050814">
-  <meta name="description" content="Planetary Exploration — منصة علمية تفاعلية لاستكشاف البيئات الأرضية الشبيهة بالقمر والمريخ بالاستناد إلى معلومات وصور NASA.">
-  <title>Planetary Exploration | استكشاف البيئات الكوكبية</title>
+  <meta name="description" content="منصة علمية تفاعلية لاستكشاف البيئات الأرضية الشبيهة بالقمر والمريخ بالاستناد إلى معلومات وصور NASA.">
+  <title>استكشاف الكواكب | البيئات الكوكبية</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=astronaut-quick-controls-top-left-20261111">
+  <link rel="stylesheet" href="src/styles.css?v=astronaut-quick-controls-top-left-20261111">
 </head>
 <body>
   <!-- Dynamic 3D Spaceship Cockpit Viewport Engine -->
@@ -19,18 +19,18 @@
   <!-- Spaceship Bridge HUD / Cockpit Canopy Frame -->
   <div class="cockpit-hud-overlay" aria-hidden="true">
     <div class="hud-corner hud-top-left">
-      <span class="hud-label">ORBITAL FLIGHT DECK</span>
-      <span class="hud-meta">STATUS: NOMINAL ✦ 0.42c</span>
+      <span class="hud-label">منصة القيادة المدارية</span>
+      <span class="hud-meta">الحالة: مستقرة ✦ 0.42c</span>
     </div>
     <div class="hud-corner hud-top-right">
-      <span class="hud-label">TELEMETRY SYSTEM</span>
-      <span class="hud-meta" id="hud-telemetry-target">ORBIT: MOON & MARS</span>
+      <span class="hud-label">نظام القياس عن بعد</span>
+      <span class="hud-meta" id="hud-telemetry-target">المدار: القمر والمريخ</span>
     </div>
     <div class="hud-corner hud-bottom-left">
-      <span class="hud-reticle">◱ [VECTOR: 184° · TILT +0.2°]</span>
+      <span class="hud-reticle">◱ [المتجه: 184° · الميل +0.2°]</span>
     </div>
     <div class="hud-corner hud-bottom-right">
-      <span class="hud-reticle">[THRUST: IONIC DRIVE] ◲</span>
+      <span class="hud-reticle">[الدفع: محرك أيوني] ◲</span>
     </div>
     <div class="cockpit-canopy-vignette"></div>
   </div>
@@ -65,8 +65,8 @@
           </svg>
         </div>
         <div class="brand-text">
-          <strong>Planetary Exploration</strong>
-          <small>PLANETARY SCIENCE · ANALOG EXPLORATION</small>
+          <strong>استكشاف الكواكب</strong>
+          <small>علوم الكواكب · استكشاف البيئات النظيرة</small>
         </div>
       </a>
 
@@ -87,14 +87,14 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
           </span>
           <span class="nav-label-text">بيئات شبيهة بالقمر</span>
-          <span class="nav-badge lunar-badge">Moon</span>
+          <span class="nav-badge lunar-badge">القمر</span>
         </a>
         <a href="#mars-analogs" data-nav="mars-analogs">
           <span class="nav-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M18 6l4-4m0 0h-4m4 0v4"/></svg>
           </span>
           <span class="nav-label-text">بيئات شبيهة بالمريخ</span>
-          <span class="nav-badge mars-badge">Mars</span>
+          <span class="nav-badge mars-badge">المريخ</span>
         </a>
         <a href="#map" data-nav="map">
           <span class="nav-icon">
@@ -118,7 +118,7 @@
           <span class="nav-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg>
           </span>
-          <span class="nav-label-text">Space Explorer</span>
+          <span class="nav-label-text">مستكشف الفضاء</span>
         </a>
         <a href="#problems" data-nav="problems">
           <span class="nav-icon">
@@ -141,7 +141,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <span>NASA · PLANETARY ANALOGS</span>
+        <span>NASA · البيئات النظيرة للكواكب</span>
       </div>
     </aside>
 
@@ -180,7 +180,7 @@
 
       <footer class="page-footer">
         <div class="footer-left">
-          <strong>Planetary Exploration</strong>
+          <strong>استكشاف الكواكب</strong>
           <span>· منصة استكشاف علمية تفاعلية مبنية على بيانات وصور وكالة ناسا (NASA).</span>
         </div>
         <div class="footer-right">
@@ -230,8 +230,8 @@
 
   <noscript><div class="noscript">يلزم تفعيل JavaScript لاستخدام الخريطة التفاعلية والتنقل.</div></noscript>
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="i18n.js"></script>
-  <script src="game-samples.js"></script>
-  <script src="app.js?v=astronaut-equipment-controls-20261111"></script>
+  <script src="src/i18n.js"></script>
+  <script src="src/game-samples.js"></script>
+  <script src="src/app.js?v=astronaut-equipment-controls-20261111"></script>
 </body>
 </html>

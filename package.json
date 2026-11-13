@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "build": "esbuild space-game.js --bundle --format=esm --target=es2020 --outfile=vendor/space-game.js"
+    "build": "esbuild src/space-game.js --bundle --format=esm --target=es2020 --outfile=vendor/space-game.js"
   },
   "dependencies": {
     "cannon-es": "^0.20.0",

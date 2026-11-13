@@ -1,5 +1,5 @@
-import * as THREE from "./node_modules/three/build/three.module.js";
-import * as CANNON from "./node_modules/cannon-es/dist/cannon-es.js";
+import * as THREE from "../node_modules/three/build/three.module.js";
+import * as CANNON from "../node_modules/cannon-es/dist/cannon-es.js";
 
 const TAU = Math.PI * 2;
 const OXYGEN_LIMIT_SECONDS = 120;
@@ -210,6 +210,7 @@ function createSaturnRingTexture() {
 const worldLooks = {
   earth: {
     label: "سطح الأرض النظير",
+    labelEn: "Earth analog surface",
     sky: 0x56a4e2,
     fog: 0x94ccf0,
     ground: [0x5a5745, 0x867458, 0xa7916e],
@@ -223,10 +224,12 @@ const worldLooks = {
     jumpHeight: 1.05,
     sunIntensity: 2.8,
     dust: 0xbea582,
-    envName: "كوكب الأرض · جاذبية 1.0g (9.81 m/s²) · سماء نهارية وغلاف جوي طبيعي"
+    envName: "كوكب الأرض · جاذبية 1.0g (9.81 m/s²) · سماء نهارية وغلاف جوي طبيعي",
+    envNameEn: "Earth · 1.0g gravity (9.81 m/s²) · daylight and a natural atmosphere"
   },
   mars: {
     label: "سطح المريخ الحقيقي (فوهة جيزيرو / سيناء)",
+    labelEn: "Mars surface (Jezero / Sinai) · illustrative",
     sky: 0x481e13,
     fog: 0x6e311f,
     ground: [0x541f14, 0xa24122, 0xd4683a],
@@ -240,10 +243,12 @@ const worldLooks = {
     jumpHeight: 1.65,
     sunIntensity: 1.45,
     dust: 0xd66838,
-    envName: "سطح المريخ · الجاذبية 0.38g · 95% CO₂"
+    envName: "سطح المريخ · الجاذبية 0.38g · 95% CO₂",
+    envNameEn: "Mars · 0.38g gravity · 95% CO₂ atmosphere"
   },
   moon: {
     label: "سطح القمر الحقيقي (بحر السكون / المرتفعات)",
+    labelEn: "Lunar surface (Mare Tranquillitatis / highlands) · illustrative",
     sky: 0x000000,
     fog: 0x000000,
     ground: [0x303338, 0x6e737c, 0xa3a6ab],
@@ -257,8 +262,27 @@ const worldLooks = {
     jumpHeight: 2.9,
     sunIntensity: 3.6,
     dust: 0xb5b7bd,
-    envName: "سطح القمر · الجاذبية 0.16g · فراغ كوني تام · حرارة -130°C/+120°C"
+    envName: "سطح القمر · الجاذبية 0.16g · فراغ كوني تام · حرارة -130°C/+120°C",
+    envNameEn: "Moon · 0.16g gravity · vacuum · temperatures from -130°C to +120°C"
   }
+};
+
+const celestialLabelEnglish = {
+  "الشمس ☉": ["Sun ☉", "Center of the solar system"],
+  "عطارد ☿": ["Mercury ☿", "First planet from the Sun"],
+  "الزهرة ♀": ["Venus ♀", "Second planet · brightest planet"],
+  "كوكب الأرض والقمر ♁": ["Earth and Moon ♁", "Home of humanity and life"],
+  "كوكب الأرض ♁": ["Earth ♁", "Earth rotates as the Moon orbits it"],
+  "الأرض ♁": ["Earth ♁", "Earth's orbit around the Sun"],
+  "المريخ · موقعك الحالي ♂": ["Mars · current location ♂", "Your mission world orbits the Sun"],
+  "فوبوس": ["Phobos", "Mars's faster, inner moon"],
+  "ديموس": ["Deimos", "Mars's outer moon"],
+  "المريخ ♂": ["Mars ♂", "Fourth planet and its moons"],
+  "حزام الكويكبات": ["Asteroid belt", "Between the orbits of Mars and Jupiter"],
+  "المشتري ♃": ["Jupiter ♃", "The giant planet and its four moons"],
+  "زحل ♄": ["Saturn ♄", "The jewel of the icy rings"],
+  "أورانوس ♅": ["Uranus ♅", "The tilted ice giant"],
+  "نبتون ♆": ["Neptune ♆", "The distant blue planet"]
 };
 
 const siteTerrainProfiles = {
@@ -288,6 +312,10 @@ export function stopSpaceExplorer() {
   if (!activeWorld) return;
   activeWorld.dispose();
   activeWorld = null;
+}
+
+export function setSpaceExplorerLanguage(language) {
+  if (activeWorld instanceof SpaceWorld) activeWorld.setLanguage(language);
 }
 
 export function getSpaceExplorerResumeState() {
@@ -393,6 +421,8 @@ class SpacePreview {
 class SpaceWorld {
   constructor(config) {
     this.config = config;
+    this.language = config.language || document.documentElement.lang || "ar";
+    this.celestialLabels = [];
     this.container = config.container;
     this.hud = config.hud || this.container.parentElement;
     this.siteProfile = siteTerrainProfiles[config.stageSite?.id] || null;
@@ -946,8 +976,8 @@ class SpaceWorld {
 
     const telemetry = this.hud.querySelector("#game-telemetry-text");
     if (telemetry) telemetry.textContent = night
-      ? "كوكب الأرض · سماء ليلية صافية ونجوم وظهور واقعي للقمر مع إضاءة واضحة للأرض"
-      : this.look.envName;
+      ? this.language === "en" ? "Earth · clear night sky, stars, and the Moon visible in reflected light" : "كوكب الأرض · سماء ليلية صافية ونجوم وظهور واقعي للقمر مع إضاءة واضحة للأرض"
+      : this.language === "en" ? this.look.envNameEn : this.look.envName;
 
     if (this.skyDome?.material?.uniforms) {
       this.skyDome.material.uniforms.horizonColor.value.set(night ? 0x010512 : 0x98d4f8);
@@ -963,7 +993,9 @@ class SpaceWorld {
     if (button) {
       button.textContent = night ? "☀" : "☾";
       button.setAttribute("aria-pressed", String(night));
-      button.title = night ? "العودة إلى النهار" : "تبديل إلى الليل";
+      button.title = night
+        ? this.language === "en" ? "Return to daytime" : "العودة إلى النهار"
+        : this.language === "en" ? "Switch to night" : "تبديل إلى الليل";
     }
   }
 
@@ -1064,39 +1096,6 @@ class SpaceWorld {
     canvas.width = 440;
     canvas.height = 110;
     const ctx = canvas.getContext("2d");
-
-    // Glow border background pill
-    ctx.fillStyle = "rgba(12, 18, 38, 0.84)";
-    ctx.strokeStyle = "rgba(99, 180, 240, 0.65)";
-    ctx.lineWidth = 3;
-    const r = 24;
-    const w = 424, h = 96, x = 8, y = 7;
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 30px Tajawal, sans-serif";
-    ctx.fillText(title, 220, subtitle ? 40 : 54);
-
-    if (subtitle) {
-      ctx.fillStyle = "#93c5fd";
-      ctx.font = "20px Tajawal, sans-serif";
-      ctx.fillText(subtitle, 220, 74);
-    }
-
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     const spriteMaterial = new THREE.SpriteMaterial({
@@ -1107,6 +1106,45 @@ class SpaceWorld {
     });
     const sprite = new THREE.Sprite(spriteMaterial);
     sprite.scale.set(42, 10.5, 1);
+    const [titleEn, subtitleEn] = celestialLabelEnglish[title] || [title, subtitle];
+    const drawLabel = language => {
+      const english = language === "en";
+      const labelTitle = english ? titleEn : title;
+      const labelSubtitle = english ? subtitleEn : subtitle;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(12, 18, 38, 0.84)";
+      ctx.strokeStyle = "rgba(99, 180, 240, 0.65)";
+      ctx.lineWidth = 3;
+      const radius = 24;
+      const width = 424, height = 96, left = 8, top = 7;
+      ctx.beginPath();
+      ctx.moveTo(left + radius, top);
+      ctx.lineTo(left + width - radius, top);
+      ctx.quadraticCurveTo(left + width, top, left + width, top + radius);
+      ctx.lineTo(left + width, top + height - radius);
+      ctx.quadraticCurveTo(left + width, top + height, left + width - radius, top + height);
+      ctx.lineTo(left + radius, top + height);
+      ctx.quadraticCurveTo(left, top + height, left, top + height - radius);
+      ctx.lineTo(left, top + radius);
+      ctx.quadraticCurveTo(left, top, left + radius, top);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold 30px ${english ? '"Plus Jakarta Sans"' : 'Tajawal'}, sans-serif`;
+      ctx.fillText(labelTitle, 220, labelSubtitle ? 40 : 54);
+      if (labelSubtitle) {
+        ctx.fillStyle = "#93c5fd";
+        ctx.font = `20px ${english ? '"Plus Jakarta Sans"' : 'Tajawal'}, sans-serif`;
+        ctx.fillText(labelSubtitle, 220, 74);
+      }
+      texture.needsUpdate = true;
+    };
+    sprite.userData.setLanguage = drawLabel;
+    this.celestialLabels.push(sprite);
+    drawLabel(this.language);
     return sprite;
   }
 
@@ -2670,9 +2708,9 @@ class SpaceWorld {
     }
 
     const labels = {
-      third: "الكاميرا: منظور الشخص الثالث ✦",
-      first: "الكاميرا: قناع الخوذة (منظور أول) ✦",
-      drone: "الكاميرا: مدار استطلاعي سينمائي ✦"
+      third: this.language === "en" ? "Camera: third-person view ✦" : "الكاميرا: منظور الشخص الثالث ✦",
+      first: this.language === "en" ? "Camera: helmet view (first person) ✦" : "الكاميرا: قناع الخوذة (منظور أول) ✦",
+      drone: this.language === "en" ? "Camera: cinematic scout orbit ✦" : "الكاميرا: مدار استطلاعي سينمائي ✦"
     };
     this.toast(labels[this.cameraMode]);
     this.playPing(720, 0.08);
@@ -2888,8 +2926,27 @@ class SpaceWorld {
   updateEnvironmentalTelemetry() {
     const badge = this.hud.querySelector("#game-telemetry-text");
     if (badge) {
-      badge.textContent = this.look.envName;
+      badge.textContent = this.language === "en" ? this.look.envNameEn : this.look.envName;
     }
+  }
+
+  setLanguage(language) {
+    this.language = language === "en" ? "en" : "ar";
+    this.celestialLabels.forEach(label => label.userData.setLanguage?.(this.language));
+    setText(this.hud, "#game-world-label", this.language === "en" ? this.look.labelEn : this.look.label);
+    this.updateHud();
+    this._renderInventory();
+    this.updateEnvironmentalTelemetry();
+    const toast = this.hud.querySelector("#game-toast");
+    if (toast) {
+      clearTimeout(this.toastTimeout);
+      toast.textContent = "";
+      toast.classList.remove("is-visible");
+    }
+    const dayNightButton = this.hud.querySelector('[data-engine-action="day-night"]');
+    if (dayNightButton) dayNightButton.title = this.isNight
+      ? this.language === "en" ? "Return to daytime" : "العودة إلى النهار"
+      : this.language === "en" ? "Switch to night" : "تبديل إلى الليل";
   }
 
   /* -----------------------------------------------------------------------
@@ -2942,8 +2999,15 @@ class SpaceWorld {
       return;
     }
 
+    const sampleName = this.language === "en"
+      ? sample.nameEn || sample.name || sample.typeEn || sample.type
+      : sample.name || sample.type;
     if (sample.collected) {
-      this.toast(this.isAlien ? sample.name : `تم جمع ${sample.name || sample.type} سابقاً · R لعرض حقيبة العينات`);
+      this.toast(this.isAlien
+        ? sampleName
+        : this.language === "en"
+          ? `Already collected: ${sampleName} · Press R to open the sample bag`
+          : `تم جمع ${sampleName} سابقاً · R لعرض حقيبة العينات`);
       return;
     }
 
@@ -2959,7 +3023,7 @@ class SpaceWorld {
     }
     this.playCollectChime();
     // Show scientific name on collection for both astronauts and aliens
-    this.toast(`✦ ${sample.name || sample.type}`);
+    this.toast(`✦ ${sampleName}`);
     this.syncProgress();
     this.checkSiteCompletion();
     // Auto-open inventory immediately after collecting so player learns what they found
@@ -3185,7 +3249,7 @@ class SpaceWorld {
   updateHud() {
     setText(this.hud, "#game-xp-value", String(this.progress.xp));
     setText(this.hud, "#game-sample-count", `${this.worldCollectedCount()}/${this.sampleGoal}`);
-    setText(this.hud, "#game-world-label", this.look.label);
+    setText(this.hud, "#game-world-label", this.language === "en" ? this.look.labelEn : this.look.label);
 
 
     const complete = this.isSampleMissionComplete();
@@ -3270,18 +3334,20 @@ class SpaceWorld {
   _renderInventory() {
     const list = this.hud.querySelector("#game-inventory-list");
     if (!list) return;
+    const english = document.documentElement.lang === "en";
     const collectionOrder = new Map(this.progress.collectedSamples.map((id, index) => [id, index]));
     const collected = this.samples.filter(sample => sample.collected)
       .sort((first, second) => collectionOrder.get(first.id) - collectionOrder.get(second.id));
     if (collected.length === 0) {
-      list.innerHTML = `<p style="color:#88aabb;text-align:center;padding:28px 0;font-size:1.05rem;">لم تجمع أي عينات بعد ✦ استخدم E للجمع</p>`;
+      list.innerHTML = `<p style="color:#88aabb;text-align:center;padding:28px 0;font-size:1.05rem;">${english ? "No samples collected yet ✦ Press E to collect" : "لم تجمع أي عينات بعد ✦ استخدم E للجمع"}</p>`;
       return;
     }
     list.innerHTML = collected.map(sample => {
-      const nameLabel = sample.name || sample.type;
+      const nameLabel = english ? sample.nameEn || sample.name || sample.typeEn || sample.type : sample.name || sample.type;
+      const typeLabel = english ? sample.typeEn || sample.type || "Illustrative sample" : sample.type || "عينة افتراضية";
       const sampleNumber = collectionOrder.get(sample.id) + 1;
       const analyzed = this.progress.analyzedSamples.includes(sample.id);
-      return `<article class="game-inventory-item game-analyzer-item"><div class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">العينة رقم ${sampleNumber} · ${sample.type || "عينة افتراضية"}</small></div><button type="button" class="game-analyze-button" data-sample-analysis="${sample.id}" ${analyzed ? "disabled" : ""}>${analyzed ? "تم التحليل" : "تحليل العينة"}</button>${analyzed ? `<div class="game-analysis-result"><strong>قراءة تعليمية · ليست نتيجة مختبرية</strong><p>${sample.analysis}</p><small>مواد الموقع المرجعية: ${this.stageSite?.science?.rocks || "لا تتوفر بيانات تركيب محددة لهذا الموقع."}</small><small>${sample.limitations}</small><a href="${sample.source}" target="_blank" rel="noopener noreferrer">فتح المرجع ↗</a></div>` : ""}</article>`;
+      return `<article class="game-inventory-item game-analyzer-item"><div class="game-inventory-item-info"><strong>${nameLabel}</strong><small class="game-inventory-item-details">${english ? `Sample ${sampleNumber}` : `العينة رقم ${sampleNumber}`} · ${typeLabel}</small></div><button type="button" class="game-analyze-button" data-sample-analysis="${sample.id}" ${analyzed ? "disabled" : ""}>${analyzed ? english ? "Analyzed" : "تم التحليل" : english ? "Analyze sample" : "تحليل العينة"}</button>${analyzed ? `<div class="game-analysis-result"><strong>${english ? "Educational interpretation · Not a laboratory result" : "قراءة تعليمية · ليست نتيجة مختبرية"}</strong><p>${english ? sample.analysisEn || "This virtual model has no laboratory result." : sample.analysis}</p><small>${english ? "Site reference materials:" : "مواد الموقع المرجعية:"} ${english ? this.stageSite?.science?.rocksEn || window.siteI18n?.translateValue(this.stageSite?.science?.rocks || "") || "No specific composition data is available for this site." : this.stageSite?.science?.rocks || "لا تتوفر بيانات تركيب محددة لهذا الموقع."}</small><small>${english ? sample.limitationsEn || "No physical specimen or site-specific laboratory measurement is represented." : sample.limitations}</small><a href="${sample.source}" target="_blank" rel="noopener noreferrer">${english ? "Open reference ↗" : "فتح المرجع ↗"}</a></div>` : ""}</article>`;
     }).join("");
   }
 
@@ -3292,7 +3358,10 @@ class SpaceWorld {
     this.progress.xp += 5;
     this.syncProgress();
     this._renderInventory();
-    this.toast(`اكتمل الفحص التعليمي: ${sample.name || sample.type}. راجع حدود التحليل في الحقيبة.`);
+    const english = document.documentElement.lang === "en";
+    this.toast(english
+      ? `Educational scan complete: ${sample.nameEn || sample.name || sample.typeEn || sample.type}. Review the analysis limits in the sample bag.`
+      : `اكتمل الفحص التعليمي: ${sample.name || sample.type}. راجع حدود التحليل في الحقيبة.`);
     this.playPing(860, 0.1);
   }
 
@@ -3771,8 +3840,9 @@ class SpaceWorld {
     const scienceCard = this.hud.querySelector("#game-science-point");
     if (scienceCard && nearestPoint) {
       scienceCard.hidden = false;
-      setText(this.hud, "#game-science-point-title", nearestPoint.title);
-      setText(this.hud, "#game-science-point-text", nearestPoint.text);
+      const localize = value => this.language === "en" ? window.siteI18n?.translateValue(value) || value : value;
+      setText(this.hud, "#game-science-point-title", localize(nearestPoint.title));
+      setText(this.hud, "#game-science-point-text", localize(nearestPoint.text));
       if (!nearestPoint.visited) {
         nearestPoint.visited = true;
         if (!this.progress.discoveredPoints.includes(nearestPoint.id)) {
@@ -3795,7 +3865,10 @@ class SpaceWorld {
       if (this.isAlien && nearest?.collected) {
         prompt.hidden = true;
       } else if (nearest && Math.hypot(this.playerBody.position.x - nearest.x, this.playerBody.position.z - nearest.z) < 3.2) {
-        prompt.textContent = nearest.collected ? `Q · فحص ${nearest.type}` : `E · جمع ${nearest.type}`;
+        const sampleType = this.language === "en" ? nearest.typeEn || nearest.type : nearest.type;
+        prompt.textContent = nearest.collected
+          ? this.language === "en" ? `Q · Scan ${sampleType}` : `Q · فحص ${sampleType}`
+          : this.language === "en" ? `E · Collect ${sampleType}` : `E · جمع ${sampleType}`;
         prompt.hidden = false;
       } else {
         prompt.hidden = true;

@@ -1098,7 +1098,7 @@ p {
 .earth-sphere {
   width: var(--earth-diameter);
   aspect-ratio: 1;
-  background: #092546 url("assets/earth-blue-marble.jpg") 0 center / 200% 100% repeat-x;
+  background: #092546 url("../assets/earth-blue-marble.jpg") 0 center / 200% 100% repeat-x;
   box-shadow: inset -27px -9px 28px rgba(0, 5, 18, 0.76), inset 7px 0 17px rgba(119, 205, 255, 0.18), 0 0 26px rgba(51, 171, 255, 0.38), 0 17px 32px rgba(0, 0, 0, 0.7);
   animation: earth-spin 52s linear infinite;
 }
@@ -1236,7 +1236,7 @@ p {
 }
 
 .hero-system-scene[data-foreground="mars"] .mars-global-texture {
-  background: url("assets/mars-global-marci.jpg") left center / 50% 100% repeat-x;
+  background: url("../assets/mars-global-marci.jpg") left center / 50% 100% repeat-x;
 }
 
 .mars-atmosphere {
@@ -2571,6 +2571,7 @@ p {
 .site-photo-thumb small { color: #d3e2e8; font-size: 10px; line-height: 1.55; }
 .site-photo-credit { margin: 0; padding: 0 16px 12px; color: var(--text-muted); font-size: 11px; }
 .photo-viewer { position: fixed; width: min(1120px, calc(100vw - 28px)); max-width: none; max-height: calc(100vh - 28px); padding: 22px 62px 18px; color: #f2f7fa; background: #07111c; border: 1px solid rgba(139, 191, 208, 0.36); border-radius: 8px; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.68); }
+.photo-viewer .viewer-language-toggle { position: absolute; z-index: 2; top: 12px; inset-inline-start: 12px; min-width: 82px; min-height: 34px; padding: 5px 8px; }
 .photo-viewer::backdrop { background: rgba(1, 5, 12, 0.86); backdrop-filter: blur(7px); }
 .photo-viewer figure { margin: 0; display: grid; justify-items: center; gap: 12px; }
 .photo-viewer figure img { max-width: 100%; max-height: min(72vh, 760px); object-fit: contain; }
@@ -4719,7 +4720,7 @@ body.team-view-active .team-project-panel {
 .game-destination-choice { grid-template-columns: 76px minmax(0,1fr) 20px; min-height: 115px; }
 .game-destination-orb { position: relative; width: 66px; height: 66px; display: block; flex: 0 0 auto; border-radius: 50%; box-shadow: inset -15px -6px 19px rgba(0,0,0,0.68), 0 0 22px rgba(130,190,215,0.13); }
 .moon-orb { background: radial-gradient(circle at 35% 30%, #e2e3df, #949ca6 62%, #414b58); }
-.mars-orb { background: #a94a35 url("assets/mars-hubble-globe.jpg") center / cover; box-shadow: inset -15px -6px 19px rgba(0,0,0,0.68), 0 0 22px rgba(234,100,71,0.23); }
+.mars-orb { background: #a94a35 url("../assets/mars-hubble-globe.jpg") center / cover; box-shadow: inset -15px -6px 19px rgba(0,0,0,0.68), 0 0 22px rgba(234,100,71,0.23); }
 .game-destination-text { display: grid; gap: 4px; }
 .game-destination-text small { color: #8aa5b3; font-size: 10px; }
 .game-destination-text strong { color: #f4fbff; font-size: 19px; }
@@ -6602,6 +6603,7 @@ body.game-session-active #guide-panel { display: none !important; }
 .game-hud-actions [data-engine-action="camera"] { order: 4; }
 .game-hud-actions [data-engine-action="pause"] { order: 5; }
 .game-hud-actions [data-game-exit] { order: 6; }
+.game-world-language-toggle { position: absolute; z-index: 12; top: 58px; left: 12px; min-width: 42px; min-height: 32px; padding: 0 6px; font-size: 10px; }
 
 @media (pointer: coarse), (max-width: 780px) {
   .game-hud-actions [data-engine-action="inventory"],

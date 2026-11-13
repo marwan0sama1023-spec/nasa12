@@ -1,10 +1,30 @@
 # Planetary Exploration
 
-واجهة عربية تفاعلية لاستكشاف سبعة مواقع أرضية مرتبطة بدراسة تضاريس القمر والمريخ. الموقع يميز بين أوصاف صور NASA، ونقاط الموقع التقريبية، والبيانات التي لم تُحمّل أو تُحلل.
+A bilingual science-exploration site about six Earth analog locations used to study specific lunar and Martian terrain questions. The site distinguishes documented observations from illustrative game content and approximate map points.
 
-## التشغيل
+## Project layout
 
-ثبّت الاعتماديات، أنشئ حزمة محرك اللعبة المحلية، ثم شغّل الخادم:
+```text
+index.html                 GitHub Pages entry point
+src/
+	app.js                   Routes, pages, maps, and game flow
+	game-samples.js          Sample catalog and bilingual sample copy
+	i18n.js                  Arabic/English UI and dynamic-text localization
+	space-game.js            Three.js and Cannon game-engine source
+	styles.css               Site and game styles
+assets/                    Images, crew portraits, and equipment artwork
+vendor/                    Leaflet and the generated game-engine bundle
+docs/                      Project notes and review documentation
+.github/workflows/         GitHub Pages build and deployment
+```
+
+`index.html` stays at the repository root for GitHub Pages. `vendor/space-game.js` is generated from `src/space-game.js`; do not edit the generated bundle directly.
+
+## Review the project
+
+Start with `index.html` for the page structure, then follow `src/app.js` for site sections and the mission flow. The translation system is in `src/i18n.js`; game sample data and the 3D engine have their own source files in `src/`. Site images are grouped under `assets/` by use, and project-specific notes are kept in `docs/`.
+
+## Run locally
 
 ```powershell
 npm install
@@ -12,33 +32,16 @@ npm run build
 npm start
 ```
 
-ثم افتح `http://localhost:4173`. ملفات Leaflet ومحرك Space Explorer المضمّن موجودة محليًا في `vendor`، لذلك لا تعتمد اللعبة في المتصفح على وجود `node_modules` على خادم النشر. صور الخرائط من NASA GIBS والخط العربي يحتاجان اتصالًا بالإنترنت.
+Open `http://localhost:4173`. NASA GIBS map imagery and web fonts require an internet connection. Leaflet and the bundled game engine are served locally; `node_modules` is not deployed.
 
-يدعم الموقع العربية والإنجليزية من زر اللغة في الشريط العلوي، ويحفظ اختياره في المتصفح.
+## Language and accessibility
 
-## النشر على GitHub Pages
+Use the language button to switch the interface and game between Arabic and English. The setting is saved in the browser. The in-game control remains available during missions and while game panels are open. Page images, map labels, dialogs, and game sample reports are localized alongside visible text.
 
-يُبنى محرك اللعبة ويُنشر الموقع تلقائيًا عبر `.github/workflows/pages.yml` عند الدفع إلى `main` أو `master`. من إعدادات المستودع افتح **Settings → Pages** واختر **GitHub Actions** كمصدر النشر. يتضمن ملف النشر الحزمة المحلية وجميع الصور وملفات Leaflet اللازمة، دون `node_modules`.
+## Science and data limits
 
-## الميزات
+Map coordinates are approximate reference points, not surveyed boundaries or measurement stations. NASA imagery documents scenes and locations; it is not itself a soil, mineral, or climate measurement. Game samples are educational models, not physical specimens or laboratory results. Earth analog sites represent specific test questions, not complete replicas of the Moon or Mars.
 
+## Deployment
 
-- واجهة RTL ومشهد تفاعلي للأرض والقمر والمريخ، مع احترام `prefers-reduced-motion`.
-- مساعد محلي يستند إلى سجل المواقع ومعلومات علمية مختارة؛ يقارن المواقع، يعرض روابط NASA، ويحل الحسابات البسيطة. لا يتصل بنموذج خارجي، ويوضح عندما لا يجد إجابة موثقة.
-- صفحات للمواقع الستة الحالية، وخريطة Leaflet تفاعلية بطبقات NASA GIBS وBlue Marble. العلامات نقاط مرجعية تقريبية على الأرض.
-- صفحة مصادر تجمع سجلات NASA الرسمية للمواقع الستة في مجموعتي القمر والمريخ.
-- لعبة Space Explorer ثلاثية الأبعاد بمحرك Three.js وفيزياء Cannon، مع عينات تعليمية افتراضية ومسار رائد فضاء للقمر والمريخ. لكل قطعة عتاد صورة واستخدام: وحدة الاتصال توجه إلى أقرب عينة، حقيبة الإسعاف تعالج إصابات الهبوط، والمرشح والطبقة الحرارية يخففان أخطار البيئة. الأكسجين دقيقتان فقط ثم تنتهي المهمة بـGame Over.
-- قائمة طاقم بخمسة أعضاء تميز مروان كقائد. على الهاتف واللوحي تحاول اللعبة تدوير الشاشة أفقيًا وتمنع البدء حتى يصبح الوضع أفقيًا. التقدم محلي.
-- صور المريخ الفضائية مرجعية وليست بثًا حيًا أو قياسات ميدانية. لا يجلب الموقع حاليًا قياسات مناخية أو كيميائية ولا يحلل منتجات كوكبية.
-- درجات المقارنة والأوزان تدخلها المجموعة يدويًا؛ لا تنتج المنصة ترتيبًا علميًا تلقائيًا قبل توفر أدلة مشتركة.
-- صورة الفريق الأصلية هي `assets/team-photo.jpeg`، وتُستخدم في صفحة الفريق فقط.
-
-## الخريطة
-
-تعتمد طبقات البلاطات على NASA Global Imagery Browse Services (GIBS) عبر WMTS، بنمط Web Mercator المتوافق مع Leaflet. مصدر الطبقة البديلة وطبقتا المعالم والتسميات من NASA GIBS أيضًا. إذا تعذر الاتصال، تظهر رسالة داخل الخريطة وتبقى العلامات وصفحات المواقع متاحة.
-
-يظهر اعتماد مزود الخرائط في عنصر الإسناد المدمج بالخريطة.
-
-## حدود المعلومات
-
-الإحداثيات نقاط مرجعية تقريبية اختيرت للعرض وليست حدود مواقع دراسة أو محطات قياس معتمدة. الصور الفضائية ليست قياسات حرارة أو كيمياء أو نوع صخر.
+`.github/workflows/pages.yml` bundles the game and publishes `index.html`, `src/`, `assets/`, and `vendor/` with GitHub Pages after a push to `main` or `master`.

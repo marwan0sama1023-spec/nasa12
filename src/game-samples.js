@@ -45,10 +45,15 @@
     "jezero-regolith": ["Loose Martian regolith", "Representative Martian surface material"],
     "delta-conglomerate": ["Jezero channel conglomerate", "Representative coarse sedimentary rock"]
   };
+  const humanReadableNasaSource = source => source?.replace(
+    /^https:\/\/images-assets\.nasa\.gov\/image\/([^/]+)\/collection\.json$/,
+    "https://images.nasa.gov/details/$1"
+  ) || source;
   const sample = (key, name, type, form, color, size, local, analysis, comparison, limitations, source) => {
     const [nameEn, typeEn] = englishSamples[key] || ["Virtual sample", "Illustrative sample"];
     return {
-      key, name, type, nameEn, typeEn, form, color, size, local, analysis, comparison, limitations, source,
+      key, name, type, nameEn, typeEn, form, color, size, local, analysis, comparison, limitations,
+      source: humanReadableNasaSource(source),
       localEn: "Illustrative virtual model based on the selected site or mission.",
       analysisEn: "This is a teaching model, not a laboratory result. The linked NASA reference documents the site or mission, not this item's measured composition.",
       comparisonEn: "Use the model to practice observation and sample-handling tasks; it does not reproduce another world's environment.",
@@ -97,7 +102,7 @@
       sample("dry-valley-gravel", "حصى سطحية", "رواسب حصوية", "rounded", 0x667474, 0.62, "نموذج حصى ضمن أرض جافة مكشوفة.", "الصورة لا تحدد حجم الحصى أو معدنيته.", "تساعد على اختبار أجهزة الحركة في مناطق باردة.", "المشهد المداري ليس مسحًا دقيقًا لموضع الحصى.", "https://images-assets.nasa.gov/image/PIA12461/collection.json"),
       sample("talus-rock", "كتلة من ركام منحدر", "كتلة صخرية", "rough-block", 0x8c9490, 1.04, "تمثيل لكتلة صخرية في وادٍ قطبي.", "النموذج لا يرتبط بإحداثية عينة منشورة.", "التضاريس الوعرة صالحة لاختبار العربة.", "لا بيانات كيميائية أو ميكانيكية هنا.", "https://images-assets.nasa.gov/image/PIA12461/collection.json"),
       sample("dry-channel-sediment", "رواسب مجرى جاف", "رواسب مجرى", "layered", 0xa2a39b, 0.86, "تمثيل لرواسب مجرى في بيئة الوديان الجافة.", "السجل المرئي لا يثبت تركيب الرواسب أو دورة جريانها.", "يمكن مقارنة أشكال القنوات المكشوفة بصور كوكبية.", "المقارنة مورفولوجية لا كيميائية.", "https://images-assets.nasa.gov/image/PIA12461/collection.json"),
-      sample("cold-desert-matrix", "رقاقة جليد من بحيرة مغطاة", "عينة جليد افتراضية", "rounded", 0x9bbdc5, 0.5, "تمثيل تعليمي لجليد بحيرات الوديان الجافة.", "تضم المنطقة بحيرات مغطاة بالجليد مثل Bonney وFryxell وHoare.", "يوجه الفحص إلى سؤال الماء والملوحة في البيئات القطبية القاسية.", "لا تعرض اللعبة قياس ملوحة أو تركيبًا لهذه البحيرات؛ يلزم تحليل عينة فعلية.", "https://mcm.lternet.edu/")
+      sample("cold-desert-matrix", "رقاقة جليد من بحيرة مغطاة", "عينة جليد افتراضية", "rounded", 0x9bbdc5, 0.5, "تمثيل تعليمي لجليد بحيرة فيدا في الوديان الجافة.", "يوثق تقرير NASA بحيرة فيدا المغطاة بالجليد واختبار أداة حفر فوق صوتية في الوديان الجافة.", "يوجه الفحص إلى سؤال الماء والملوحة في البيئات القطبية القاسية.", "لا تعرض اللعبة قياس ملوحة أو تركيبًا لبحيرة فيدا؛ يلزم تحليل عينة فعلية.", "https://ntrs.nasa.gov/citations/20040085662")
     ]
   };
 

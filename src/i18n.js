@@ -1,5 +1,4 @@
 (() => {
-  const languageKey = "planetary-interface-language";
   const translations = {
     "استكشاف الكواكب": "Planetary Exploration",
     "علوم الكواكب · استكشاف البيئات النظيرة": "PLANETARY SCIENCE · ANALOG EXPLORATION",
@@ -1214,7 +1213,7 @@
     "View mission summary": "عرض ملخص الرحلة",
     "Continue to next site": "الانتقال إلى الموقع التالي"
   };
-  let language = localStorage.getItem(languageKey) === '"ar"' ? "ar" : "en";
+  let language = "en";
   let mutationObserver = null;
   let gameSampleTranslations = null;
 
@@ -1406,7 +1405,6 @@
 
   function toggle() {
     language = language === "en" ? "ar" : "en";
-    localStorage.setItem(languageKey, JSON.stringify(language));
     apply(document.body);
     window.dispatchEvent(new CustomEvent("site-language-change", { detail: { language } }));
     return language;

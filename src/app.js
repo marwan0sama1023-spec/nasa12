@@ -1142,6 +1142,7 @@ function mountGameEquipmentControls(container) {
   const shell = container.closest(".game-world-shell");
   if (!shell) return;
   if (!shell.querySelector(".game-world-language-toggle")) shell.insertAdjacentHTML("beforeend", `<button class="language-toggle game-language-toggle game-world-language-toggle" type="button" aria-label="Apply English to the game" title="Apply English to the game">English</button>`);
+  document.querySelector("#game-launch-layer .game-session-language-toggle")?.setAttribute("hidden", "");
   const canUseEquipment = spaceGame.character === "astronaut" && ["moon", "mars"].includes(spaceGame.destination) && spaceGame.equipment.length > 0; if (!canUseEquipment) shell.querySelector('[data-engine-button="equipment"]')?.remove();
   shell.querySelector('[data-engine-button="rover"]')?.remove();
   if (!shell.querySelector(".game-crew-roster")) {
@@ -1350,7 +1351,7 @@ async function startSpaceGameScene() {
   if (!container) return;
   mountGameEquipmentControls(container);
   try {
-    spaceGameEngine ||= await import("../vendor/space-game.js?v=astronaut-equipment-controls-20261111");
+    spaceGameEngine ||= await import("../vendor/space-game.js?v=language-sync-20261114");
     if (!container.isConnected || route().split("/")[0] !== "game") return;
     const world = spaceGame.character === "alien" ? "earth" : spaceGame.destination;
     const target = spaceGame.destination === "moon" ? "القمر" : "المريخ";
@@ -1761,7 +1762,7 @@ async function startGamePresentation(mode = "new") {
   } else {
     void fullscreenRequest;
   }
-  const engineReady = import("../vendor/space-game.js?v=astronaut-equipment-controls-20261111").then(engine => {
+  const engineReady = import("../vendor/space-game.js?v=language-sync-20261114").then(engine => {
     spaceGameEngine ||= engine;
     return true;
   }).catch(error => {

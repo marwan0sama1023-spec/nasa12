@@ -2937,6 +2937,7 @@ class SpaceWorld {
     this.updateHud();
     this._renderInventory();
     this.updateEnvironmentalTelemetry();
+    this.updateNearbyPrompt();
     const toast = this.hud.querySelector("#game-toast");
     if (toast) {
       clearTimeout(this.toastTimeout);
@@ -3857,22 +3858,25 @@ class SpaceWorld {
       scienceCard.hidden = true;
     }
 
+    this.updateNearbyPrompt();
+  }
+
+  updateNearbyPrompt() {
     const uncollected = this.nearestSample(8);
     const collected = this.nearestSample(8, true);
     const nearest = uncollected || collected;
     const prompt = this.hud.querySelector("#game-nearby-prompt");
-    if (prompt) {
-      if (this.isAlien && nearest?.collected) {
-        prompt.hidden = true;
-      } else if (nearest && Math.hypot(this.playerBody.position.x - nearest.x, this.playerBody.position.z - nearest.z) < 3.2) {
-        const sampleType = this.language === "en" ? nearest.typeEn || nearest.type : nearest.type;
-        prompt.textContent = nearest.collected
-          ? this.language === "en" ? `Q · Scan ${sampleType}` : `Q · فحص ${sampleType}`
-          : this.language === "en" ? `E · Collect ${sampleType}` : `E · جمع ${sampleType}`;
-        prompt.hidden = false;
-      } else {
-        prompt.hidden = true;
-      }
+    if (!prompt) return;
+    if (this.isAlien && nearest?.collected) {
+      prompt.hidden = true;
+    } else if (nearest && Math.hypot(this.playerBody.position.x - nearest.x, this.playerBody.position.z - nearest.z) < 3.2) {
+      const sampleType = this.language === "en" ? nearest.typeEn || nearest.type : nearest.type;
+      prompt.textContent = nearest.collected
+        ? this.language === "en" ? `Q · Scan ${sampleType}` : `Q · فحص ${sampleType}`
+        : this.language === "en" ? `E · Collect ${sampleType}` : `E · جمع ${sampleType}`;
+      prompt.hidden = false;
+    } else {
+      prompt.hidden = true;
     }
   }
 

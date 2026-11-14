@@ -42504,6 +42504,7 @@ var SpaceWorld = class {
     this.updateHud();
     this._renderInventory();
     this.updateEnvironmentalTelemetry();
+    this.updateNearbyPrompt();
     const toast = this.hud.querySelector("#game-toast");
     if (toast) {
       clearTimeout(this.toastTimeout);
@@ -43292,20 +43293,22 @@ var SpaceWorld = class {
     } else if (scienceCard) {
       scienceCard.hidden = true;
     }
+    this.updateNearbyPrompt();
+  }
+  updateNearbyPrompt() {
     const uncollected = this.nearestSample(8);
     const collected = this.nearestSample(8, true);
     const nearest = uncollected || collected;
     const prompt = this.hud.querySelector("#game-nearby-prompt");
-    if (prompt) {
-      if (this.isAlien && nearest?.collected) {
-        prompt.hidden = true;
-      } else if (nearest && Math.hypot(this.playerBody.position.x - nearest.x, this.playerBody.position.z - nearest.z) < 3.2) {
-        const sampleType = this.language === "en" ? nearest.typeEn || nearest.type : nearest.type;
-        prompt.textContent = nearest.collected ? this.language === "en" ? `Q \xB7 Scan ${sampleType}` : `Q \xB7 \u0641\u062D\u0635 ${sampleType}` : this.language === "en" ? `E \xB7 Collect ${sampleType}` : `E \xB7 \u062C\u0645\u0639 ${sampleType}`;
-        prompt.hidden = false;
-      } else {
-        prompt.hidden = true;
-      }
+    if (!prompt) return;
+    if (this.isAlien && nearest?.collected) {
+      prompt.hidden = true;
+    } else if (nearest && Math.hypot(this.playerBody.position.x - nearest.x, this.playerBody.position.z - nearest.z) < 3.2) {
+      const sampleType = this.language === "en" ? nearest.typeEn || nearest.type : nearest.type;
+      prompt.textContent = nearest.collected ? this.language === "en" ? `Q \xB7 Scan ${sampleType}` : `Q \xB7 \u0641\u062D\u0635 ${sampleType}` : this.language === "en" ? `E \xB7 Collect ${sampleType}` : `E \xB7 \u062C\u0645\u0639 ${sampleType}`;
+      prompt.hidden = false;
+    } else {
+      prompt.hidden = true;
     }
   }
   updateMissionClock(delta) {

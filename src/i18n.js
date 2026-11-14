@@ -1143,6 +1143,8 @@
     "Apply English to the site and game": "تطبيق الإنجليزية على الموقع واللعبة",
     "Switch to English": "التبديل إلى الإنجليزية",
     "Switch to Arabic": "التبديل إلى العربية",
+    "ALIEN EXPLORER": "مستكشف فضائي",
+    "ASTRONAUT EXPLORER": "رائد فضاء مستكشف",
     "Mission preparation": "استعداد الرحلة",
     "Earth explorer": "مستكشف الأرض",
     "Explore Earth analog sites without a space suit or planetary lander.": "استكشف المواقع الأرضية النظيرة دون حاجة إلى بدلة فضائية أو مركبة هبوط كوكبية.",
